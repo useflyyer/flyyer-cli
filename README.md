@@ -4,8 +4,8 @@
 Flayyer CLI
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/flayyer-cli.svg)](https://npmjs.org/package/flayyer-cli)
-[![Downloads/week](https://img.shields.io/npm/dw/flayyer-cli.svg)](https://npmjs.org/package/flayyer-cli)
+[![Version](https://img.shields.io/npm/v/@flayyer/cli.svg)](https://npmjs.org/package/@flayyer/cli)
+[![Downloads/week](https://img.shields.io/npm/dw/@flayyer/cli.svg)](https://npmjs.org/package/@flayyer/cli)
 
 <!-- toc -->
 * [Usage](#usage)
