@@ -1,0 +1,10 @@
+!.eslintrc.js
+
+.vscode
+.next
+public
+dist
+node_modules
+worker
+
+/lib

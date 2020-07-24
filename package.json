@@ -1,0 +1,84 @@
+{
+  "name": "@flayyer/cli",
+  "description": "Flayyer CLI",
+  "version": "0.0.0",
+  "author": "Patricio López Juri @lopezjurip",
+  "repository": "flayyer/flayyer-cli",
+  "license": "MIT",
+  "private": false,
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "bin": {
+    "flayyer": "./bin/run"
+  },
+  "scripts": {
+    "postpack": "rm -f oclif.manifest.json",
+    "posttest": "eslint . --ext .ts --config .eslintrc",
+    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "test": "echo NO TESTS",
+    "lint": "eslint '*/**/*.{js,ts,tsx}'",
+    "version": "oclif-dev readme && git add README.md"
+  },
+  "bugs": "https://github.com/flayyer/flayyer-cli/issues",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    "/bin",
+    "/lib",
+    "/yarn.lock",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json"
+  ],
+  "homepage": "https://github.com/flayyer/flayyer-cli",
+  "keywords": [
+    "oclif",
+    "flayyer"
+  ],
+  "oclif": {
+    "commands": "./lib/commands",
+    "bin": "flayyer",
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
+  },
+  "dependencies": {
+    "@oclif/command": "^1.7.0",
+    "@oclif/config": "^1.16.0",
+    "@oclif/plugin-help": "^3",
+    "archiver": "^4.0.2",
+    "chokidar": "^3.4.1",
+    "dedent": "^0.7.0",
+    "del": "^5.1.0",
+    "enquirer": "^2.3.6",
+    "form-data": "^3.0.0",
+    "graphql-request": "2.1.0-next.1",
+    "limax": "^2.1.0",
+    "node-fetch": "^2.6.0",
+    "parcel-bundler": "^1.12.4",
+    "qs": "^6.9.4",
+    "tslib": "^2.0.0"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "^1",
+    "@types/archiver": "^3.1.0",
+    "@types/dedent": "^0.7.0",
+    "@types/node": "^14.0.26",
+    "@types/node-fetch": "^2.5.7",
+    "@types/parcel-bundler": "^1.12.1",
+    "@typescript-eslint/eslint-plugin": "^3.7.0",
+    "@typescript-eslint/parser": "^3.7.0",
+    "eslint": "^7.5.0",
+    "eslint-config-oclif": "^3.1",
+    "eslint-config-oclif-typescript": "^0.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-jest": "^23.18.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "globby": "^11.0.1",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.11",
+    "prettier": "^2.0.5",
+    "ts-node": "^8",
+    "typescript": "^3.9.7"
+  }
+}
