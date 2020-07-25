@@ -5,7 +5,7 @@ import { Command, flags } from "@oclif/command";
 import Bundler, { ParcelOptions } from "parcel-bundler";
 import chokidar, { WatchOptions } from "chokidar";
 
-import { prepareProject } from "./build";
+import { prepareProject, TemplateRegistry } from "./build";
 import { namespaced } from "../utils/debug";
 
 const debug = namespaced("start");
@@ -37,8 +37,6 @@ export default class Start extends Command {
     debug("processed files directory is: %s", to);
     debug("final build directory is: %s", out);
 
-    await prepareProject({ from, to });
-
     if (fs.existsSync(to)) {
       this.log(`🗑   Cleaning temporal directory...`);
       await del([to]);
@@ -48,6 +46,15 @@ export default class Start extends Command {
       this.log(`🗑   Cleaning destiny directory...`);
       await del([out]);
       debug("removed dir: %s", out);
+    }
+
+    let entries: TemplateRegistry[] = [];
+    try {
+      entries = await prepareProject({ from, to });
+      debug("processed entries: %O", entries);
+    } catch (error) {
+      debug.extend("error")(error);
+      this.error(error); // exits
     }
 
     // TODO: improve weak fs watch
