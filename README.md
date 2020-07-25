@@ -18,7 +18,7 @@ $ npm install -g @flayyer/cli
 $ flayyer COMMAND
 running command...
 $ flayyer (-v|--version|version)
-@flayyer/cli/1.1.0 darwin-x64 node-v12.16.3
+@flayyer/cli/1.2.0 darwin-x64 node-v12.16.3
 $ flayyer --help [COMMAND]
 USAGE
   $ flayyer COMMAND
@@ -30,7 +30,6 @@ USAGE
 * [`flayyer build`](#flayyer-build)
 * [`flayyer deploy`](#flayyer-deploy)
 * [`flayyer help [COMMAND]`](#flayyer-help-command)
-* [`flayyer new [NAME]`](#flayyer-new-name)
 * [`flayyer start`](#flayyer-start)
 
 ## `flayyer build`
@@ -45,7 +44,7 @@ OPTIONS
   -h, --help  show CLI help
 ```
 
-_See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.1.0/src/commands/build.ts)_
+_See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.2.0/src/commands/build.ts)_
 
 ## `flayyer deploy`
 
@@ -59,7 +58,7 @@ OPTIONS
   -h, --help  show CLI help
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.1.0/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.2.0/src/commands/deploy.ts)_
 
 ## `flayyer help [COMMAND]`
 
@@ -78,24 +77,6 @@ OPTIONS
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.1.0/src/commands/help.ts)_
 
-## `flayyer new [NAME]`
-
-create a new flayyer project
-
-```
-USAGE
-  $ flayyer new [NAME]
-
-ARGUMENTS
-  NAME  output directory for templates
-
-OPTIONS
-  -h, --help                                                              show CLI help
-  -t, --template=blank|plain-html-css|react|react-with-styled-components  starting template
-```
-
-_See code: [src/commands/new.ts](https://github.com/flayyer/flayyer-cli/blob/v1.1.0/src/commands/new.ts)_
-
 ## `flayyer start`
 
 start dev server
@@ -111,5 +92,5 @@ OPTIONS
   --https
 ```
 
-_See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.1.0/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.2.0/src/commands/start.ts)_
 <!-- commandsstop -->
