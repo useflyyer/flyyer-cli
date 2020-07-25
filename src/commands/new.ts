@@ -6,6 +6,9 @@ import limax from "limax";
 import dedent from "dedent";
 
 import { recursiveCopy } from "../utils/file";
+import { namespaced } from "../utils/debug";
+
+const debug = namespaced("new");
 
 const TEMPLATES_DIR = path.join(__dirname, "..", "..", "templates");
 const CHOICES = fs.readdirSync(TEMPLATES_DIR).filter((name) => {
@@ -46,12 +49,16 @@ export default class New extends Command {
     ]);
 
     const template = typeof response.template === "string" ? response.template : CHOICES[response.template];
-
     const name = limax(response.name);
+    debug("will use: %o", { name, template });
 
     const CURR_DIR = process.cwd();
     const templatePath = path.join(__dirname, "..", "..", "templates", template);
     const targetPath = path.join(CURR_DIR, name);
+
+    debug("current directory is: %s", CURR_DIR);
+    debug("template source directory is: %s", templatePath);
+    debug("target path is: %s", targetPath);
 
     if (fs.existsSync(targetPath)) {
       this.error(`Folder ${targetPath} exists. Delete or use another name.`);
@@ -60,6 +67,9 @@ export default class New extends Command {
 
     const SKIP_FILES = ["node_modules"];
     const replace = { name, "cli-version": this.config.version };
+    debug("replacement values: %o", replace);
+    debug("skip files: %o", SKIP_FILES);
+    debug("will copy and replace: %o", { from: templatePath, to: targetPath });
     recursiveCopy(templatePath, targetPath, SKIP_FILES, replace);
 
     this.log(dedent`
@@ -79,5 +89,8 @@ export default class New extends Command {
       Remember to setup your 'FLAYYER_KEY' environment variable.
       Forgot your key? Go to https://app.flayyer.com/
     `);
+
+    debug("exiting oclif");
+    this.exit();
   }
 }

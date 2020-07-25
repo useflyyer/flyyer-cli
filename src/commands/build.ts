@@ -2,8 +2,12 @@ import fs from "fs";
 import path from "path";
 import del from "del";
 import { Command, flags } from "@oclif/command";
-import Bundler from "parcel-bundler";
+import Bundler, { ParcelOptions } from "parcel-bundler";
 import dedent from "dedent";
+
+import { namespaced } from "../utils/debug";
+
+const debug = namespaced("build");
 
 export default class Build extends Command {
   static description = "build flayyer project for production";
@@ -20,29 +24,39 @@ export default class Build extends Command {
     const CURR_DIR = process.cwd();
     const from = path.join(CURR_DIR, "templates");
     const to = path.join(CURR_DIR, ".flayyer-processed");
+    const cache = path.join(CURR_DIR, ".flayyer-cache");
     const out = path.join(CURR_DIR, ".flayyer-dist");
     const outMeta = path.join(CURR_DIR, ".flayyer-dist", "flayyer.json");
-    const cache = path.join(CURR_DIR, ".flayyer-cache");
+
+    debug("current directory is: %s", CURR_DIR);
+    debug("template source directory is: %s", from);
+    debug("cache directory is: %s", cache);
+    debug("processed files directory is: %s", to);
+    debug("final build directory is: %s", out);
 
     if (fs.existsSync(to)) {
       this.log(`🗑   Cleaning temporal directory...`);
       await del([to]);
+      debug("removed dir: %s", to);
     }
     if (fs.existsSync(out)) {
       this.log(`🗑   Cleaning destiny directory...`);
       await del([out]);
+      debug("removed dir: %s", out);
     }
 
     let entries: TemplateRegistry[] = [];
     try {
       entries = await prepareProject({ from, to });
+      debug("processed entries: %O", entries);
     } catch (error) {
+      debug.extend("error")(error);
       this.error(error); // exits
     }
 
     this.log(`🏗   Will build with Parcel 📦 bundler`);
     const glob = path.join(to, "*.html");
-    const bundler = new Bundler(glob, {
+    const bundlerOptions: ParcelOptions = {
       outDir: out,
       publicUrl: "/",
       watch: false,
@@ -56,11 +70,16 @@ export default class Build extends Command {
       sourceMaps: false,
       detailedReport: false,
       // autoInstall: true,
-    });
+    };
+    debug("glob pattern for Parcel is: %s", glob);
+    debug("options for Parcel are: %O", bundlerOptions);
+    const bundler = new Bundler(glob, bundlerOptions);
     await bundler.bundle();
+    debug("success at building");
 
     const templates = entries.map((entry) => ({ slug: entry.name }));
     const meta = { templates };
+    debug("will create meta file at '%s' with: %O", outMeta, meta);
     fs.writeFileSync(outMeta, JSON.stringify(meta), "utf8");
 
     this.log(dedent`
@@ -68,6 +87,7 @@ export default class Build extends Command {
       📂   Output directory: ${out}
       ${templates.map((t) => `🖼    Created template: ${t.slug}`).join("\n")}
     `);
+    debug("exiting oclif");
     this.exit();
   }
 }
