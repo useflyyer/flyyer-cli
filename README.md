@@ -18,7 +18,7 @@ $ npm install -g @flayyer/cli
 $ flayyer COMMAND
 running command...
 $ flayyer (-v|--version|version)
-@flayyer/cli/1.0.2 darwin-x64 node-v12.16.3
+@flayyer/cli/1.0.3 darwin-x64 node-v12.16.3
 $ flayyer --help [COMMAND]
 USAGE
   $ flayyer COMMAND
@@ -45,7 +45,7 @@ OPTIONS
   -h, --help  show CLI help
 ```
 
-_See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.0.2/src/commands/build.ts)_
+_See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.0.3/src/commands/build.ts)_
 
 ## `flayyer deploy`
 
@@ -59,7 +59,7 @@ OPTIONS
   -h, --help  show CLI help
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.0.2/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.0.3/src/commands/deploy.ts)_
 
 ## `flayyer help [COMMAND]`
 
@@ -94,7 +94,7 @@ OPTIONS
   -t, --template=blank|plain-html-css|react|react-with-styled-components  starting template
 ```
 
-_See code: [src/commands/new.ts](https://github.com/flayyer/flayyer-cli/blob/v1.0.2/src/commands/new.ts)_
+_See code: [src/commands/new.ts](https://github.com/flayyer/flayyer-cli/blob/v1.0.3/src/commands/new.ts)_
 
 ## `flayyer start`
 
@@ -111,5 +111,5 @@ OPTIONS
   --https
 ```
 
-_See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.0.2/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.0.3/src/commands/start.ts)_
 <!-- commandsstop -->
