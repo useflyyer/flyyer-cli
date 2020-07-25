@@ -15,7 +15,6 @@
   "devDependencies": {
     "@flayyer/cli": "^{{ cli-version }}",
     "eslint": "^7.5.0",
-    "eslint-plugin-react": "^7.20.3",
-    "parcel-bundler": "^1.12.4"
+    "eslint-plugin-react": "^7.20.3"
   }
 }
