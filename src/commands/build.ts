@@ -126,7 +126,7 @@ export async function prepareProject({ from, to }: { from: string; to: string })
 
       const ext = path.extname(name);
       const nameNoExt = path.basename(name, ext);
-      if ([".js", ".jsx", ".ts", "tsx"].includes(ext)) {
+      if ([".js", ".jsx", ".ts", ".tsx"].includes(ext)) {
         const flayyerHTMLName = path.basename(writePath, ext) + ".html";
         const flayyerHTMLPath = path.join(path.dirname(writePath), flayyerHTMLName);
         const flayyerJSName = "flayyer-" + path.basename(writePath, ext) + ext;
@@ -136,7 +136,7 @@ export async function prepareProject({ from, to }: { from: string; to: string })
           import ReactDOM from "react-dom";
           import qs from "qs";
 
-          import Template from "./${name}";
+          import Template from "./${nameNoExt}";
 
           function WrappedTemplate() {
             const variables = qs.parse(window.location.search, { ignoreQueryPrefix: true });
@@ -159,7 +159,7 @@ export async function prepareProject({ from, to }: { from: string; to: string })
             <html>
               <head>
                 <meta charset="utf-8" />
-                <title>${name}</title>
+                <title>${nameNoExt}</title>
                 <style>
                   body, html {
                     padding: 0;
