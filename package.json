@@ -26,6 +26,7 @@
   "files": [
     "/bin",
     "/lib",
+    "/templates",
     "/yarn.lock",
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
