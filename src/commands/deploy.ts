@@ -134,20 +134,22 @@ export default class Deploy extends Command {
       await del([zipPath]);
     }
 
-    const host = `https://flayyer.host`;
+    const ext = "jpeg";
+    const host = `https://flayyer.host/v2`;
     this.log(dedent`
       🌠   flayyer project successfully deployed!
     `);
     this.log("");
-    this.log(`💡   To always render the latest version replace the version number with '_'`);
-    this.log(`     ${`${host}/_/${tenant.slug}/${deck.slug}/TEMPLATE`}`);
+    this.log(`💡   To always render the latest version remove the number from the end of the URL.`);
+    this.log(`     ${`${host}/${tenant.slug}/${deck.slug}/TEMPLATE`}`);
+    this.log(`     This is not always recommended because makes caching harder.`);
     this.log("");
-    this.log(`💡   To force an extension append '.png' or '.jpeg' as extensions`);
-    this.log(`     ${`${host}/_/${tenant.slug}/${deck.slug}/TEMPLATE.jpeg`}`);
+    this.log(`💡   To force a file format append '.png' or '.jpeg' as extension. Defaults to '.${ext}'`);
+    this.log(`     ${`${host}/${tenant.slug}/${deck.slug}/TEMPLATE.jpeg`}`);
     this.log(`     For vector base templates prefer '.png', if you heavily rely on images then prefer '.jpeg'`);
     this.log("");
     for (const template of deck.templates) {
-      const url = `${host}/${deck.version}/${tenant.slug}/${deck.slug}/${template.slug}`;
+      const url = `${host}/${tenant.slug}/${deck.slug}/${template.slug}.${deck.version}.${ext}`;
       this.log(`🖼    Created template with URL: ${url}`);
     }
 
