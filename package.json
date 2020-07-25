@@ -26,7 +26,6 @@
   "files": [
     "/bin",
     "/lib",
-    "/templates",
     "/yarn.lock",
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
@@ -52,10 +51,8 @@
     "debug": "^4.1.1",
     "dedent": "^0.7.0",
     "del": "^5.1.0",
-    "enquirer": "^2.3.6",
     "form-data": "^3.0.0",
     "graphql-request": "2.1.0-next.1",
-    "limax": "^2.1.0",
     "node-fetch": "^2.6.0",
     "parcel-bundler": "^1.12.4",
     "qs": "^6.9.4",
