@@ -13,6 +13,8 @@
     "react-dom": "^16.13.1"
   },
   "devDependencies": {
-    "flayyer-cli": "@flayyer/cli"
+    "@flayyer/cli": "^{{ cli-version }}",
+    "eslint": "^7.5.0",
+    "eslint-plugin-react": "^7.20.3"
   }
 }

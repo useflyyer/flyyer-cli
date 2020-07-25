@@ -47,7 +47,7 @@ export default class New extends Command {
 
     const template = typeof response.template === "string" ? response.template : CHOICES[response.template];
 
-    const name = limax(response.name, { custom: { _: "-" } });
+    const name = limax(response.name);
 
     const CURR_DIR = process.cwd();
     const templatePath = path.join(__dirname, "..", "..", "templates", template);
@@ -58,8 +58,9 @@ export default class New extends Command {
     }
     fs.mkdirSync(targetPath);
 
-    const SKIP_FILES = ["node_modules", "dist", ".parcel-cache"];
-    recursiveCopy(templatePath, targetPath, SKIP_FILES, { name });
+    const SKIP_FILES = ["node_modules"];
+    const replace = { name, "cli-version": this.config.version };
+    recursiveCopy(templatePath, targetPath, SKIP_FILES, replace);
 
     this.log(dedent`
       💫 Great!
