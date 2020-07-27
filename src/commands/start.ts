@@ -4,6 +4,7 @@ import del from "del";
 import { Command, flags } from "@oclif/command";
 import Bundler, { ParcelOptions } from "parcel-bundler";
 import chokidar, { WatchOptions } from "chokidar";
+import dedent from "dedent";
 
 import { prepareProject, TemplateRegistry } from "./build";
 import { namespaced } from "../utils/debug";
@@ -96,6 +97,21 @@ export default class Start extends Command {
     if (!server.listening) {
       this.error(`Could not start server at ${url}`);
     }
-    this.log(`🌠 flayyer dev server running at ${url}`);
+    this.log(`🌠  FLAYYER dev server running at ${url}`);
+
+    this.log("");
+    this.log(dedent`
+      💡  Pass variables as query-params in the URL.
+          Example: ${url}/hello.html?title=Hello+world
+    `);
+    this.log("");
+    this.log(dedent`
+      💡  This dev server sometimes fails or sometimes the UI does not update accordingly.
+          Please restart the server if something goes wrong.
+    `);
+    this.log("");
+    for (const entry of entries) {
+      this.log(`📄  Template '${entry.name}' accessible at: ${url}/${entry.name}.html`);
+    }
   }
 }
