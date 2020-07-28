@@ -47,7 +47,7 @@ export default class Build extends Command {
 
     let entries: TemplateRegistry[] = [];
     try {
-      entries = await prepareProject({ from, to });
+      entries = await prepareProject({ from, to, style: { width: "100vw", height: "100vh", position: "relative" } });
       debug("processed entries: %O", entries);
     } catch (error) {
       debug.extend("error")(error);
@@ -103,7 +103,7 @@ export type TemplateRegistry = {
   };
 };
 
-export async function prepareProject({ from, to }: { from: string; to: string }) {
+export async function prepareProject({ from, to, style }: { from: string; to: string; style: { [key: string]: any } }) {
   const names = fs.readdirSync(from);
 
   if (fs.existsSync(to)) {
@@ -141,11 +141,12 @@ export async function prepareProject({ from, to }: { from: string; to: string })
           function WrappedTemplate() {
             const variables = qs.parse(window.location.search, { ignoreQueryPrefix: true });
             const props = { variables };
+
             return (
-              <main id="flayyer-ready" style={{ width: 1200, height: 630, position: "relative" }}>
+              <main id="flayyer-ready" style={${JSON.stringify(style)}}>
                 <Template {...props} />
               </main>
-            )
+            );
           }
 
           const element = document.getElementById("root");

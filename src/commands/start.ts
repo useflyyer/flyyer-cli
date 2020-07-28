@@ -49,9 +49,10 @@ export default class Start extends Command {
       debug("removed dir: %s", out);
     }
 
+    const style = { width: 1200, height: 630, position: "relative" };
     let entries: TemplateRegistry[] = [];
     try {
-      entries = await prepareProject({ from, to });
+      entries = await prepareProject({ from, to, style });
       debug("processed entries: %O", entries);
     } catch (error) {
       debug.extend("error")(error);
@@ -67,7 +68,7 @@ export default class Start extends Command {
     chokidar.watch(from, chokidarOptions).on("all", async (event, path) => {
       debug("got chokidar event '%o' and will re-process project", { event, path });
       this.log("reloading...");
-      await prepareProject({ from, to });
+      await prepareProject({ from, to, style });
     });
 
     this.log(`🏗   Will build with Parcel 📦 bundler`);
