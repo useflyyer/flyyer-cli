@@ -25,6 +25,7 @@ const mutation = dedent`
       deck {
         slug
         version
+        engine
         tenant {
           slug
         }
@@ -71,6 +72,10 @@ export default class Deploy extends Command {
         Remember to setup your 'FLAYYER_KEY' environment variable.
         Forgot your key? Go to https://app.flayyer.com/
       `);
+    }
+
+    if (!config.engine) {
+      this.warn("Missing setting 'engine' in 'flayyer.config.js'");
     }
 
     await new Promise((resolve, reject) => {
@@ -124,6 +129,7 @@ export default class Deploy extends Command {
     const input = {
       slug: config.deck,
       templates: meta.templates,
+      engine: config.engine,
     };
 
     debug("will execute with arguments '%o' query: %s", input, mutation);
