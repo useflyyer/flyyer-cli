@@ -58,11 +58,11 @@ export default class Build extends Command {
     const glob = path.join(to, "*.html");
     const bundlerOptions: ParcelOptions = {
       outDir: out,
-      publicUrl: "/",
+      publicUrl: "./",
       watch: false,
       cache: true,
       cacheDir: cache,
-      contentHash: false,
+      contentHash: true,
       minify: true,
       target: "browser",
       // logLevel: 0 as any,

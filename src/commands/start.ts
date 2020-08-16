@@ -79,7 +79,7 @@ export default class Start extends Command {
       watch: true,
       cache: true,
       cacheDir: cache,
-      contentHash: false,
+      contentHash: true,
       minify: false,
       target: "browser",
       // logLevel: 0 as any,
