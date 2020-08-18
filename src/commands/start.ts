@@ -75,17 +75,17 @@ export default class Start extends Command {
     const glob = path.join(to, "*.html");
     const bundlerOptions: ParcelOptions = {
       outDir: out,
-      publicUrl: "/",
+      // publicUrl: "/",
       watch: true,
-      cache: true,
-      cacheDir: cache,
-      contentHash: true,
-      minify: false,
-      target: "browser",
+      // cache: true,
+      // cacheDir: cache,
+      // contentHash: true,
+      // minify: false,
+      // target: "browser",
       // logLevel: 0 as any,
-      hmr: true,
-      sourceMaps: true,
-      detailedReport: false,
+      // hmr: true,
+      // sourceMaps: true,
+      // detailedReport: false,
       // autoInstall: true,
     };
     debug("glob pattern for Parcel is: %s", glob);

@@ -106,9 +106,6 @@ export type TemplateRegistry = {
 export async function prepareProject({ from, to, style }: { from: string; to: string; style: { [key: string]: any } }) {
   const names = fs.readdirSync(from);
 
-  if (fs.existsSync(to)) {
-    await del([to]);
-  }
   fs.mkdirSync(to, { recursive: true });
 
   const entries: TemplateRegistry[] = [];
