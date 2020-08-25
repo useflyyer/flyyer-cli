@@ -75,7 +75,8 @@ export default class Deploy extends Command {
     }
 
     if (!config.engine) {
-      this.warn("Missing setting 'engine' in 'flayyer.config.js'");
+      this.warn("Missing setting 'engine' in 'flayyer.config.js', will default to 'react'");
+      config.engine = "react";
     }
 
     await new Promise((resolve, reject) => {

@@ -31,12 +31,21 @@ export default class Start extends Command {
     const to = path.join(CURR_DIR, ".flayyer-processed");
     const out = path.join(CURR_DIR, ".flayyer-dev");
     const cache = path.join(CURR_DIR, ".flayyer-cache");
+    const configPath = path.join(CURR_DIR, "flayyer.config.js");
 
+    debug("config path is: %s", configPath);
     debug("current directory is: %s", CURR_DIR);
     debug("template source directory is: %s", from);
     debug("cache directory is: %s", cache);
     debug("processed files directory is: %s", to);
     debug("final build directory is: %s", out);
+
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const config = require(configPath);
+    if (!config.engine) {
+      this.warn("Missing setting 'engine' in 'flayyer.config.js', will default to 'react'");
+      config.engine = "react";
+    }
 
     if (fs.existsSync(to)) {
       this.log(`🗑   Cleaning temporal directory...`);
@@ -49,10 +58,10 @@ export default class Start extends Command {
       debug("removed dir: %s", out);
     }
 
-    const style = { width: 1200, height: 630, position: "relative" };
+    const style = { width: "1200px", height: "630px", position: "relative" };
     let entries: TemplateRegistry[] = [];
     try {
-      entries = await prepareProject({ from, to, style });
+      entries = await prepareProject({ engine: config.engine, from, to, style });
       debug("processed entries: %O", entries);
     } catch (error) {
       debug.extend("error")(error);
@@ -68,7 +77,7 @@ export default class Start extends Command {
     chokidar.watch(from, chokidarOptions).on("all", async (event, path) => {
       debug("got chokidar event '%o' and will re-process project", { event, path });
       this.log("reloading...");
-      await prepareProject({ from, to, style });
+      await prepareProject({ engine: config.engine, from, to, style });
     });
 
     this.log(`🏗   Will build with Parcel 📦 bundler`);

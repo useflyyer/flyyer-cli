@@ -27,12 +27,21 @@ export default class Build extends Command {
     const cache = path.join(CURR_DIR, ".flayyer-cache");
     const out = path.join(CURR_DIR, ".flayyer-dist");
     const outMeta = path.join(CURR_DIR, ".flayyer-dist", "flayyer.json");
+    const configPath = path.join(CURR_DIR, "flayyer.config.js");
 
+    debug("config path is: %s", configPath);
     debug("current directory is: %s", CURR_DIR);
     debug("template source directory is: %s", from);
     debug("cache directory is: %s", cache);
     debug("processed files directory is: %s", to);
     debug("final build directory is: %s", out);
+
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const config = require(configPath);
+    if (!config.engine) {
+      this.warn("Missing setting 'engine' in 'flayyer.config.js', will default to 'react'");
+      config.engine = "react";
+    }
 
     if (fs.existsSync(to)) {
       this.log(`🗑   Cleaning temporal directory...`);
@@ -45,9 +54,10 @@ export default class Build extends Command {
       debug("removed dir: %s", out);
     }
 
+    const style = { width: "100vw", height: "100vh", position: "relative" };
     let entries: TemplateRegistry[] = [];
     try {
-      entries = await prepareProject({ from, to, style: { width: "100vw", height: "100vh", position: "relative" } });
+      entries = await prepareProject({ engine: config.engine, from, to, style });
       debug("processed entries: %O", entries);
     } catch (error) {
       debug.extend("error")(error);
@@ -103,7 +113,16 @@ export type TemplateRegistry = {
   };
 };
 
-export async function prepareProject({ from, to, style }: { from: string; to: string; style: { [key: string]: any } }) {
+export type PrepareProjectArguments = {
+  engine: string; // TODO: convert to enum
+  from: string;
+  to: string;
+  style: {
+    [key: string]: any;
+  };
+};
+
+export async function prepareProject({ engine, from, to, style }: PrepareProjectArguments) {
   const names = fs.readdirSync(from);
 
   fs.mkdirSync(to, { recursive: true });
@@ -123,41 +142,42 @@ export async function prepareProject({ from, to, style }: { from: string; to: st
 
       const ext = path.extname(name);
       const nameNoExt = path.basename(name, ext);
-      if ([".js", ".jsx", ".ts", ".tsx"].includes(ext)) {
-        const flayyerHTMLName = path.basename(writePath, ext) + ".html";
-        const flayyerHTMLPath = path.join(path.dirname(writePath), flayyerHTMLName);
-        const flayyerJSName = "flayyer-" + path.basename(writePath, ext) + ext;
-        const flayyerJSPath = path.join(path.dirname(writePath), flayyerJSName);
-        const flayyerJS = dedent`
-          import React from "react"
-          import ReactDOM from "react-dom";
-          import qs from "qs";
+      if (["react", "react-typescript"].includes(engine)) {
+        if ([".js", ".jsx", ".ts", ".tsx"].includes(ext)) {
+          const flayyerHTMLName = path.basename(writePath, ext) + ".html";
+          const flayyerHTMLPath = path.join(path.dirname(writePath), flayyerHTMLName);
+          const flayyerJSName = "flayyer-" + path.basename(writePath, ext) + ext;
+          const flayyerJSPath = path.join(path.dirname(writePath), flayyerJSName);
+          const flayyerJS = dedent`
+            import React from "react"
+            import ReactDOM from "react-dom";
+            import qs from "qs";
 
-          import Template from "./${nameNoExt}";
+            import Template from "./${nameNoExt}";
 
-          function WrappedTemplate() {
-            const variables = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-            const props = { variables };
+            function WrappedTemplate() {
+              const variables = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+              const props = { variables };
 
-            return (
-              <main id="flayyer-ready" style={${JSON.stringify(style)}}>
-                <Template {...props} />
-              </main>
-            );
-          }
+              return (
+                <main id="flayyer-ready" style={${JSON.stringify(style)}}>
+                  <Template {...props} />
+                </main>
+              );
+            }
 
-          const element = document.getElementById("root");
-          ReactDOM.render(<WrappedTemplate />, element);
-        `;
-        fs.writeFileSync(flayyerJSPath, flayyerJS, "utf8");
+            const element = document.getElementById("root");
+            ReactDOM.render(<WrappedTemplate />, element);
+          `;
+          fs.writeFileSync(flayyerJSPath, flayyerJS, "utf8");
 
-        const flayyerHTML = dedent`
+          const flayyerHTML = dedent`
             <!DOCTYPE html>
 
             <html>
               <head>
                 <meta charset="utf-8" />
-                <title>${nameNoExt}</title>
+                <title>${name}</title>
                 <style>
                   body, html {
                     padding: 0;
@@ -172,13 +192,66 @@ export async function prepareProject({ from, to, style }: { from: string; to: st
               </body>
             </html>
           `;
-        fs.writeFileSync(flayyerHTMLPath, flayyerHTML, "utf8");
-        entries.push({
-          name: nameNoExt,
-          path: namePath,
-          html: { path: flayyerHTMLPath },
-          js: { path: flayyerJSPath },
-        });
+          fs.writeFileSync(flayyerHTMLPath, flayyerHTML, "utf8");
+          entries.push({
+            name: nameNoExt,
+            path: namePath,
+            html: { path: flayyerHTMLPath },
+            js: { path: flayyerJSPath },
+          });
+        }
+      } else if (["vue", "vue-typescript"].includes(engine)) {
+        if ([".vue"].includes(ext)) {
+          const flayyerHTMLName = path.basename(writePath, ext) + ".html";
+          const flayyerHTMLPath = path.join(path.dirname(writePath), flayyerHTMLName);
+          const flayyerJSName = "flayyer-" + path.basename(writePath, ext) + ".js";
+          const flayyerJSPath = path.join(path.dirname(writePath), flayyerJSName);
+          const flayyerJS = dedent`
+            import Vue from "vue";
+            import qs from "qs";
+
+            import Template from "./${name}";
+
+            new Vue({
+              render: createElement => {
+                const variables = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+                const style = ${JSON.stringify(style)};
+                const props = { variables };
+                return createElement(Template, { props, style });
+              },
+            }).$mount("#root");
+          `;
+          fs.writeFileSync(flayyerJSPath, flayyerJS, "utf8");
+
+          const flayyerHTML = dedent`
+            <!DOCTYPE html>
+
+            <html>
+              <head>
+                <meta charset="utf-8" />
+                <title>${name}</title>
+                <style>
+                  body, html {
+                    padding: 0;
+                    margin: 0;
+                  }
+                </style>
+              </head>
+              <body>
+                <div id="root"></div>
+
+                <script src="./${flayyerJSName}"></script>
+              </body>
+            </html>
+          `;
+          fs.writeFileSync(flayyerHTMLPath, flayyerHTML, "utf8");
+          entries.push({
+            name: nameNoExt,
+            path: namePath,
+            html: { path: flayyerHTMLPath },
+            js: { path: flayyerJSPath },
+          });
+        }
       }
     }
   }
