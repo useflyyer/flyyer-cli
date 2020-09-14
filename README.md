@@ -1,7 +1,9 @@
 @flayyer/cli
 ===========
 
-Flayyer CLI
+**Flayyer CLI**
+
+📚 Please read the documentation here: [https://app.flayyer.com/en/docs/cli](https://app.flayyer.com/en/docs/cli)
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/@flayyer/cli.svg)](https://npmjs.org/package/@flayyer/cli)
@@ -34,7 +36,7 @@ USAGE
 
 ## `flayyer build`
 
-build flayyer project for production
+Build Flayyer project for production.
 
 ```
 USAGE
@@ -42,13 +44,20 @@ USAGE
 
 OPTIONS
   -h, --help  show CLI help
+
+DESCRIPTION
+  See online documentation here: https://app.flayyer.com/en/docs/cli/build
+
+EXAMPLES
+  $ build
+  $ build --help
 ```
 
 _See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.5.0/src/commands/build.ts)_
 
 ## `flayyer deploy`
 
-deploy your flayyer templates (remember to execute 'build' before running this command)
+Deploy your Flayyer templates (remember to execute 'build' before running this command)
 
 ```
 USAGE
@@ -56,6 +65,13 @@ USAGE
 
 OPTIONS
   -h, --help  show CLI help
+
+DESCRIPTION
+  See online documentation here: https://app.flayyer.com/en/docs/cli/deploy
+
+EXAMPLES
+  $ deploy
+  $ deploy --help
 ```
 
 _See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.5.0/src/commands/deploy.ts)_
@@ -79,7 +95,7 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.0
 
 ## `flayyer start`
 
-start dev server
+This command starts a development server using Parcel.js by default at http://localhost:7777
 
 ```
 USAGE
@@ -90,6 +106,15 @@ OPTIONS
   -p, --port=port  [default: 7777]
   --host=host      [default: localhost]
   --https
+
+DESCRIPTION
+  See online documentation here: https://app.flayyer.com/en/docs/cli/start
+
+EXAMPLES
+  $ start
+  $ start -p 8000
+  $ start -p 8000 -h 0.0.0.0
+  $ start --help
 ```
 
 _See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.5.0/src/commands/start.ts)_

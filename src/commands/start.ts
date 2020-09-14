@@ -12,7 +12,17 @@ import { namespaced } from "../utils/debug";
 const debug = namespaced("start");
 
 export default class Start extends Command {
-  static description = "start dev server";
+  static description = dedent`
+    This command starts a development server using Parcel.js by default at http://localhost:7777
+    See online documentation here: https://app.flayyer.com/en/docs/cli/start
+  `;
+
+  static examples = [
+    '$ start',
+    '$ start -p 8000',
+    '$ start -p 8000 -h 0.0.0.0',
+    '$ start --help',
+  ]
 
   static flags = {
     help: flags.help({ char: "h" }),

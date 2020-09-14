@@ -10,7 +10,15 @@ import { namespaced } from "../utils/debug";
 const debug = namespaced("build");
 
 export default class Build extends Command {
-  static description = "build flayyer project for production";
+  static description = dedent`
+    Build Flayyer project for production.
+    See online documentation here: https://app.flayyer.com/en/docs/cli/build
+  `;
+
+  static examples = [
+    '$ build',
+    '$ build --help',
+  ]
 
   static flags = {
     help: flags.help({ char: "h" }),

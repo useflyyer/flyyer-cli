@@ -38,7 +38,15 @@ const mutation = dedent`
 `;
 
 export default class Deploy extends Command {
-  static description = "deploy your flayyer templates (remember to execute 'build' before running this command)";
+  static description = dedent`
+    Deploy your Flayyer templates (remember to execute 'build' before running this command)
+    See online documentation here: https://app.flayyer.com/en/docs/cli/deploy
+  `;
+
+  static examples = [
+    '$ deploy',
+    '$ deploy --help',
+  ]
 
   static flags = {
     help: flags.help({ char: "h" }),
