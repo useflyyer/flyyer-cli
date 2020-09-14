@@ -18,7 +18,7 @@ $ npm install -g @flayyer/cli
 $ flayyer COMMAND
 running command...
 $ flayyer (-v|--version|version)
-@flayyer/cli/1.5.0 darwin-x64 node-v12.16.3
+@flayyer/cli/1.5.0 darwin-x64 node-v12.18.2
 $ flayyer --help [COMMAND]
 USAGE
   $ flayyer COMMAND
