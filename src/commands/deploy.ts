@@ -1,5 +1,7 @@
 /* eslint-disable no-warning-comments */
 
+import "cross-fetch/polyfill";
+
 import fs from "fs";
 import path from "path";
 import del from "del";
@@ -7,7 +9,6 @@ import archiver from "archiver";
 import { Command, flags } from "@oclif/command";
 import { GraphQLClient } from "graphql-request";
 import FormData from "form-data";
-import fetch from "node-fetch";
 import dedent from "dedent";
 
 import { namespaced } from "../utils/debug";
@@ -172,7 +173,7 @@ export default class Deploy extends Command {
     this.log("📦   Uploading bundle...");
     const response = await fetch(uploadUrl, {
       method: "POST",
-      body: formData,
+      body: formData as any,
       headers,
     });
 

@@ -21,7 +21,7 @@
   },
   "bugs": "https://github.com/flayyer/flayyer-cli/issues",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=10.0.0"
   },
   "files": [
     "/bin",
@@ -48,38 +48,38 @@
     "@oclif/plugin-help": "^3.2.0",
     "archiver": "^5.0.2",
     "chokidar": "^3.4.2",
-    "debug": "^4.1.1",
+    "cross-fetch": "^3.0.6",
+    "debug": "^4.2.0",
     "dedent": "^0.7.0",
-    "del": "^5.1.0",
+    "del": "^6.0.0",
     "form-data": "^3.0.0",
     "graphql": "^15.3.0",
     "graphql-request": "3.1.0",
-    "node-fetch": "^2.6.0",
     "parcel-bundler": "^1.12.4",
     "qs": "^6.9.4",
-    "tslib": "^2.0.1"
+    "tslib": "^2.0.2"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
-    "@types/archiver": "^3.1.0",
+    "@types/archiver": "^3.1.1",
     "@types/debug": "^4.1.5",
     "@types/dedent": "^0.7.0",
-    "@types/node": "^14.10.1",
+    "@types/node": "^14.11.5",
     "@types/node-fetch": "^2.5.7",
     "@types/parcel-bundler": "^1.12.1",
-    "@typescript-eslint/eslint-plugin": "^4.1.0",
-    "@typescript-eslint/parser": "^4.1.0",
-    "eslint": "^7.9.0",
+    "@typescript-eslint/eslint-plugin": "^4.4.0",
+    "@typescript-eslint/parser": "^4.4.0",
+    "eslint": "^7.10.0",
     "eslint-config-oclif": "^3.1",
     "eslint-config-oclif-typescript": "^0.2.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-jest": "^24.0.1",
+    "eslint-config-prettier": "^6.12.0",
+    "eslint-plugin-jest": "^24.1.0",
     "eslint-plugin-prettier": "^3.1.4",
     "globby": "^11.0.1",
     "husky": "^4.3.0",
-    "lint-staged": "^10.3.0",
-    "prettier": "^2.1.1",
+    "lint-staged": "^10.4.0",
+    "prettier": "^2.1.2",
     "ts-node": "^9.0.0",
-    "typescript": "^4.0.2"
+    "typescript": "^4.0.3"
   }
 }
