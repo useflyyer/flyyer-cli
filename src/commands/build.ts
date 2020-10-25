@@ -9,6 +9,17 @@ import { namespaced } from "../utils/debug";
 
 const debug = namespaced("build");
 
+export type TemplateRegistry = {
+  name: string;
+  path: string;
+  html: {
+    path: string;
+  };
+  js: {
+    path: string;
+  };
+};
+
 export default class Build extends Command {
   static description = dedent`
     Build Flayyer project for production.
@@ -16,9 +27,10 @@ export default class Build extends Command {
   `;
 
   static examples = [
-    '$ build',
-    '$ build --help',
-  ]
+    // Add examples here:
+    "$ build",
+    "$ build --help",
+  ];
 
   static flags = {
     help: flags.help({ char: "h" }),
@@ -109,17 +121,6 @@ export default class Build extends Command {
     this.exit();
   }
 }
-
-export type TemplateRegistry = {
-  name: string;
-  path: string;
-  html: {
-    path: string;
-  };
-  js: {
-    path: string;
-  };
-};
 
 export type PrepareProjectArguments = {
   engine: string; // TODO: convert to enum

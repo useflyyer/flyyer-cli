@@ -45,9 +45,10 @@ export default class Deploy extends Command {
   `;
 
   static examples = [
-    '$ deploy',
-    '$ deploy --help',
-  ]
+    // Add examples here:
+    "$ deploy",
+    "$ deploy --help",
+  ];
 
   static flags = {
     help: flags.help({ char: "h" }),

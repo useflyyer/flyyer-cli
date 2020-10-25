@@ -18,11 +18,12 @@ export default class Start extends Command {
   `;
 
   static examples = [
-    '$ start',
-    '$ start -p 8000',
-    '$ start -p 8000 -h 0.0.0.0',
-    '$ start --help',
-  ]
+    // Add examples here:
+    "$ start",
+    "$ start -p 8000",
+    "$ start -p 8000 -h 0.0.0.0",
+    "$ start --help",
+  ];
 
   static flags = {
     help: flags.help({ char: "h" }),
