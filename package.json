@@ -13,7 +13,7 @@
   },
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
-    "posttest": "eslint . --ext .ts --config .eslintrc",
+    "posttest": "eslint . --ext .ts --config .eslintrc.js",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "echo NO TESTS",
     "lint": "eslint '*/**/*.{js,ts,tsx}'",
