@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 import del from "del";
+import qs from "qs";
+import chalk from "chalk";
 import { Command, flags } from "@oclif/command";
 import Bundler, { ParcelOptions } from "parcel-bundler";
 import chokidar, { WatchOptions } from "chokidar";
@@ -21,14 +23,14 @@ export default class Start extends Command {
     // Add examples here:
     "$ start",
     "$ start -p 8000",
-    "$ start -p 8000 -h 0.0.0.0",
+    "$ start -p 8000 -H 0.0.0.0",
     "$ start --help",
   ];
 
   static flags = {
     help: flags.help({ char: "h" }),
     port: flags.integer({ char: "p", default: 7777 }),
-    host: flags.string({ default: "localhost" }),
+    host: flags.string({ char: "H", default: "localhost" }),
     https: flags.boolean({ default: false }),
   };
 
@@ -69,7 +71,7 @@ export default class Start extends Command {
       debug("removed dir: %s", out);
     }
 
-    const style = { width: "1200px", height: "630px", position: "relative" };
+    const style = { width: "100vw", height: "100vh", position: "relative" };
     let entries: TemplateRegistry[] = [];
     try {
       entries = await prepareProject({ engine: config.engine, from, to, style });
@@ -112,12 +114,26 @@ export default class Start extends Command {
     debug("options for Parcel are: %O", bundlerOptions);
     const bundler = new Bundler(glob, bundlerOptions);
 
+    const STUDIO_URL = "https://flayyer.github.io/flayyer-studio";
+    function studio({ template }: { template: string }) {
+      const query: any = {};
+      if (flags.host !== "localhost") {
+        query.host = flags.host;
+      }
+      if (String(flags.port) !== "7777") {
+        query.port = flags.port;
+      }
+      query.template = template;
+      return STUDIO_URL + qs.stringify(query, { addQueryPrefix: true });
+    }
+
     const url = `${flags.https ? "https" : "http"}://${flags.host}:${flags.port}`;
     debug("will start Parcel server as: %s", url);
     const server = await bundler.serve(flags.port, flags.https, flags.host);
     if (!server.listening) {
       this.error(`Could not start server at ${url}`);
     }
+    this.log("");
     this.log(`🌠  FLAYYER dev server running at ${url}`);
 
     this.log("");
@@ -132,7 +148,13 @@ export default class Start extends Command {
     `);
     this.log("");
     for (const entry of entries) {
-      this.log(`📄  Template '${entry.name}' accessible at: ${url}/${entry.name}.html`);
+      const preview = studio({ template: entry.name });
+      this.log(`📄  Found template '${chalk.bold(entry.name)}' at: ${url}/${entry.name}.html`);
+      this.log(`    Go to: ${chalk.bold(preview)}`);
     }
+    this.log("");
+
+    this.log(`💻  Remember to preview and develop your templates at:`);
+    this.log(`    ${chalk.bold(STUDIO_URL)}`);
   }
 }

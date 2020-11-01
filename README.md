@@ -113,7 +113,7 @@ DESCRIPTION
 EXAMPLES
   $ start
   $ start -p 8000
-  $ start -p 8000 -h 0.0.0.0
+  $ start -p 8000 -H 0.0.0.0
   $ start --help
 ```
 
