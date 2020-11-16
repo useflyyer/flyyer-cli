@@ -5,6 +5,7 @@ import "cross-fetch/polyfill";
 import fs from "fs";
 import path from "path";
 import del from "del";
+import chalk from "chalk";
 import archiver from "archiver";
 import { Command, flags } from "@oclif/command";
 import { GraphQLClient } from "graphql-request";
@@ -12,31 +13,10 @@ import FormData from "form-data";
 import dedent from "dedent";
 
 import { namespaced } from "../utils/debug";
+import * as mutations from "../flayyer-graphql/mutations";
+import * as types from "../flayyer-graphql/types";
 
 const debug = namespaced("deploy");
-
-const mutation = dedent`
-  mutation($input: APICreateDeckInput!) {
-    create: API_createDeck(input: $input) {
-      uploadUrl
-      uploadFields {
-        key
-        value
-      }
-      deck {
-        slug
-        version
-        engine
-        tenant {
-          slug
-        }
-        templates {
-          slug
-        }
-      }
-    }
-  }
-`;
 
 export default class Deploy extends Command {
   static description = dedent`
@@ -79,7 +59,7 @@ export default class Deploy extends Command {
       this.error(`
         Missing 'key' property in file 'flayyer.config.js'.
 
-        Remember to setup your 'FLAYYER_KEY' environment variable.
+        ${chalk.bold("Remember to setup your 'FLAYYER_KEY' environment variable.")}
         Forgot your key? Go to https://app.flayyer.com/
       `);
     }
@@ -143,11 +123,11 @@ export default class Deploy extends Command {
       engine: config.engine,
     };
 
-    debug("will execute with arguments '%o' query: %s", input, mutation);
-    const res = await client.request(mutation, { input }); // TODO: add typings
-    const { uploadUrl, uploadFields, deck } = res.create;
+    debug("will execute with arguments '%o' query: %s", input, mutations.createDeck);
+    const res = await client.request<types.createDeck, types.createDeckVariables>(mutations.createDeck, { input }); // TODO: add typings
+    const { uploadUrl, uploadFields, deck } = res.createDeck;
     const tenant = deck.tenant;
-    this.log(`🔑   Identified as ${tenant.slug}`);
+    this.log(`🔑   Identified as ${chalk.bold(tenant.slug)}`);
 
     debug("will create FormData object");
     const formData = new FormData();
@@ -183,6 +163,21 @@ export default class Deploy extends Command {
       this.error("Error while uploading bundle:" + (await response.text()));
     }
 
+    // Invalidate Edge Cache
+    for (const { node: template } of deck.templates.edges) {
+      const invalidationURL = `https://flayyer.io/v2/${tenant.slug}/${deck.slug}/${template.slug}`;
+      // eslint-disable-next-line no-await-in-loop
+      const responseCacheDelete = await fetch(invalidationURL, {
+        method: "delete",
+        body: null,
+      });
+      if (responseCacheDelete.ok) {
+        debug("invalidated cache: %s", invalidationURL);
+      } else {
+        debug.extend("error")("could not invalidate cache for: %s", invalidationURL);
+      }
+    }
+
     if (fs.existsSync(zipPath)) {
       debug("will delete zipped file: %s", zipPath);
       await del([zipPath]);
@@ -191,7 +186,7 @@ export default class Deploy extends Command {
     const ext = "jpeg";
     const host = `https://flayyer.host/v2`;
     this.log(dedent`
-      🌠   flayyer project successfully deployed!
+      🌠   ${chalk.bold("flayyer project successfully deployed!")}
     `);
     this.log("");
     this.log(`💡   To always render the latest version remove the number from the end of the URL.`);
@@ -200,12 +195,16 @@ export default class Deploy extends Command {
     this.log("");
     this.log(`💡   To force a file format append '.png' or '.jpeg' as extension. Defaults to '.${ext}'`);
     this.log(`     ${`${host}/${tenant.slug}/${deck.slug}/TEMPLATE.jpeg`}`);
-    this.log(`     For vector base templates prefer '.png', if you heavily rely on images then prefer '.jpeg'`);
+    this.log(`     For vector base templates prefer '.png', if you heavily rely on pictures then prefer '.jpeg'`);
     this.log("");
-    for (const template of deck.templates) {
-      const url = `${host}/${tenant.slug}/${deck.slug}/${template.slug}.${deck.version}.${ext}`;
-      this.log(`🖼    Created template with URL: ${url}`);
+    for (const { node: template } of deck.templates.edges) {
+      const latest = `${host}/${tenant.slug}/${deck.slug}/${template.slug}.${ext}`;
+      const versioned = `${host}/${tenant.slug}/${deck.slug}/${template.slug}.${deck.version}.${ext}`;
+      this.log(`🖼    Created template ${template.slug} with URL:`);
+      this.log(`       - ${chalk.bold(latest)}`);
+      this.log(`       - ${versioned}`);
     }
+    this.log("");
 
     debug("exiting oclif");
     this.exit();

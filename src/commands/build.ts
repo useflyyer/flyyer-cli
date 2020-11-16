@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import del from "del";
+import chalk from "chalk";
 import { Command, flags } from "@oclif/command";
 import Bundler, { ParcelOptions } from "parcel-bundler";
 import dedent from "dedent";
@@ -113,9 +114,9 @@ export default class Build extends Command {
     fs.writeFileSync(outMeta, JSON.stringify(meta), "utf8");
 
     this.log(dedent`
-      🌠   flayyer project successfully built!
+      🌠   ${chalk.bold("flayyer project successfully built!")}
       📂   Output directory: ${out}
-      ${templates.map((t) => `🖼    Created template: ${t.slug}`).join("\n")}
+      ${templates.map((t) => `🖼    Created template: ${chalk.bold(t.slug)}`).join("\n")}
     `);
     debug("exiting oclif");
     this.exit();
