@@ -183,6 +183,17 @@ export default class Deploy extends Command {
       this.error("Error while uploading bundle:" + (await response.text()));
     }
 
+    // delete cache
+    const deleteURL = `https://flayyer.io/v2/${tenant.slug}/${deck.slug}/${deck.templates.slug}`;
+    const responseCacheDelete = await fetch(deleteURL, {
+      method: "DELETE",
+      body: null,
+      headers,
+    });
+    if (!responseCacheDelete.ok) {
+      debug("error on delete cache");
+    }
+
     if (fs.existsSync(zipPath)) {
       debug("will delete zipped file: %s", zipPath);
       await del([zipPath]);
