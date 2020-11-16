@@ -188,7 +188,6 @@ export default class Deploy extends Command {
     const responseCacheDelete = await fetch(deleteURL, {
       method: "DELETE",
       body: null,
-      headers,
     });
     if (!responseCacheDelete.ok) {
       debug("error on delete cache");
