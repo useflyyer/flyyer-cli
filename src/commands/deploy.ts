@@ -184,7 +184,7 @@ export default class Deploy extends Command {
     }
 
     const ext = "jpeg";
-    const host = `https://flayyer.host/v2`;
+    const host = `https://flayyer.io/v2`;
     this.log(dedent`
       🌠   ${chalk.bold("flayyer project successfully deployed!")}
     `);
