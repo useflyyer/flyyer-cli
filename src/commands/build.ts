@@ -146,6 +146,7 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
         Directories inside '/templates' are not supported. Please move directory '${name}' outside of '/templates' to a new sibling directory like '/components' or '/utils'.
       `);
     } else if (stats.isFile()) {
+      // Write template body to new file
       const contents = fs.readFileSync(namePath, "utf8");
       const writePath = path.join(to, name);
       fs.writeFileSync(writePath, contents, "utf8");
@@ -166,8 +167,14 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
             import Template from "./${nameNoExt}";
 
             function WrappedTemplate() {
-              const variables = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-              const props = { variables };
+              const {
+                _id: id,
+                _tags: tags,
+                _ua: ua,
+                ...variables,
+              } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+              const agent = { name: ua };
+              const props = { id, tags, variables, agent };
 
               return (
                 <main id="flayyer-ready" style={${JSON.stringify(style)}}>
@@ -224,9 +231,15 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
 
             new Vue({
               render: createElement => {
-                const variables = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+                const {
+                  _id: id,
+                  _tags: tags,
+                  _ua: ua,
+                  ...variables,
+                } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+                const agent = { name: ua };
+                const props = { id, tags, variables, agent };
                 const style = ${JSON.stringify(style)};
-                const props = { variables };
                 return createElement(Template, { props, style });
               },
             }).$mount("#root");
