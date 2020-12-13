@@ -171,7 +171,7 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
                 _id: id,
                 _tags: tags,
                 _ua: ua,
-                ...variables,
+                ...variables
               } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
               const agent = { name: ua };
               const props = { id, tags, variables, agent };
@@ -235,7 +235,7 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
                   _id: id,
                   _tags: tags,
                   _ua: ua,
-                  ...variables,
+                  ...variables
                 } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
                 const agent = { name: ua };
                 const props = { id, tags, variables, agent };
