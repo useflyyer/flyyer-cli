@@ -20,7 +20,7 @@ $ npm install -g @flayyer/cli
 $ flayyer COMMAND
 running command...
 $ flayyer (-v|--version|version)
-@flayyer/cli/1.9.0 darwin-x64 node-v12.18.2
+@flayyer/cli/1.9.1 darwin-x64 node-v12.18.2
 $ flayyer --help [COMMAND]
 USAGE
   $ flayyer COMMAND
@@ -53,7 +53,7 @@ EXAMPLES
   $ build --help
 ```
 
-_See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.9.0/src/commands/build.ts)_
+_See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.9.1/src/commands/build.ts)_
 
 ## `flayyer deploy`
 
@@ -74,7 +74,7 @@ EXAMPLES
   $ deploy --help
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.9.0/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.9.1/src/commands/deploy.ts)_
 
 ## `flayyer help [COMMAND]`
 
@@ -117,5 +117,5 @@ EXAMPLES
   $ start --help
 ```
 
-_See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.9.0/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.9.1/src/commands/start.ts)_
 <!-- commandsstop -->
