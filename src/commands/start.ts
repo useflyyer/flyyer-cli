@@ -1,15 +1,17 @@
 import fs from "fs";
 import path from "path";
-import del from "del";
-import qs from "qs";
-import chalk from "chalk";
+
 import { Command, flags } from "@oclif/command";
-import Bundler, { ParcelOptions } from "parcel-bundler";
+import chalk from "chalk";
 import chokidar, { WatchOptions } from "chokidar";
 import dedent from "dedent";
+import del from "del";
+import Bundler, { ParcelOptions } from "parcel-bundler";
+import qs from "qs";
 
-import { prepareProject, TemplateRegistry } from "./build";
+import { prepareProject } from "../prepare";
 import { namespaced } from "../utils/debug";
+import { TemplateRegistry } from "./build";
 
 const debug = namespaced("start");
 

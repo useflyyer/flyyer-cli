@@ -4,17 +4,18 @@ import "cross-fetch/polyfill";
 
 import fs from "fs";
 import path from "path";
-import del from "del";
-import chalk from "chalk";
-import archiver from "archiver";
-import { Command, flags } from "@oclif/command";
-import { GraphQLClient } from "graphql-request";
-import FormData from "form-data";
-import dedent from "dedent";
 
-import { namespaced } from "../utils/debug";
+import { Command, flags } from "@oclif/command";
+import archiver from "archiver";
+import chalk from "chalk";
+import dedent from "dedent";
+import del from "del";
+import FormData from "form-data";
+import { GraphQLClient } from "graphql-request";
+
 import * as mutations from "../flayyer-graphql/mutations";
 import * as types from "../flayyer-graphql/types";
+import { namespaced } from "../utils/debug";
 
 const debug = namespaced("deploy");
 
