@@ -42,6 +42,9 @@ export default class Build extends Command {
   async run() {
     this.parse(Build);
 
+    debug("NODE_ENV is %s", String(process.env.NODE_ENV));
+    this.log(`🛠   NODE_ENV is set to: ${process.env.NODE_ENV}`);
+
     const CURR_DIR = process.cwd();
     const from = path.join(CURR_DIR, "templates");
     const to = path.join(CURR_DIR, ".flayyer-processed");
