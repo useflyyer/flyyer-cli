@@ -22,13 +22,13 @@ const debug = namespaced("deploy");
 export default class Deploy extends Command {
   static description = dedent`
     Deploy your Flayyer templates (remember to execute 'build' before running this command)
-    See online documentation here: https://app.flayyer.com/en/docs/cli/deploy
+    See online documentation here: https://docs.flayyer.com/docs/cli/flayyer-cli#flayyer-deploy
   `;
 
   static examples = [
     // Add examples here:
-    "$ deploy",
-    "$ deploy --help",
+    "$ flayyer deploy",
+    "$ flayyer deploy --help",
   ];
 
   static flags = {
@@ -61,7 +61,7 @@ export default class Deploy extends Command {
         Missing 'key' property in file 'flayyer.config.js'.
 
         ${chalk.bold("Remember to setup your 'FLAYYER_KEY' environment variable.")}
-        Forgot your key? Go to https://app.flayyer.com/
+        Forgot your key? Go to https://flayyer.com/settings/keys
       `);
     }
 

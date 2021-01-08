@@ -3,7 +3,9 @@
 
 **Flayyer CLI**
 
-📚 Please read the documentation here: [https://app.flayyer.com/en/docs/cli](https://app.flayyer.com/en/docs/cli)
+📚 Please read the documentation here: [https://docs.flayyer.com/docs/cli/flayyer-cli](https://docs.flayyer.com/docs/cli/flayyer-cli)
+
+👉 To start a new project use [`create-flayyer-app`](https://github.com/flayyer/create-flayyer-app) checkout our [Getting Started guide](https://docs.flayyer.com/docs/).
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/@flayyer/cli.svg)](https://npmjs.org/package/@flayyer/cli)
@@ -46,11 +48,11 @@ OPTIONS
   -h, --help  show CLI help
 
 DESCRIPTION
-  See online documentation here: https://app.flayyer.com/en/docs/cli/build
+  See online documentation here: https://docs.flayyer.com/docs/cli/flayyer-cli#flayyer-build
 
 EXAMPLES
-  $ build
-  $ build --help
+  $ flayyer build
+  $ flayyer build --help
 ```
 
 _See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.9.3/src/commands/build.ts)_
@@ -67,11 +69,11 @@ OPTIONS
   -h, --help  show CLI help
 
 DESCRIPTION
-  See online documentation here: https://app.flayyer.com/en/docs/cli/deploy
+  See online documentation here: https://docs.flayyer.com/docs/cli/flayyer-cli#flayyer-deploy
 
 EXAMPLES
-  $ deploy
-  $ deploy --help
+  $ flayyer deploy
+  $ flayyer deploy --help
 ```
 
 _See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.9.3/src/commands/deploy.ts)_
@@ -108,13 +110,13 @@ OPTIONS
   --https
 
 DESCRIPTION
-  See online documentation here: https://app.flayyer.com/en/docs/cli/start
+  See online documentation here: https://docs.flayyer.com/docs/cli/flayyer-cli#flayyer-start
 
 EXAMPLES
-  $ start
-  $ start -p 8000
-  $ start -p 8000 -H 0.0.0.0
-  $ start --help
+  $ flayyer start
+  $ flayyer start -p 8000
+  $ flayyer start -p 8000 -H 0.0.0.0
+  $ flayyer start --help
 ```
 
 _See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.9.3/src/commands/start.ts)_

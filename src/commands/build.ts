@@ -26,13 +26,13 @@ export type TemplateRegistry = {
 export default class Build extends Command {
   static description = dedent`
     Build Flayyer project for production.
-    See online documentation here: https://app.flayyer.com/en/docs/cli/build
+    See online documentation here: https://docs.flayyer.com/docs/cli/flayyer-cli#flayyer-build
   `;
 
   static examples = [
     // Add examples here:
-    "$ build",
-    "$ build --help",
+    "$ flayyer build",
+    "$ flayyer build --help",
   ];
 
   static flags = {
