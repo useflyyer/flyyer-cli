@@ -152,7 +152,7 @@ export default class Deploy extends Command {
     };
 
     debug("will upload FormData to signed URL '%s' with headers: %o", uploadUrl, headers);
-    this.log("📦   Uploading bundle...");
+    this.log(`📦   Uploading bundled ${config.engine} app...`);
     const response = await fetch(uploadUrl, {
       method: "POST",
       body: formData as any,
@@ -205,6 +205,8 @@ export default class Deploy extends Command {
       this.log(`       - ${chalk.bold(latest)}`);
       this.log(`       - ${versioned}`);
     }
+    this.log("");
+    this.log(`📖   Checkout the official integration guides at: ${chalk.bold("https://docs.flayyer.com/guides")}`);
     this.log("");
 
     debug("exiting oclif");

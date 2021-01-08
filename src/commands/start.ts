@@ -149,14 +149,14 @@ export default class Start extends Command {
           Please restart the server if something goes wrong.
     `);
     this.log("");
+
+    this.log(`💻  Remember to preview and develop your Flayyer templates at:`);
+    this.log(`    ${chalk.bold(STUDIO_URL)}`);
+    this.log("");
     for (const entry of entries) {
       const preview = studio({ template: entry.name });
       this.log(`📄  Found template '${chalk.bold(entry.name)}' at: ${url}/${entry.name}.html`);
       this.log(`    Go to: ${chalk.bold(preview)}`);
     }
-    this.log("");
-
-    this.log(`💻  Remember to preview and develop your templates at:`);
-    this.log(`    ${chalk.bold(STUDIO_URL)}`);
   }
 }
