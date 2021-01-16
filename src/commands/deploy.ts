@@ -61,7 +61,9 @@ export default class Deploy extends Command {
         Missing 'key' property in file 'flayyer.config.js'.
 
         ${chalk.bold("Remember to setup your 'FLAYYER_KEY' environment variable.")}
+
         Forgot your key? Go to https://flayyer.com/settings/keys
+        First time using Flayyer? Create an account at https://flayyer.com/get-started
       `);
     }
 
