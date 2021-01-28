@@ -1,3 +1,4 @@
+/* eslint-disable dot-notation */
 /* eslint-disable no-warning-comments */
 
 import "cross-fetch/polyfill";
@@ -6,6 +7,7 @@ import fs from "fs";
 import path from "path";
 
 import { Command, flags } from "@oclif/command";
+import type { args } from "@oclif/parser";
 import archiver from "archiver";
 import chalk from "chalk";
 import dedent from "dedent";
@@ -28,25 +30,54 @@ export default class Deploy extends Command {
   static examples = [
     // Add examples here:
     "$ flayyer deploy",
+    "$ flayyer deploy src",
+    "$ flayyer deploy --config flayyer.config.staging.js",
     "$ flayyer deploy --help",
+  ];
+
+  static args: args.Input = [
+    {
+      name: "directory",
+      required: true,
+      description: "Root directory where flayyer.config.js and the /templates directory is located.",
+      default: ".",
+    } as args.IArg<string>,
   ];
 
   static flags = {
     help: flags.help({ char: "h" }),
+    config: flags.string({
+      char: "c",
+      description: "Relative path to flayyer.config.js",
+      default: "flayyer.config.js",
+    }),
+    dry: flags.boolean({
+      description: "Do everything but don't upload nor update deck",
+      default: false,
+    }),
+    remote: flags.string({
+      description: "Flayyer GraphQL endpoint",
+      hidden: true,
+      default: "https://api.flayyer.com/graphql",
+    }),
   };
 
-  static args = [];
-
   async run() {
-    this.parse(Deploy);
+    const parsed = this.parse(Deploy);
 
-    const CURR_DIR = process.cwd();
-    const out = path.join(CURR_DIR, ".flayyer-dist");
-    const outMeta = path.join(CURR_DIR, ".flayyer-dist", "flayyer.json");
-    const zipPath = path.join(CURR_DIR, ".flayyer-dist.zip");
-    const configPath = path.join(CURR_DIR, "flayyer.config.js");
+    if (parsed.flags["dry"]) {
+      debug("will run in dry mode");
+    }
 
-    debug("current directory is: %s", CURR_DIR);
+    const CURR_DIR: string = parsed.args["directory"];
+    const root = path.resolve(process.cwd(), CURR_DIR);
+    const out = path.resolve(root, ".flayyer-dist");
+    const outMeta = path.resolve(root, ".flayyer-dist", "flayyer.json");
+    const zipPath = path.resolve(root, ".flayyer-dist.zip");
+    const configPath = path.resolve(root, parsed.flags["config"]);
+
+    debug("source directory is: %s", CURR_DIR);
+    debug("root is: %s", root);
     debug("final build directory is: %s", out);
     debug("config path is: %s", configPath);
     debug("zipped bundle path is: %s", zipPath);
@@ -113,7 +144,7 @@ export default class Deploy extends Command {
 
     const meta = JSON.parse(fs.readFileSync(outMeta, "utf-8"));
 
-    const url = "https://api.flayyer.com/graphql";
+    const url = parsed.flags["remote"];
 
     debug("creating graphql client with: %s", url);
     const client = new GraphQLClient(url, {
@@ -126,87 +157,95 @@ export default class Deploy extends Command {
       engine: config.engine,
     };
 
-    debug("will execute with arguments '%o' query: %s", input, mutations.createDeck);
-    const res = await client.request<types.createDeck, types.createDeckVariables>(mutations.createDeck, { input }); // TODO: add typings
-    const { uploadUrl, uploadFields, deck } = res.createDeck;
-    const tenant = deck.tenant;
-    this.log(`🔑   Identified as ${chalk.bold(tenant.slug)}`);
+    if (parsed.flags["dry"]) {
+      debug("Running dry mode, won't upload deck");
+    } else {
+      debug("will execute with arguments '%o' query: %s", input, mutations.createDeck);
+      const res = await client.request<types.createDeck, types.createDeckVariables>(mutations.createDeck, { input }); // TODO: add typings
+      const { uploadUrl, uploadFields, deck } = res.createDeck;
+      const tenant = deck.tenant;
+      this.log(`🔑   Identified as ${chalk.bold(tenant.slug)}`);
 
-    debug("will create FormData object");
-    const formData = new FormData();
-    formData.append("Content-Type", "application/zip");
-    for (const field of uploadFields) {
-      formData.append(field.key, field.value);
-    }
-    debug("will append 'file' to FormData which is the zipped file");
-    formData.append("file", fs.createReadStream(zipPath)); // must be the last one
+      debug("will create FormData object");
+      const formData = new FormData();
+      formData.append("Content-Type", "application/zip");
+      for (const field of uploadFields) {
+        formData.append(field.key, field.value);
+      }
+      debug("will append 'file' to FormData which is the zipped file");
+      formData.append("file", fs.createReadStream(zipPath)); // must be the last one
 
-    const length = await new Promise<number>((resolve, reject) => {
-      formData.getLength((err, len) => {
-        if (err) return reject(err);
-        return resolve(len);
+      const length = await new Promise<number>((resolve, reject) => {
+        formData.getLength((err, len) => {
+          if (err) return reject(err);
+          return resolve(len);
+        });
       });
-    });
-    debug("FormData length is now: %s", length);
+      debug("FormData length is now: %s", length);
 
-    const headers = {
-      "Content-Length": String(length),
-    };
+      const headers = {
+        "Content-Length": String(length),
+      };
 
-    debug("will upload FormData to signed URL '%s' with headers: %o", uploadUrl, headers);
-    this.log(`📦   Uploading bundled ${config.engine} app...`);
-    const response = await fetch(uploadUrl, {
-      method: "POST",
-      body: formData as any,
-      headers,
-    });
-
-    if (!response.ok) {
-      debug.extend("error")("error while uploading");
-      this.error("Error while uploading bundle:" + (await response.text()));
-    }
-
-    // Invalidate Edge Cache
-    for (const { node: template } of deck.templates.edges) {
-      const invalidationURL = `https://flayyer.io/v2/${tenant.slug}/${deck.slug}/${template.slug}`;
-      // eslint-disable-next-line no-await-in-loop
-      const responseCacheDelete = await fetch(invalidationURL, {
-        method: "delete",
-        body: null,
+      debug("will upload FormData to signed URL '%s' with headers: %o", uploadUrl, headers);
+      this.log(`📦   Uploading bundled ${config.engine} app...`);
+      const response = await fetch(uploadUrl, {
+        method: "POST",
+        body: formData as any,
+        headers,
       });
-      if (responseCacheDelete.ok) {
-        debug("invalidated cache: %s", invalidationURL);
-      } else {
-        debug.extend("error")("could not invalidate cache for: %s", invalidationURL);
+
+      if (!response.ok) {
+        debug.extend("error")("error while uploading");
+        this.error("Error while uploading bundle:" + (await response.text()));
+      }
+
+      if (fs.existsSync(zipPath)) {
+        debug("will delete zipped file: %s", zipPath);
+        await del([zipPath]);
+      }
+
+      // Invalidate Edge Cache
+      for (const { node: template } of deck.templates.edges) {
+        const invalidationURL = `https://flayyer.io/v2/${tenant.slug}/${deck.slug}/${template.slug}`;
+        // eslint-disable-next-line no-await-in-loop
+        const responseCacheDelete = await fetch(invalidationURL, {
+          method: "delete",
+          body: null,
+        });
+        if (responseCacheDelete.ok) {
+          debug("invalidated cache: %s", invalidationURL);
+        } else {
+          debug.extend("error")("could not invalidate cache for: %s", invalidationURL);
+        }
+      }
+
+      const ext = "jpeg";
+      const host = `https://flayyer.io/v2`;
+      this.log(dedent`
+        🌠   ${chalk.bold("flayyer project successfully deployed!")}
+      `);
+      this.log("");
+      this.log(`💡   To always render the latest version remove the number from the end of the URL.`);
+      this.log(`     ${`${host}/${tenant.slug}/${deck.slug}/TEMPLATE`}`);
+      this.log(`     This is not always recommended because makes caching harder.`);
+      this.log("");
+      this.log(`💡   To force a file format append '.png' or '.jpeg' as extension. Defaults to '.${ext}'`);
+      this.log(`     ${`${host}/${tenant.slug}/${deck.slug}/TEMPLATE.jpeg`}`);
+      this.log(`     For vector base templates prefer '.png', if you heavily rely on pictures then prefer '.jpeg'`);
+      this.log("");
+      for (const { node: template } of deck.templates.edges) {
+        const latest = `${host}/${tenant.slug}/${deck.slug}/${template.slug}.${ext}`;
+        const versioned = `${host}/${tenant.slug}/${deck.slug}/${template.slug}.${deck.version}.${ext}`;
+        this.log(`🖼    Created template ${template.slug} with URL:`);
+        this.log(`       - ${chalk.bold(latest)}`);
+        this.log(`       - ${versioned}`);
       }
     }
 
-    if (fs.existsSync(zipPath)) {
-      debug("will delete zipped file: %s", zipPath);
-      await del([zipPath]);
-    }
-
-    const ext = "jpeg";
-    const host = `https://flayyer.io/v2`;
-    this.log(dedent`
-      🌠   ${chalk.bold("flayyer project successfully deployed!")}
-    `);
     this.log("");
-    this.log(`💡   To always render the latest version remove the number from the end of the URL.`);
-    this.log(`     ${`${host}/${tenant.slug}/${deck.slug}/TEMPLATE`}`);
-    this.log(`     This is not always recommended because makes caching harder.`);
-    this.log("");
-    this.log(`💡   To force a file format append '.png' or '.jpeg' as extension. Defaults to '.${ext}'`);
-    this.log(`     ${`${host}/${tenant.slug}/${deck.slug}/TEMPLATE.jpeg`}`);
-    this.log(`     For vector base templates prefer '.png', if you heavily rely on pictures then prefer '.jpeg'`);
-    this.log("");
-    for (const { node: template } of deck.templates.edges) {
-      const latest = `${host}/${tenant.slug}/${deck.slug}/${template.slug}.${ext}`;
-      const versioned = `${host}/${tenant.slug}/${deck.slug}/${template.slug}.${deck.version}.${ext}`;
-      this.log(`🖼    Created template ${template.slug} with URL:`);
-      this.log(`       - ${chalk.bold(latest)}`);
-      this.log(`       - ${versioned}`);
-    }
+    this.log(`👉   Follow us on Twitter at: ${chalk.blueBright("https://twitter.com/flayyer_com")}`);
+    this.log(`👉   Join our Discord community at: ${chalk.magentaBright("https://discord.gg/SrW7UExKCp")}`);
     this.log("");
     this.log(`📖   Checkout the official integration guides at: ${chalk.bold("https://docs.flayyer.com/guides")}`);
     this.log("");
