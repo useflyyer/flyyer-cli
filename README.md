@@ -22,7 +22,7 @@ $ npm install -g @flayyer/cli
 $ flayyer COMMAND
 running command...
 $ flayyer (-v|--version|version)
-@flayyer/cli/1.9.5 darwin-x64 node-v14.15.3
+@flayyer/cli/1.10.0 darwin-x64 node-v14.15.3
 $ flayyer --help [COMMAND]
 USAGE
   $ flayyer COMMAND
@@ -32,7 +32,7 @@ USAGE
 # Commands
 <!-- commands -->
 * [`flayyer build`](#flayyer-build)
-* [`flayyer deploy`](#flayyer-deploy)
+* [`flayyer deploy DIRECTORY`](#flayyer-deploy-directory)
 * [`flayyer help [COMMAND]`](#flayyer-help-command)
 * [`flayyer start`](#flayyer-start)
 
@@ -55,28 +55,35 @@ EXAMPLES
   $ flayyer build --help
 ```
 
-_See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.9.5/src/commands/build.ts)_
+_See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.10.0/src/commands/build.ts)_
 
-## `flayyer deploy`
+## `flayyer deploy DIRECTORY`
 
 Deploy your Flayyer templates (remember to execute 'build' before running this command)
 
 ```
 USAGE
-  $ flayyer deploy
+  $ flayyer deploy DIRECTORY
+
+ARGUMENTS
+  DIRECTORY  [default: .] Root directory where flayyer.config.js and the /templates directory is located.
 
 OPTIONS
-  -h, --help  show CLI help
+  -c, --config=config  [default: flayyer.config.js] Relative path to flayyer.config.js
+  -h, --help           show CLI help
+  --dry                Do everything but don't upload nor update deck
 
 DESCRIPTION
   See online documentation here: https://docs.flayyer.com/docs/cli/flayyer-cli#flayyer-deploy
 
 EXAMPLES
   $ flayyer deploy
+  $ flayyer deploy src
+  $ flayyer deploy --config flayyer.config.staging.js
   $ flayyer deploy --help
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.9.5/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.10.0/src/commands/deploy.ts)_
 
 ## `flayyer help [COMMAND]`
 
@@ -119,5 +126,5 @@ EXAMPLES
   $ flayyer start --help
 ```
 
-_See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.9.5/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.10.0/src/commands/start.ts)_
 <!-- commandsstop -->
