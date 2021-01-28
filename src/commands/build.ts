@@ -1,7 +1,9 @@
+/* eslint-disable dot-notation */
 import fs from "fs";
 import path from "path";
 
 import { Command, flags } from "@oclif/command";
+import type { args } from "@oclif/parser";
 import chalk from "chalk";
 import dedent from "dedent";
 import del from "del";
@@ -35,32 +37,49 @@ export default class Build extends Command {
     "$ flayyer build --help",
   ];
 
+  static args: args.Input = [
+    {
+      name: "directory",
+      required: false,
+      description: "Root directory where flayyer.config.js and the /templates directory is located.",
+      default: ".",
+    } as args.IArg<string>,
+  ];
+
   static flags = {
     help: flags.help({ char: "h" }),
+    config: flags.string({
+      char: "c",
+      description: "Relative path to flayyer.config.js",
+      default: "flayyer.config.js",
+    }),
   };
 
-  static args = [];
-
   async run() {
-    this.parse(Build);
+    const parsed = this.parse(Build);
 
     debug("NODE_ENV is %s", String(process.env.NODE_ENV));
     this.log(`🛠   NODE_ENV is set to: ${process.env.NODE_ENV}`);
 
-    const CURR_DIR = process.cwd();
-    const from = path.join(CURR_DIR, "templates");
-    const to = path.join(CURR_DIR, ".flayyer-processed");
-    const cache = path.join(CURR_DIR, ".flayyer-cache");
-    const out = path.join(CURR_DIR, ".flayyer-dist");
-    const outMeta = path.join(CURR_DIR, ".flayyer-dist", "flayyer.json");
-    const configPath = path.join(CURR_DIR, "flayyer.config.js");
+    const CURR_DIR: string = parsed.args["directory"];
+    const root = path.resolve(process.cwd(), CURR_DIR);
+    const out = path.resolve(root, ".flayyer-dist");
+    const outMeta = path.resolve(root, ".flayyer-dist", "flayyer.json");
+    const configPath = path.resolve(root, parsed.flags["config"]);
 
-    debug("config path is: %s", configPath);
-    debug("current directory is: %s", CURR_DIR);
-    debug("template source directory is: %s", from);
-    debug("cache directory is: %s", cache);
-    debug("processed files directory is: %s", to);
+    const from = path.join(root, "templates");
+    const to = path.join(root, ".flayyer-processed");
+    const cache = path.join(root, ".flayyer-cache");
+
+    debug("source directory is: %s", CURR_DIR);
+    debug("root is: %s", root);
     debug("final build directory is: %s", out);
+    debug("final meta file is: %s", outMeta);
+    debug("config path is: %s", configPath);
+
+    debug("template source directory is: %s", from);
+    debug("processed files directory is: %s", to);
+    debug("cache directory is: %s", cache);
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const config = require(configPath);

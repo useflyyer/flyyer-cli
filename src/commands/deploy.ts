@@ -38,7 +38,7 @@ export default class Deploy extends Command {
   static args: args.Input = [
     {
       name: "directory",
-      required: true,
+      required: false,
       description: "Root directory where flayyer.config.js and the /templates directory is located.",
       default: ".",
     } as args.IArg<string>,
@@ -73,13 +73,16 @@ export default class Deploy extends Command {
     const root = path.resolve(process.cwd(), CURR_DIR);
     const out = path.resolve(root, ".flayyer-dist");
     const outMeta = path.resolve(root, ".flayyer-dist", "flayyer.json");
-    const zipPath = path.resolve(root, ".flayyer-dist.zip");
     const configPath = path.resolve(root, parsed.flags["config"]);
+
+    const zipPath = path.resolve(root, ".flayyer-dist.zip");
 
     debug("source directory is: %s", CURR_DIR);
     debug("root is: %s", root);
     debug("final build directory is: %s", out);
+    debug("final meta file is: %s", outMeta);
     debug("config path is: %s", configPath);
+
     debug("zipped bundle path is: %s", zipPath);
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
