@@ -22,7 +22,7 @@ $ npm install -g @flayyer/cli
 $ flayyer COMMAND
 running command...
 $ flayyer (-v|--version|version)
-@flayyer/cli/1.10.1 darwin-x64 node-v14.15.3
+@flayyer/cli/1.10.2 darwin-x64 node-v14.15.3
 $ flayyer --help [COMMAND]
 USAGE
   $ flayyer COMMAND
@@ -59,7 +59,7 @@ EXAMPLES
   $ flayyer build --help
 ```
 
-_See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.10.1/src/commands/build.ts)_
+_See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.10.2/src/commands/build.ts)_
 
 ## `flayyer deploy [DIRECTORY]`
 
@@ -87,7 +87,7 @@ EXAMPLES
   $ flayyer deploy --help
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.10.1/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.10.2/src/commands/deploy.ts)_
 
 ## `flayyer help [COMMAND]`
 
@@ -104,7 +104,7 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.1/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.2/src/commands/help.ts)_
 
 ## `flayyer start`
 
@@ -130,5 +130,5 @@ EXAMPLES
   $ flayyer start --help
 ```
 
-_See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.10.1/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.10.2/src/commands/start.ts)_
 <!-- commandsstop -->
