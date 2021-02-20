@@ -78,7 +78,7 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
 
               useEffect(() => {
                 if (elementRef.current) {
-                  twemoji.parse(elementRef.current);
+                  twemoji.parse(elementRef.current, { folder: "svg", ext: ".svg" });
                 }
               }, [elementRef.current]);
 
@@ -148,7 +148,7 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
               },
               mounted() {
                 this.$nextTick(function () {
-                  twemoji.parse(window.document.body);
+                  twemoji.parse(window.document.body, { folder: "svg", ext: ".svg" });
                 })
               },
             }).$mount("#root");
