@@ -1,7 +1,7 @@
 {
   "name": "@flayyer/cli",
   "description": "Flayyer CLI",
-  "version": "1.10.2",
+  "version": "1.11.0-beta.1",
   "author": "Patricio López Juri @lopezjurip",
   "repository": "flayyer/flayyer-cli",
   "license": "MIT",
