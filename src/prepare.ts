@@ -23,6 +23,7 @@ const GLOBAL_STYLE = dedent`
     margin: 0;
   }
   img.emoji {
+    display: inline;
     height: 1em;
     width: 1em;
     margin: 0 .05em 0 .1em;
