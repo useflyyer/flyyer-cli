@@ -14,6 +14,23 @@ export type PrepareProjectArguments = {
   };
 };
 
+/**
+ * Include style for https://github.com/twitter/twemoji
+ */
+const GLOBAL_STYLE = dedent`
+  body, html {
+    padding: 0;
+    margin: 0;
+  }
+  img.emoji {
+    display: inline;
+    height: 1em;
+    width: 1em;
+    margin: 0 .05em 0 .1em;
+    vertical-align: -0.1em;
+  }
+`;
+
 export async function prepareProject({ engine, from, to, style }: PrepareProjectArguments) {
   const names = fs.readdirSync(from);
 
@@ -42,9 +59,10 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
           const flayyerJSName = "flayyer-" + path.basename(writePath, ext) + ext;
           const flayyerJSPath = path.join(path.dirname(writePath), flayyerJSName);
           const flayyerJS = dedent`
-            import React from "react"
+            import React, { useRef, useEffect } from "react"
             import ReactDOM from "react-dom";
             import qs from "qs";
+            import twemoji from "twemoji";
 
             import Template from "./${nameNoExt}";
 
@@ -57,9 +75,16 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
               } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
               const agent = { name: ua };
               const props = { id, tags, variables, agent };
+              const elementRef = useRef();
+
+              useEffect(() => {
+                if (elementRef.current) {
+                  twemoji.parse(elementRef.current, { folder: "svg", ext: ".svg" });
+                }
+              }, [elementRef.current]);
 
               return (
-                <main id="flayyer-ready" style={${JSON.stringify(style)}}>
+                <main id="flayyer-ready" ref={elementRef} style={${JSON.stringify(style)}}>
                   <Template {...props} />
                 </main>
               );
@@ -78,10 +103,7 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
                 <meta charset="utf-8" />
                 <title>${name}</title>
                 <style>
-                  body, html {
-                    padding: 0;
-                    margin: 0;
-                  }
+                  ${GLOBAL_STYLE}
                 </style>
               </head>
               <body>
@@ -108,6 +130,7 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
           const flayyerJS = dedent`
             import Vue from "vue";
             import qs from "qs";
+            import twemoji from "twemoji";
 
             import Template from "./${name}";
 
@@ -124,6 +147,11 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
                 const style = ${JSON.stringify(style)};
                 return createElement(Template, { props, style });
               },
+              mounted() {
+                this.$nextTick(function () {
+                  twemoji.parse(window.document.body, { folder: "svg", ext: ".svg" });
+                })
+              },
             }).$mount("#root");
           `;
           fs.writeFileSync(flayyerJSPath, flayyerJS, "utf8");
@@ -136,10 +164,7 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
                 <meta charset="utf-8" />
                 <title>${name}</title>
                 <style>
-                  body, html {
-                    padding: 0;
-                    margin: 0;
-                  }
+                  ${GLOBAL_STYLE}
                 </style>
               </head>
               <body>
