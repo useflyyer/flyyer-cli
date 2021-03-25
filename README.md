@@ -108,7 +108,7 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.2
 
 ## `flayyer start`
 
-This command starts a development server using Parcel.js by default at http://localhost:7777
+This command starts a development server using Vite by default at http://localhost:7777
 
 ```
 USAGE

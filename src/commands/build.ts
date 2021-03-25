@@ -4,10 +4,11 @@ import path from "path";
 
 import { Command, flags } from "@oclif/command";
 import type { args } from "@oclif/parser";
+import reactRefresh from "@vitejs/plugin-react-refresh";
 import chalk from "chalk";
 import dedent from "dedent";
 import del from "del";
-import Bundler, { ParcelOptions } from "parcel-bundler";
+import * as Vite from "vite";
 
 import { prepareProject } from "../prepare";
 import { namespaced } from "../utils/debug";
@@ -109,27 +110,29 @@ export default class Build extends Command {
       this.error(error); // exits
     }
 
-    this.log(`🏗   Will build with Parcel 📦 bundler`);
-    const glob = path.join(to, "*.html");
-    const bundlerOptions: ParcelOptions = {
-      outDir: out,
-      publicUrl: "./",
-      watch: false,
-      cache: true,
-      cacheDir: cache,
-      contentHash: true,
-      minify: true,
-      target: "browser",
-      // logLevel: 0 as any,
-      hmr: false,
-      sourceMaps: false,
-      detailedReport: false,
-      // autoInstall: true,
+    this.log(`🏗   Will build with Vite ⚡️ bundler`);
+    const bundlerOptions: Vite.InlineConfig = {
+      configFile: false,
+      root: to,
+      base: "/",
+      clearScreen: false,
+      build: {
+        assetsDir: ".", // plain output directory
+        outDir: out,
+        rollupOptions: {
+          input: entries.map((e) => e.html.path),
+        },
+      },
+      // esbuild: {
+      //   // https://github.com/vitejs/vite/issues/769
+      //   include: /\.(tsx?|jsx?)$/,
+      //   exclude: [],
+      //   loader: "tsx",
+      // },
+      plugins: [reactRefresh()],
     };
-    debug("glob pattern for Parcel is: %s", glob);
-    debug("options for Parcel are: %O", bundlerOptions);
-    const bundler = new Bundler(glob, bundlerOptions);
-    await bundler.bundle();
+    debug("options for Vite are: %O", bundlerOptions);
+    await Vite.build(bundlerOptions);
     debug("success at building");
 
     const templates = entries.map((entry) => ({ slug: entry.name }));
