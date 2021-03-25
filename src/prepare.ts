@@ -132,14 +132,14 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
           const flayyerJSName = "flayyer-" + path.basename(writePath, ext) + ".js";
           const flayyerJSPath = path.join(path.dirname(writePath), flayyerJSName);
           const flayyerJS = dedent`
-            import Vue from "vue";
+            import { h, createApp, onMounted, nextTick } from "vue";
             import qs from "qs";
             import twemoji from "twemoji";
 
             import Template from "./${name}";
 
-            new Vue({
-              render: createElement => {
+            createApp({
+              render() {
                 const {
                   _id: id,
                   _tags: tags,
@@ -151,14 +151,18 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
                 const agent = { name: ua };
                 const props = { id, tags, variables, agent, width: Number(_w), height: Number(_h) };
                 const style = ${JSON.stringify(style)};
-                return createElement(Template, { props, style });
+                return h("main", { style }, h(Template, props));
               },
-              mounted() {
-                this.$nextTick(function () {
+              setup() {
+                onMounted(() => {
                   twemoji.parse(window.document.body, { folder: "svg", ext: ".svg" });
-                })
+                  nextTick().then(() => {
+                    // TODO: Not sure when to run twemoji
+                    // twemoji.parse(window.document.body, { folder: "svg", ext: ".svg" });
+                  });
+                });
               },
-            }).$mount("#root");
+            }).mount("#root");
           `;
           fs.writeFileSync(flayyerJSPath, flayyerJS, "utf8");
 

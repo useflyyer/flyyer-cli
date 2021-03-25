@@ -5,6 +5,7 @@ import path from "path";
 import { Command, flags } from "@oclif/command";
 import type { args } from "@oclif/parser";
 import reactRefresh from "@vitejs/plugin-react-refresh";
+import vue from "@vitejs/plugin-vue";
 import chalk from "chalk";
 import dedent from "dedent";
 import del from "del";
@@ -129,7 +130,7 @@ export default class Build extends Command {
       //   exclude: [],
       //   loader: "tsx",
       // },
-      plugins: [reactRefresh()],
+      plugins: [reactRefresh(), vue()],
     };
     debug("options for Vite are: %O", bundlerOptions);
     await Vite.build(bundlerOptions);

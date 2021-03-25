@@ -3,6 +3,7 @@ import path from "path";
 
 import { Command, flags } from "@oclif/command";
 import reactRefresh from "@vitejs/plugin-react-refresh";
+import vue from "@vitejs/plugin-vue";
 import chalk from "chalk";
 import chokidar, { WatchOptions } from "chokidar";
 import dedent from "dedent";
@@ -115,7 +116,7 @@ export default class Start extends Command {
       //   exclude: [],
       //   loader: "tsx",
       // },
-      plugins: [reactRefresh()],
+      plugins: [reactRefresh(), vue()],
       server: {
         host: flags.host,
         port: flags.port,
