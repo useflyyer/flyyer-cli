@@ -21,6 +21,7 @@ const GLOBAL_STYLE = dedent`
   body, html {
     padding: 0;
     margin: 0;
+    overflow: hidden;
   }
   img.emoji {
     display: inline;
@@ -45,13 +46,13 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
         Directories inside '/templates' are not supported. Please move directory '${name}' outside of '/templates' to a new sibling directory like '/components' or '/utils'.
       `);
     } else if (stats.isFile()) {
-      // Write template body to new file
-      const contents = fs.readFileSync(namePath, "utf8");
-      const writePath = path.join(to, name);
-      fs.writeFileSync(writePath, contents, "utf8");
-
       const ext = path.extname(name);
       const nameNoExt = path.basename(name, ext);
+      const writePath = path.join(to, name);
+      const contents = fs.readFileSync(namePath, "utf8");
+      // Write template body to new file
+      fs.writeFileSync(writePath, contents, "utf8");
+
       if (["react", "react-typescript"].includes(engine)) {
         if ([".js", ".jsx", ".ts", ".tsx"].includes(ext)) {
           const flayyerHTMLName = path.basename(writePath, ext) + ".html";
@@ -103,6 +104,7 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
             <html>
               <head>
                 <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <title>${name}</title>
                 <style>
                   ${GLOBAL_STYLE}
@@ -111,7 +113,7 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
               <body>
                 <div id="root"></div>
 
-                <script src="./${flayyerJSName}"></script>
+                <script type="module" src="./${flayyerJSName}"></script>
               </body>
             </html>
           `;
@@ -130,14 +132,14 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
           const flayyerJSName = "flayyer-" + path.basename(writePath, ext) + ".js";
           const flayyerJSPath = path.join(path.dirname(writePath), flayyerJSName);
           const flayyerJS = dedent`
-            import Vue from "vue";
+            import { h, createApp, onMounted, nextTick } from "vue";
             import qs from "qs";
             import twemoji from "twemoji";
 
             import Template from "./${name}";
 
-            new Vue({
-              render: createElement => {
+            createApp({
+              render() {
                 const {
                   _id: id,
                   _tags: tags,
@@ -149,14 +151,18 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
                 const agent = { name: ua };
                 const props = { id, tags, variables, agent, width: Number(_w), height: Number(_h) };
                 const style = ${JSON.stringify(style)};
-                return createElement(Template, { props, style });
+                return h("main", { style }, h(Template, props));
               },
-              mounted() {
-                this.$nextTick(function () {
+              setup() {
+                onMounted(() => {
                   twemoji.parse(window.document.body, { folder: "svg", ext: ".svg" });
-                })
+                  nextTick().then(() => {
+                    // TODO: Not sure when to run twemoji
+                    // twemoji.parse(window.document.body, { folder: "svg", ext: ".svg" });
+                  });
+                });
               },
-            }).$mount("#root");
+            }).mount("#root");
           `;
           fs.writeFileSync(flayyerJSPath, flayyerJS, "utf8");
 
@@ -166,6 +172,7 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
             <html>
               <head>
                 <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <title>${name}</title>
                 <style>
                   ${GLOBAL_STYLE}
@@ -174,7 +181,7 @@ export async function prepareProject({ engine, from, to, style }: PrepareProject
               <body>
                 <div id="root"></div>
 
-                <script src="./${flayyerJSName}"></script>
+                <script type="module" src="./${flayyerJSName}"></script>
               </body>
             </html>
           `;

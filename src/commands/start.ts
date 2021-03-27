@@ -2,12 +2,14 @@ import fs from "fs";
 import path from "path";
 
 import { Command, flags } from "@oclif/command";
+import reactRefresh from "@vitejs/plugin-react-refresh";
+import vue from "@vitejs/plugin-vue";
 import chalk from "chalk";
 import chokidar, { WatchOptions } from "chokidar";
 import dedent from "dedent";
 import del from "del";
-import Bundler, { ParcelOptions } from "parcel-bundler";
 import qs from "qs";
+import * as Vite from "vite";
 
 import { prepareProject } from "../prepare";
 import { namespaced } from "../utils/debug";
@@ -17,7 +19,7 @@ const debug = namespaced("start");
 
 export default class Start extends Command {
   static description = dedent`
-    This command starts a development server using Parcel.js by default at http://localhost:7777
+    This command starts a development server using Vite by default at http://localhost:7777
     See online documentation here: https://docs.flayyer.com/docs/cli/flayyer-cli#flayyer-start
   `;
 
@@ -95,26 +97,35 @@ export default class Start extends Command {
       await prepareProject({ engine: config.engine, from, to, style });
     });
 
-    this.log(`🏗   Will build with Parcel 📦 bundler`);
-    const glob = path.join(to, "*.html");
-    const bundlerOptions: ParcelOptions = {
-      outDir: out,
-      publicUrl: "/",
-      watch: true,
-      cache: true,
-      cacheDir: cache,
-      // contentHash: true,
-      minify: false,
-      target: "browser",
-      // logLevel: 0 as any,
-      hmr: true,
-      sourceMaps: true,
-      detailedReport: false,
-      // autoInstall: true,
+    this.log(`🏗   Will build with Vite ⚡️ bundler`);
+    const bundlerOptions: Vite.InlineConfig = {
+      configFile: false,
+      root: to,
+      base: "/",
+      clearScreen: false,
+      build: {
+        assetsDir: ".", // plain output directory
+        outDir: out,
+        rollupOptions: {
+          input: entries.map((e) => e.html.path),
+        },
+      },
+      // esbuild: {
+      //   // https://github.com/vitejs/vite/issues/769
+      //   include: /\.(tsx?|jsx?)$/,
+      //   exclude: [],
+      //   loader: "tsx",
+      // },
+      plugins: [reactRefresh(), vue()],
+      server: {
+        host: flags.host,
+        port: flags.port,
+        https: flags.https,
+        strictPort: true,
+      },
     };
-    debug("glob pattern for Parcel is: %s", glob);
-    debug("options for Parcel are: %O", bundlerOptions);
-    const bundler = new Bundler(glob, bundlerOptions);
+    debug("options for Vite are: %O", bundlerOptions);
+    const server = await Vite.createServer(bundlerOptions);
 
     const STUDIO_URL = "https://flayyer.github.io/flayyer-studio/";
     function studio({ template }: { template: string }) {
@@ -130,9 +141,9 @@ export default class Start extends Command {
     }
 
     const url = `${flags.https ? "https" : "http"}://${flags.host}:${flags.port}`;
-    debug("will start Parcel server as: %s", url);
-    const server = await bundler.serve(flags.port, flags.https, flags.host);
-    if (!server.listening) {
+    debug("will start Vite server as: %s", url);
+    await server.listen();
+    if (!server.httpServer?.listening) {
       this.error(`Could not start server at ${url}`);
     }
     this.log("");

@@ -6,6 +6,7 @@
     "module": "commonjs",
     "outDir": "lib",
     "rootDir": "src",
+    "skipLibCheck": true,
     "alwaysStrict": true,
     "strict": true,
     "strictNullChecks": true,
