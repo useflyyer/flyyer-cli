@@ -6,6 +6,7 @@ import "cross-fetch/polyfill";
 import fs from "fs";
 import path from "path";
 
+import { goerr } from "@flayyer/goerr";
 import { Command, flags } from "@oclif/command";
 import type { args } from "@oclif/parser";
 import archiver from "archiver";
@@ -154,18 +155,26 @@ export default class Deploy extends Command {
       headers: { authorization: `Token ${config.key}` },
     });
 
-    const input = {
+    const input: types.createDeckVariables["input"] = {
       slug: config.deck,
       templates: meta.templates,
       engine: config.engine,
+      name: config.name,
+      description: config.description,
     };
 
     if (parsed.flags["dry"]) {
       debug("Running dry mode, won't upload deck");
     } else {
       debug("will execute with arguments '%o' query: %s", input, mutations.createDeck);
-      const res = await client.request<types.createDeck, types.createDeckVariables>(mutations.createDeck, { input }); // TODO: add typings
-      const { uploadUrl, uploadFields, deck } = res.createDeck;
+      const [res, error] = await goerr(
+        client.request<types.createDeck, types.createDeckVariables>(mutations.createDeck, { input }),
+      );
+      if (error) {
+        this.error(error);
+      }
+
+      const { uploadUrl, uploadFields, deck } = res["createDeck"];
       const tenant = deck.tenant;
       this.log(`🔑   Identified as ${chalk.bold(tenant.slug)}`);
 

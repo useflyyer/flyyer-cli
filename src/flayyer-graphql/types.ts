@@ -8,33 +8,27 @@
 // ====================================================
 
 export interface createDeck_createDeck_uploadFields {
-  __typename: "APICreateDeckPayloadField";
   key: string;
   value: string;
 }
 
 export interface createDeck_createDeck_deck_tenant {
-  __typename: "Tenant";
   slug: string;
 }
 
 export interface createDeck_createDeck_deck_templates_edges_node {
-  __typename: "Template";
   slug: string;
 }
 
 export interface createDeck_createDeck_deck_templates_edges {
-  __typename: "TemplatesPagedEdge";
   node: createDeck_createDeck_deck_templates_edges_node;
 }
 
 export interface createDeck_createDeck_deck_templates {
-  __typename: "TemplatesPaged";
   edges: createDeck_createDeck_deck_templates_edges[];
 }
 
 export interface createDeck_createDeck_deck {
-  __typename: "Deck";
   slug: string;
   version: number;
   engine: string | null;
@@ -43,7 +37,6 @@ export interface createDeck_createDeck_deck {
 }
 
 export interface createDeck_createDeck {
-  __typename: "APICreateDeckPayload";
   uploadUrl: string;
   uploadFields: createDeck_createDeck_uploadFields[];
   deck: createDeck_createDeck_deck;
@@ -69,6 +62,8 @@ export interface createDeckVariables {
 export interface APICreateDeckInput {
   slug: string;
   engine?: string | null;
+  name?: string | null;
+  description?: string | null;
   templates: APICreateDeckInputTemplate[];
 }
 

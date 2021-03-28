@@ -985,6 +985,11 @@
     eslint-plugin-react "^7.22.0"
     eslint-plugin-react-hooks "^4.2.0"
 
+"@flayyer/goerr@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@flayyer/goerr/-/goerr-1.2.0.tgz#ac49ccde7ef9cf15b083a3b8a9dfcc2b98036c35"
+  integrity sha512-CvCxjtJiPyPLudiN8l1ax4lNJNhZmJ04XI0RidNCOMaT2e8zHp54KXYlOyAb0gbl80TTKhfhrTicgJeXm1tjsg==
+
 "@iarna/toml@^2.2.0":
   version "2.2.5"
   resolved "https://registry.yarnpkg.com/@iarna/toml/-/toml-2.2.5.tgz#b32366c89b43c6f8cefbdefac778b9c828e3ba8c"
