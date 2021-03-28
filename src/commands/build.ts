@@ -4,10 +4,10 @@ import path from "path";
 
 import { Command, flags } from "@oclif/command";
 import type { args } from "@oclif/parser";
+import Bundler, { ParcelOptions } from "@parcel/core";
 import chalk from "chalk";
 import dedent from "dedent";
 import del from "del";
-import Bundler, { ParcelOptions } from "parcel-bundler";
 
 import { prepareProject } from "../prepare";
 import { namespaced } from "../utils/debug";
