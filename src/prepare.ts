@@ -99,6 +99,10 @@ export async function prepareProject({
 
             const element = document.getElementById("root");
             ReactDOM.render(<WrappedTemplate />, element);
+
+            // See: https://parceljs.org/hmr.html
+            // @ts-ignore
+            if (module.hot) module.hot.accept();
           `;
           fs.writeFileSync(flayyerJSPath, flayyerJS, "utf8");
 
@@ -164,6 +168,10 @@ export async function prepareProject({
                 })
               },
             }).$mount("#root");
+
+            // See: https://parceljs.org/hmr.html
+            // @ts-ignore
+            if (module.hot) module.hot.accept();
           `;
           fs.writeFileSync(flayyerJSPath, flayyerJS, "utf8");
 
