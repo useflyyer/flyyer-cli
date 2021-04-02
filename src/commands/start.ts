@@ -6,6 +6,7 @@ import chalk from "chalk";
 import chokidar, { WatchOptions } from "chokidar";
 import dedent from "dedent";
 import del from "del";
+import open from "open";
 import Bundler, { ParcelOptions } from "parcel-bundler";
 import qs from "qs";
 
@@ -136,7 +137,7 @@ export default class Start extends Command {
       this.error(`Could not start server at ${url}`);
     }
     this.log("");
-    this.log(`🌠  FLAYYER dev server running at ${url}`);
+    this.log(`🌠  Flayyer dev server running at ${url}`);
 
     this.log("");
     this.log(dedent`
@@ -153,10 +154,20 @@ export default class Start extends Command {
     this.log(`💻  Remember to preview and develop your Flayyer templates at:`);
     this.log(`    ${chalk.bold(STUDIO_URL)}`);
     this.log("");
-    for (const entry of entries) {
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i]!;
       const preview = studio({ template: entry.name });
-      this.log(`📄  Found template '${chalk.bold(entry.name)}' at: ${url}/${entry.name}.html`);
+      const href = `${url}/${entry.name}.html`;
+      this.log(`📄  Found template '${chalk.bold(entry.name)}' at: ${href}`);
       this.log(`    Go to: ${chalk.bold(preview)}`);
+      if (i === entries.length - 1) {
+        try {
+          this.log(`    Opening Flayyer Studio in default browser...`);
+          await open(preview);
+        } catch {
+          this.warn("Couldn't launch default web browser to open Flayyer Studio.");
+        }
+      }
     }
   }
 }

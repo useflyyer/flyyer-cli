@@ -238,18 +238,19 @@ export default class Deploy extends Command {
         🌠   ${chalk.bold("flayyer project successfully deployed!")}
       `);
       this.log("");
-      this.log(`💡   To always render the latest version remove the number from the end of the URL.`);
+      this.log(`💡   To always render the latest version remove the number at the end of the URL.`);
       this.log(`     ${`${host}/${tenant.slug}/${deck.slug}/TEMPLATE`}`);
       this.log(`     This is not always recommended because makes caching harder.`);
       this.log("");
-      this.log(`💡   To force a file format append '.png' or '.jpeg' as extension. Defaults to '.${ext}'`);
+      this.log(`💡   To force a file format set '.png' or '.jpeg' as extension. Defaults to '.${ext}'`);
       this.log(`     ${`${host}/${tenant.slug}/${deck.slug}/TEMPLATE.jpeg`}`);
+      this.log(`     ${`${host}/${tenant.slug}/${deck.slug}/TEMPLATE.png`}`);
       this.log(`     For vector base templates prefer '.png', if you heavily rely on pictures then prefer '.jpeg'`);
       this.log("");
       for (const { node: template } of deck.templates.edges) {
         const latest = `${host}/${tenant.slug}/${deck.slug}/${template.slug}.${ext}`;
         const versioned = `${host}/${tenant.slug}/${deck.slug}/${template.slug}.${deck.version}.${ext}`;
-        this.log(`🖼    Created template ${template.slug} with URL:`);
+        this.log(`🖼    ${chalk.green(`Created template ${chalk.bold(template.slug)} with URL:`)}`);
         this.log(`       - ${chalk.bold(latest)}`);
         this.log(`       - ${versioned}`);
       }
@@ -257,7 +258,7 @@ export default class Deploy extends Command {
 
     this.log("");
     this.log(`👉   Follow us on Twitter at: ${chalk.blueBright("https://twitter.com/flayyer_com")}`);
-    this.log(`👉   Join our Discord community at: ${chalk.magentaBright("https://discord.gg/SrW7UExKCp")}`);
+    this.log(`👉   Join our Discord community at: ${chalk.magentaBright("https://flayyer.com/discord")}`);
     this.log("");
     this.log(`📖   Checkout the official integration guides at: ${chalk.bold("https://docs.flayyer.com/guides")}`);
     this.log("");
