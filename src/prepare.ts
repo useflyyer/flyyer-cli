@@ -82,7 +82,7 @@ export async function prepareProject({
                 ...variables
               } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
               const agent = { name: ua };
-              const props = { id, tags, variables, agent, lang, width: Number(_w), height: Number(_h) };
+              const props = { id, tags, variables, agent, lang: lang || undefined, width: Number(_w), height: Number(_h) };
               const elementRef = useRef();
 
               useEffect(() => {
@@ -161,7 +161,7 @@ export async function prepareProject({
                   ...variables
                 } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
                 const agent = { name: ua };
-                const props = { id, tags, variables, agent, lang, width: Number(_w), height: Number(_h) };
+                const props = { id, tags, variables, agent, lang: lang || undefined, width: Number(_w), height: Number(_h) };
                 const style = ${JSON.stringify(style)};
                 return createElement(Template, { props, style });
               },
