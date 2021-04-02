@@ -76,12 +76,13 @@ export async function prepareProject({
                 _id: id,
                 _tags: tags,
                 _ua: ua,
+                _lang: lang,
                 _w,
                 _h,
                 ...variables
               } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
               const agent = { name: ua };
-              const props = { id, tags, variables, agent, width: Number(_w), height: Number(_h) };
+              const props = { id, tags, variables, agent, lang, width: Number(_w), height: Number(_h) };
               const elementRef = useRef();
 
               useEffect(() => {
@@ -153,12 +154,13 @@ export async function prepareProject({
                   _id: id,
                   _tags: tags,
                   _ua: ua,
+                  _lang: lang,
                   _w,
                   _h,
                   ...variables
                 } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
                 const agent = { name: ua };
-                const props = { id, tags, variables, agent, width: Number(_w), height: Number(_h) };
+                const props = { id, tags, variables, agent, lang, width: Number(_w), height: Number(_h) };
                 const style = ${JSON.stringify(style)};
                 return createElement(Template, { props, style });
               },
