@@ -7,6 +7,7 @@ module.exports = {
     "@flayyer/eslint-config/prettier",
   ],
   rules: {
+    "no-warning-comments": "off",
     "unicorn/no-abusive-eslint-disable": "off",
     "@typescript-eslint/no-shadow": "off",
   },

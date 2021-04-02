@@ -31,7 +31,12 @@ const GLOBAL_STYLE = dedent`
   }
 `;
 
-export async function prepareProject({ engine, from, to, style }: PrepareProjectArguments) {
+export async function prepareProject({
+  engine,
+  from,
+  to,
+  style,
+}: PrepareProjectArguments): Promise<TemplateRegistry[]> {
   const names = fs.readdirSync(from);
 
   fs.mkdirSync(to, { recursive: true });
