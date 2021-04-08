@@ -92,7 +92,7 @@ export async function prepareProject({
               }, [elementRef.current]);
 
               return (
-                <main id="flayyer-ready" ref={elementRef} style={${JSON.stringify(style)}}>
+                <main ref={elementRef} style={${JSON.stringify(style)}}>
                   <Template {...props} />
                 </main>
               );
