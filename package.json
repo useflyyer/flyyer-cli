@@ -60,7 +60,7 @@
     "archiver": "^5.3.0",
     "chalk": "^4.1.0",
     "chokidar": "^3.5.1",
-    "cross-fetch": "^3.1.2",
+    "cross-fetch": "^3.1.4",
     "debug": "^4.3.1",
     "dedent": "^0.7.0",
     "del": "^6.0.0",
@@ -70,7 +70,7 @@
     "open": "~7.4.2",
     "parcel-bundler": "^1.12.5",
     "qs": "^6.10.1",
-    "tslib": "^2.1.0",
+    "tslib": "^2.2.0",
     "twemoji": "^13.0.2"
   },
   "devDependencies": {
@@ -80,7 +80,7 @@
     "@types/debug": "^4.1.5",
     "@types/dedent": "^0.7.0",
     "@types/node": "^14.14.37",
-    "@types/node-fetch": "^2.5.8",
+    "@types/node-fetch": "^2.5.10",
     "@types/parcel-bundler": "^1.12.3",
     "eslint": "^7.23.0",
     "eslint-config-oclif": "^3.1",
@@ -90,6 +90,6 @@
     "lint-staged": "^10.5.4",
     "prettier": "^2.2.1",
     "ts-node": "^9.1.1",
-    "typescript": "^4.2.3"
+    "typescript": "^4.2.4"
   }
 }
