@@ -30,6 +30,13 @@ const GLOBAL_STYLE = dedent`
     vertical-align: -0.1em;
   }
 `;
+const DEFAULT_TAGS = dedent`
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://twemoji.maxcdn.com" crossorigin>
+`;
 
 export async function prepareProject({
   engine,
@@ -112,10 +119,7 @@ export async function prepareProject({
 
             <html>
               <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+                ${DEFAULT_TAGS}
                 <title>${name}</title>
                 <style>
                   ${GLOBAL_STYLE}
@@ -183,10 +187,7 @@ export async function prepareProject({
 
             <html>
               <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+                ${DEFAULT_TAGS}
                 <title>${name}</title>
                 <style>
                   ${GLOBAL_STYLE}
