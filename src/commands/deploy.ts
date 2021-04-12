@@ -217,20 +217,16 @@ export default class Deploy extends Command {
         await del([zipPath]);
       }
 
-      // Invalidate Edge Cache
-      for (const { node: template } of deck.templates.edges) {
-        const invalidationURL = `https://flayyer.io/v2/${tenant.slug}/${deck.slug}/${template.slug}`;
-        // eslint-disable-next-line no-await-in-loop
-        const responseCacheDelete = await fetch(invalidationURL, {
-          method: "delete",
-          body: null,
-        });
-        if (responseCacheDelete.ok) {
-          debug("invalidated cache: %s", invalidationURL);
-        } else {
-          debug.extend("error")("could not invalidate cache for: %s", invalidationURL);
-        }
+      debug("will confirm to invalidate Edge Cache");
+      const [resConfirm, errorConfirm] = await goerr(
+        client.request<types.createDeckConfirm, types.createDeckConfirmVariables>(mutations.createDeckConfirm, {
+          input: { slug: deck["slug"], version: deck["version"] },
+        }),
+      );
+      if (errorConfirm) {
+        this.error(errorConfirm);
       }
+      debug("confirmation response: %O", resConfirm["createDeckConfirm"]);
 
       const ext = "jpeg";
       const host = `https://flayyer.io/v2`;
