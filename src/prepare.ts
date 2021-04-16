@@ -9,6 +9,9 @@ export type PrepareProjectArguments = {
   engine: string; // TODO: convert to enum
   from: string;
   to: string;
+  /**
+   * CSS Style for root element.
+   */
   style: {
     [key: string]: any;
   };
@@ -71,14 +74,17 @@ export async function prepareProject({
           const flayyerJSName = "flayyer-" + path.basename(writePath, ext) + ext;
           const flayyerJSPath = path.join(path.dirname(writePath), flayyerJSName);
           const flayyerJS = dedent`
-            import React, { useRef, useEffect } from "react"
+            import React, { useRef, useEffect, useState } from "react"
             import ReactDOM from "react-dom";
             import qs from "qs";
             import twemoji from "twemoji";
 
             import Template from "./${nameNoExt}";
 
-            function WrappedTemplate() {
+            const ALLOWED_ORIGINS = ["https://flayyer.com", "https://flayyer.github.io", "http://localhost:9000"];
+
+            // @ts-ignore
+            function PARSE_QS(str) {
               const {
                 _id: id,
                 _tags: tags,
@@ -87,9 +93,16 @@ export async function prepareProject({
                 _w,
                 _h,
                 ...variables
-              } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+              } = qs.parse(str, { ignoreQueryPrefix: true });
               const agent = { name: ua };
-              const props = { id, tags, variables, agent, lang: lang || undefined, width: Number(_w), height: Number(_h) };
+              return { id, tags, variables, agent, lang: lang || undefined, width: Number(_w), height: Number(_h) }
+            }
+
+            function WrappedTemplate() {
+              const [props, setProps] = useState(() => {
+                // Set initial props.
+                return PARSE_QS(window.location.search.replace("?", "") || window.location.hash.replace("#", ""));
+              });
               const elementRef = useRef();
 
               useEffect(() => {
@@ -97,6 +110,31 @@ export async function prepareProject({
                   twemoji.parse(elementRef.current, { folder: "svg", ext: ".svg" });
                 }
               }, [elementRef.current]);
+
+              useEffect(() => {
+                // @ts-ignore
+                const handler = (event) => {
+                  const known = ALLOWED_ORIGINS.includes(event.origin);
+                  if (!known) {
+                    return console.warn("Origin %s is not known. Ignoring posted message.", event.origin);
+                  } else if (typeof event.data !== "object") {
+                    return console.error("Message sent by %s is not an object. Ignoring posted message.", event.origin);
+                  }
+                  const message = event.data;
+                  switch (message.type) {
+                    case "flayyer-variables": {
+                      setProps(PARSE_QS(message["payload"]["query"]));
+                      break;
+                    }
+                    default: {
+                      console.warn("Message not recognized: %s", message.type);
+                      break;
+                    }
+                  }
+                };
+                window.addEventListener("message", handler, false);
+                return () => window.removeEventListener("message", handler);
+              }, []);
 
               return (
                 <main ref={elementRef} style={${JSON.stringify(style)}}>

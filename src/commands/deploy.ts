@@ -6,6 +6,7 @@ import "cross-fetch/polyfill";
 import fs from "fs";
 import path from "path";
 
+import { FlayyerIO } from "@flayyer/flayyer";
 import { goerr } from "@flayyer/goerr";
 import { Command, flags } from "@oclif/command";
 import type { args } from "@oclif/parser";
@@ -63,7 +64,7 @@ export default class Deploy extends Command {
     }),
   };
 
-  async run() {
+  async run(): Promise<void> {
     const parsed = this.parse(Deploy);
 
     if (parsed.flags["dry"]) {
@@ -161,6 +162,7 @@ export default class Deploy extends Command {
       engine: config.engine,
       name: config.name,
       description: config.description,
+      private: Boolean(config.private),
     };
 
     if (parsed.flags["dry"]) {
@@ -244,19 +246,39 @@ export default class Deploy extends Command {
       this.log(`     For vector base templates prefer '.png', if you heavily rely on pictures then prefer '.jpeg'`);
       this.log("");
       for (const { node: template } of deck.templates.edges) {
-        const latest = `${host}/${tenant.slug}/${deck.slug}/${template.slug}.${ext}`;
-        const versioned = `${host}/${tenant.slug}/${deck.slug}/${template.slug}.${deck.version}.${ext}`;
+        const f = new FlayyerIO({
+          tenant: tenant.slug,
+          deck: deck.slug,
+          template: template.slug,
+          meta: { v: null },
+        });
+        const withEmoji = f
+          .clone({ variables: { title: "Title", description: "Emoji supported EMOJI" } })
+          .href()
+          .replace("EMOJI", "😃");
         this.log(`🖼    ${chalk.green(`Created template ${chalk.bold(template.slug)} with URL:`)}`);
-        this.log(`       - ${chalk.bold(latest)}`);
-        this.log(`       - ${versioned}`);
+        this.log(`       - ${chalk.bold(f.href())}`);
+        this.log(`     ${"Versioned (omit to use latest):"}`);
+        this.log(`       - ${f.clone({ version: deck.version }).href()}`);
+        this.log(`     ${"Supported extensions (jpeg, png, webp):"}`);
+        this.log(`       - ${f.clone({ extension: "png" }).href()}`);
+        this.log(`     ${"Cache burst:"}`);
+        this.log(`       - ${f.clone({ meta: { v: undefined } }).href()}`);
+        this.log(`     ${"Set size (defaults to 1200x630):"}`);
+        this.log(`       - ${f.clone({ meta: { v: null, width: 1080, height: 1080 } }).href()}`);
+        this.log(`     ${"Set variable:"}`);
+        this.log(`       - ${f.clone({ variables: { title: "Thanks for using Flayyer" } }).href()}`);
+        this.log(`     ${"Multiple variables:"}`);
+        this.log(`       - ${withEmoji}`);
       }
     }
 
     this.log("");
+    this.log(`📖   Checkout the official integration guides at: ${chalk.bold("https://docs.flayyer.com/guides")}`);
+    this.log(`📖   Flayyer URL formatters: ${chalk.bold("https://docs.flayyer.com/docs/libraries")}`);
+    this.log("");
     this.log(`👉   Follow us on Twitter at: ${chalk.blueBright("https://twitter.com/flayyer_com")}`);
     this.log(`👉   Join our Discord community at: ${chalk.magentaBright("https://flayyer.com/discord")}`);
-    this.log("");
-    this.log(`📖   Checkout the official integration guides at: ${chalk.bold("https://docs.flayyer.com/guides")}`);
     this.log("");
 
     debug("exiting oclif");

@@ -61,6 +61,7 @@ export interface createDeckVariables {
 
 export interface createDeckConfirm_createDeckConfirm {
   urls: string[];
+  deployedURL: string | null;
 }
 
 export interface createDeckConfirm {
@@ -89,6 +90,8 @@ export interface APICreateDeckInput {
   slug: string;
   engine?: string | null;
   name?: string | null;
+  marketplace?: boolean | null;
+  private?: boolean | null;
   description?: string | null;
   templates: APICreateDeckInputTemplate[];
 }
