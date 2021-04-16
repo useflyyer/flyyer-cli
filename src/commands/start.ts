@@ -39,7 +39,8 @@ export default class Start extends Command {
 
   static args = [];
 
-  async run() {
+  async run(): Promise<void> {
+    debug("cli version is: %s", this.config.version);
     const { flags } = this.parse(Start);
 
     const CURR_DIR = process.cwd();

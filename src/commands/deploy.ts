@@ -65,6 +65,7 @@ export default class Deploy extends Command {
   };
 
   async run(): Promise<void> {
+    debug("cli version is: %s", this.config.version);
     const parsed = this.parse(Deploy);
 
     if (parsed.flags["dry"]) {
@@ -163,6 +164,7 @@ export default class Deploy extends Command {
       name: config.name,
       description: config.description,
       private: Boolean(config.private),
+      cli: this.config.version,
     };
 
     if (parsed.flags["dry"]) {

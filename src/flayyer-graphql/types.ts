@@ -30,6 +30,9 @@ export interface createDeck_createDeck_deck_templates {
 
 export interface createDeck_createDeck_deck {
   slug: string;
+  /**
+   * It is a sortable timestamp
+   */
   version: number;
   engine: string | null;
   tenant: createDeck_createDeck_deck_tenant;
@@ -89,6 +92,7 @@ export interface APICreateDeckConfirmInput {
 export interface APICreateDeckInput {
   slug: string;
   engine?: string | null;
+  cli?: string | null;
   name?: string | null;
   marketplace?: boolean | null;
   private?: boolean | null;
