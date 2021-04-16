@@ -3,6 +3,7 @@ import path from "path";
 
 import dedent from "dedent";
 
+import { ENCODED } from "./assets/logo";
 import { TemplateRegistry } from "./commands/build";
 
 export type PrepareProjectArguments = {
@@ -33,9 +34,11 @@ const GLOBAL_STYLE = dedent`
     vertical-align: -0.1em;
   }
 `;
+const FAVICON = ENCODED;
 const DEFAULT_TAGS = dedent`
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="${FAVICON}" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://twemoji.maxcdn.com" crossorigin>
