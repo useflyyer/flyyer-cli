@@ -1054,10 +1054,10 @@
     eslint-plugin-react "^7.22.0"
     eslint-plugin-react-hooks "^4.2.0"
 
-"@flayyer/flayyer@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@flayyer/flayyer/-/flayyer-2.1.1.tgz#c17a1e8f7c68e9016a992529823ff7a4266c67a0"
-  integrity sha512-b2HOVs0VeHpyknz2PmP0Koy51GZAePm0AOV+Rotl8fUx8eRAtb39CTOY1QR7w8wOgH9Tl2OCO9H1N4THSFzbiw==
+"@flayyer/flayyer@^2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@flayyer/flayyer/-/flayyer-2.3.1.tgz#43e2c0162126f3cef9743d233501c3887f7bc10c"
+  integrity sha512-MKR3b0ZPMhVSkXogoTteBvydtaBBrZgTFTc0lTulJPJXKT2ydziwJ3tx5MM06TqaTmqadj055niHk+CITYt/Cw==
   dependencies:
     "@types/qs" "^6.9.6"
     qs "^6.10.1"
