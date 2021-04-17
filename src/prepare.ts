@@ -92,13 +92,13 @@ export async function prepareProject({
                 _id: id,
                 _tags: tags,
                 _ua: ua,
-                _lang: lang,
+                _loc: loc,
                 _w,
                 _h,
                 ...variables
               } = qs.parse(str, { ignoreQueryPrefix: true });
               const agent = { name: ua };
-              return { id, tags, variables, agent, lang: lang || undefined, width: Number(_w), height: Number(_h) }
+              return { id, tags, variables, agent, locale: loc || undefined, width: Number(_w), height: Number(_h) }
             }
 
             function WrappedTemplate() {
@@ -200,13 +200,13 @@ export async function prepareProject({
                   _id: id,
                   _tags: tags,
                   _ua: ua,
-                  _lang: lang,
+                  _loc: loc,
                   _w,
                   _h,
                   ...variables
                 } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
                 const agent = { name: ua };
-                const props = { id, tags, variables, agent, lang: lang || undefined, width: Number(_w), height: Number(_h) };
+                const props = { id, tags, variables, agent, locale: loc || undefined, width: Number(_w), height: Number(_h) };
                 const style = ${JSON.stringify(style)};
                 return createElement(Template, { props, style });
               },
