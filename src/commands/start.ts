@@ -106,6 +106,7 @@ export default class Start extends Command {
       cache: true,
       cacheDir: cache,
       // contentHash: true,
+      https: flags.https,
       minify: false,
       target: "browser",
       // logLevel: 0 as any,
@@ -126,6 +127,9 @@ export default class Start extends Command {
       }
       if (String(flags.port) !== "7777") {
         query.port = flags.port;
+      }
+      if (flags.https) {
+        query.protocol = "https:";
       }
       query.template = template;
       return STUDIO_URL + qs.stringify(query, { addQueryPrefix: true });
