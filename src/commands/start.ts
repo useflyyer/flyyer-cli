@@ -26,7 +26,7 @@ export default class Start extends Command {
     // Add examples here:
     "$ flayyer start",
     "$ flayyer start -p 8000",
-    "$ flayyer start -p 8000 -H 0.0.0.0",
+    "$ flayyer start -p 8000 -H 0.0.0.0 --browser=none",
     "$ flayyer start --help",
   ];
 
@@ -34,6 +34,7 @@ export default class Start extends Command {
     help: flags.help({ char: "h" }),
     port: flags.integer({ char: "p", default: 7777 }),
     host: flags.string({ char: "H", default: "localhost" }),
+    browser: flags.enum({ options: ["auto", "none"], default: "auto" }),
     https: flags.boolean({ default: false }),
   };
 
@@ -165,7 +166,7 @@ export default class Start extends Command {
       const href = `${url}/${entry.name}.html`;
       this.log(`📄  Found template '${chalk.bold(entry.name)}' at: ${href}`);
       this.log(`    Go to: ${chalk.bold(preview)}`);
-      if (i === entries.length - 1) {
+      if (i === entries.length - 1 && flags.browser === "auto") {
         try {
           this.log(`    Opening Flayyer Studio in default browser...`);
           await open(preview);
