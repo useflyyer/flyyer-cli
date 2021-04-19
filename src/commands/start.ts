@@ -8,10 +8,10 @@ import dedent from "dedent";
 import del from "del";
 import open from "open";
 import Bundler, { ParcelOptions } from "parcel-bundler";
-import qs from "qs";
 
 import { prepareProject } from "../prepare";
 import { namespaced } from "../utils/debug";
+import { studio } from "../utils/studio";
 import { TemplateRegistry } from "./build";
 
 const debug = namespaced("start");
@@ -120,22 +120,6 @@ export default class Start extends Command {
     debug("options for Parcel are: %O", bundlerOptions);
     const bundler = new Bundler(glob, bundlerOptions);
 
-    const STUDIO_URL = "https://flayyer.github.io/flayyer-studio/";
-    function studio({ template }: { template: string }) {
-      const query: any = {};
-      if (flags.host !== "localhost") {
-        query.host = flags.host;
-      }
-      if (String(flags.port) !== "7777") {
-        query.port = flags.port;
-      }
-      if (flags.https) {
-        query.protocol = "https:";
-      }
-      query.template = template;
-      return STUDIO_URL + qs.stringify(query, { addQueryPrefix: true });
-    }
-
     const url = `${flags.https ? "https" : "http"}://${flags.host}:${flags.port}`;
     debug("will start Parcel server as: %s", url);
     const server = await bundler.serve(flags.port, flags.https, flags.host);
@@ -158,11 +142,11 @@ export default class Start extends Command {
     this.log("");
 
     this.log(`💻  Remember to preview and develop your Flayyer templates at:`);
-    this.log(`    ${chalk.bold(STUDIO_URL)}`);
+    this.log(`    ${chalk.bold(flags)}`);
     this.log("");
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i]!;
-      const preview = studio({ template: entry.name });
+      const preview = studio(flags, { template: entry.name });
       const href = `${url}/${entry.name}.html`;
       this.log(`📄  Found template '${chalk.bold(entry.name)}' at: ${href}`);
       this.log(`    Go to: ${chalk.bold(preview)}`);
