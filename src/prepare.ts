@@ -43,6 +43,23 @@ const DEFAULT_TAGS = dedent`
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://twemoji.maxcdn.com" crossorigin>
 `;
+const ALLOWED_ORIGINS = ["https://flayyer.com", "https://flayyer.github.io", "http://localhost:9000"];
+const PARSE_QS = dedent`
+  // @ts-ignore
+  function PARSE_QS(str) {
+    const {
+      _id: id,
+      _tags: tags,
+      _ua: ua,
+      _loc: loc,
+      _w,
+      _h,
+      ...variables
+    } = qs.parse(str, { ignoreQueryPrefix: true });
+    const agent = { name: ua };
+    return { id, tags, variables, agent, locale: loc || undefined, width: Number(_w), height: Number(_h) }
+  }
+`;
 
 export async function prepareProject({
   engine,
@@ -84,22 +101,9 @@ export async function prepareProject({
 
             import Template from "./${nameNoExt}";
 
-            const ALLOWED_ORIGINS = ["https://flayyer.com", "https://flayyer.github.io", "http://localhost:9000"];
+            const ALLOWED_ORIGINS = ${JSON.stringify(ALLOWED_ORIGINS)};
 
-            // @ts-ignore
-            function PARSE_QS(str) {
-              const {
-                _id: id,
-                _tags: tags,
-                _ua: ua,
-                _loc: loc,
-                _w,
-                _h,
-                ...variables
-              } = qs.parse(str, { ignoreQueryPrefix: true });
-              const agent = { name: ua };
-              return { id, tags, variables, agent, locale: loc || undefined, width: Number(_w), height: Number(_h) }
-            }
+            ${PARSE_QS}
 
             function WrappedTemplate() {
               const [props, setProps] = useState(() => {
@@ -194,26 +198,52 @@ export async function prepareProject({
 
             import Template from "./${name}";
 
+            const ALLOWED_ORIGINS = ${JSON.stringify(ALLOWED_ORIGINS)};
+
+            ${PARSE_QS}
+
             new Vue({
-              render: createElement => {
-                const {
-                  _id: id,
-                  _tags: tags,
-                  _ua: ua,
-                  _loc: loc,
-                  _w,
-                  _h,
-                  ...variables
-                } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-                const agent = { name: ua };
-                const props = { id, tags, variables, agent, locale: loc || undefined, width: Number(_w), height: Number(_h) };
+              data: {
+                parameters: {},
+              },
+              render(createElement) {
+                const parameters = this.parameters;
                 const style = ${JSON.stringify(style)};
-                return createElement(Template, { props, style });
+                return createElement(Template, { props: parameters, style });
+              },
+              created() {
+                this.parameters = PARSE_QS(window.location.search.replace("?", "") || window.location.hash.replace("#", ""));
               },
               mounted() {
-                this.$nextTick(function () {
+                this.$nextTick(this.emojify);
+                window.addEventListener("message", this.handler, false);
+              },
+              beforeDestroy() {
+                window.removeEventListener("message", this.handler)
+              },
+              methods: {
+                emojify() {
                   twemoji.parse(window.document.body, { folder: "svg", ext: ".svg" });
-                })
+                },
+                handler(event) {
+                  const known = ALLOWED_ORIGINS.includes(event.origin);
+                  if (!known) {
+                    return console.warn("Origin %s is not known. Ignoring posted message.", event.origin);
+                  } else if (typeof event.data !== "object") {
+                    return console.error("Message sent by %s is not an object. Ignoring posted message.", event.origin);
+                  }
+                  const message = event.data;
+                  switch (message.type) {
+                    case "flayyer-variables": {
+                      this.parameters = PARSE_QS(message["payload"]["query"]);
+                      break;
+                    }
+                    default: {
+                      console.warn("Message not recognized: %s", message.type);
+                      break;
+                    }
+                  }
+                },
               },
             }).$mount("#root");
 
