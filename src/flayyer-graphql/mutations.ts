@@ -31,6 +31,7 @@ export const createDeckConfirm = gql`
   mutation createDeckConfirm($input: APICreateDeckConfirmInput!) {
     createDeckConfirm: API_createDeckConfirm(input: $input) {
       urls
+      deployedURL
     }
   }
 `;

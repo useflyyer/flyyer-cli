@@ -55,7 +55,8 @@ export default class Build extends Command {
     }),
   };
 
-  async run() {
+  async run(): Promise<void> {
+    debug("cli version is: %s", this.config.version);
     const parsed = this.parse(Build);
 
     debug("NODE_ENV is %s", String(process.env.NODE_ENV));

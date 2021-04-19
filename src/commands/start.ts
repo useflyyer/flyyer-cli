@@ -8,10 +8,10 @@ import dedent from "dedent";
 import del from "del";
 import open from "open";
 import Bundler, { ParcelOptions } from "parcel-bundler";
-import qs from "qs";
 
 import { prepareProject } from "../prepare";
 import { namespaced } from "../utils/debug";
+import { studio } from "../utils/studio";
 import { TemplateRegistry } from "./build";
 
 const debug = namespaced("start");
@@ -26,7 +26,7 @@ export default class Start extends Command {
     // Add examples here:
     "$ flayyer start",
     "$ flayyer start -p 8000",
-    "$ flayyer start -p 8000 -H 0.0.0.0",
+    "$ flayyer start -p 8000 -H 0.0.0.0 --browser=none",
     "$ flayyer start --help",
   ];
 
@@ -34,12 +34,14 @@ export default class Start extends Command {
     help: flags.help({ char: "h" }),
     port: flags.integer({ char: "p", default: 7777 }),
     host: flags.string({ char: "H", default: "localhost" }),
+    browser: flags.enum({ options: ["auto", "none"], default: "auto" }),
     https: flags.boolean({ default: false }),
   };
 
   static args = [];
 
-  async run() {
+  async run(): Promise<void> {
+    debug("cli version is: %s", this.config.version);
     const { flags } = this.parse(Start);
 
     const CURR_DIR = process.cwd();
@@ -105,6 +107,7 @@ export default class Start extends Command {
       cache: true,
       cacheDir: cache,
       // contentHash: true,
+      https: flags.https,
       minify: false,
       target: "browser",
       // logLevel: 0 as any,
@@ -116,19 +119,6 @@ export default class Start extends Command {
     debug("glob pattern for Parcel is: %s", glob);
     debug("options for Parcel are: %O", bundlerOptions);
     const bundler = new Bundler(glob, bundlerOptions);
-
-    const STUDIO_URL = "https://flayyer.github.io/flayyer-studio/";
-    function studio({ template }: { template: string }) {
-      const query: any = {};
-      if (flags.host !== "localhost") {
-        query.host = flags.host;
-      }
-      if (String(flags.port) !== "7777") {
-        query.port = flags.port;
-      }
-      query.template = template;
-      return STUDIO_URL + qs.stringify(query, { addQueryPrefix: true });
-    }
 
     const url = `${flags.https ? "https" : "http"}://${flags.host}:${flags.port}`;
     debug("will start Parcel server as: %s", url);
@@ -152,15 +142,15 @@ export default class Start extends Command {
     this.log("");
 
     this.log(`💻  Remember to preview and develop your Flayyer templates at:`);
-    this.log(`    ${chalk.bold(STUDIO_URL)}`);
+    this.log(`    ${chalk.bold(flags)}`);
     this.log("");
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i]!;
-      const preview = studio({ template: entry.name });
+      const preview = studio(flags, { template: entry.name });
       const href = `${url}/${entry.name}.html`;
       this.log(`📄  Found template '${chalk.bold(entry.name)}' at: ${href}`);
       this.log(`    Go to: ${chalk.bold(preview)}`);
-      if (i === entries.length - 1) {
+      if (i === entries.length - 1 && flags.browser === "auto") {
         try {
           this.log(`    Opening Flayyer Studio in default browser...`);
           await open(preview);

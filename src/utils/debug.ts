@@ -12,7 +12,7 @@ export function namespaced(...namespaces: string[]): Debugger {
   return base;
 }
 
-export function censure(secret?: string | null) {
+export function censure(secret?: string | null): string | undefined {
   return "*".repeat((secret || "").length) || undefined;
 }
 
