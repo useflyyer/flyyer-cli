@@ -22,7 +22,7 @@ $ npm install -g @flayyer/cli
 $ flayyer COMMAND
 running command...
 $ flayyer (-v|--version|version)
-@flayyer/cli/1.14.0 darwin-x64 node-v14.15.3
+@flayyer/cli/1.15.0 darwin-x64 node-v14.15.3
 $ flayyer --help [COMMAND]
 USAGE
   $ flayyer COMMAND
@@ -59,7 +59,7 @@ EXAMPLES
   $ flayyer build --help
 ```
 
-_See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.14.0/src/commands/build.ts)_
+_See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.15.0/src/commands/build.ts)_
 
 ## `flayyer deploy [DIRECTORY]`
 
@@ -87,7 +87,7 @@ EXAMPLES
   $ flayyer deploy --help
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.14.0/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.15.0/src/commands/deploy.ts)_
 
 ## `flayyer help [COMMAND]`
 
@@ -115,9 +115,10 @@ USAGE
   $ flayyer start
 
 OPTIONS
-  -H, --host=host  [default: localhost]
-  -h, --help       show CLI help
-  -p, --port=port  [default: 7777]
+  -H, --host=host        [default: localhost]
+  -h, --help             show CLI help
+  -p, --port=port        [default: 7777]
+  --browser=(auto|none)  [default: auto]
   --https
 
 DESCRIPTION
@@ -126,9 +127,9 @@ DESCRIPTION
 EXAMPLES
   $ flayyer start
   $ flayyer start -p 8000
-  $ flayyer start -p 8000 -H 0.0.0.0
+  $ flayyer start -p 8000 -H 0.0.0.0 --browser=none
   $ flayyer start --help
 ```
 
-_See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.14.0/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.15.0/src/commands/start.ts)_
 <!-- commandsstop -->
