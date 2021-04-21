@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 
 import { FlayyerIO } from "@flayyer/flayyer";
+import type { FlayyerConfig } from "@flayyer/flayyer-types";
 import { goerr } from "@flayyer/goerr";
 import { Command, flags } from "@oclif/command";
 import type { args } from "@oclif/parser";
@@ -89,12 +90,12 @@ export default class Deploy extends Command {
     debug("zipped bundle path is: %s", zipPath);
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const config = require(configPath);
+    const config: Partial<FlayyerConfig> = require(configPath); // TODO: schema is not guaranteed.
     if (config.key) {
       debug("'key' is present in config");
     } else {
       debug("'key' is not present in config");
-      this.error(`
+      this.error(dedent`
         Missing 'key' property in file 'flayyer.config.js'.
 
         ${chalk.bold("Remember to setup your 'FLAYYER_KEY' environment variable.")}
@@ -107,6 +108,12 @@ export default class Deploy extends Command {
     if (!config.engine) {
       this.warn("Missing setting 'engine' in 'flayyer.config.js', will default to 'react'");
       config.engine = "react";
+    }
+
+    if (!config.deck) {
+      this.error(dedent`
+        Missing "deck" property in flayyer.config.js object.
+      `);
     }
 
     await new Promise((resolve, reject) => {
@@ -161,9 +168,15 @@ export default class Deploy extends Command {
       slug: config.deck,
       templates: meta.templates,
       engine: config.engine,
+      homepage: config.homepage,
+      keywords: config.keywords,
+      license: config.license,
+      marketplace: config.marketplace,
+      repositoryURL: config.repository,
+      sizes: config.sizes as types.DeckSizes[],
       name: config.name,
       description: config.description,
-      private: Boolean(config.private),
+      private: config.private,
       cli: this.config.version,
     };
 

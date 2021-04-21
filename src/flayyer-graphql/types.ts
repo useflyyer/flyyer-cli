@@ -84,6 +84,15 @@ export interface createDeckConfirmVariables {
 // START Enums and Input Objects
 //==============================================================
 
+export enum DeckSizes {
+  BANNER = "BANNER",
+  FREE = "FREE",
+  SQUARE = "SQUARE",
+  STORY = "STORY",
+  THUMBNAIL = "THUMBNAIL",
+  VERTICAL = "VERTICAL",
+}
+
 export interface APICreateDeckConfirmInput {
   slug: string;
   version: number;
@@ -93,6 +102,11 @@ export interface APICreateDeckInput {
   slug: string;
   engine?: string | null;
   cli?: string | null;
+  homepage?: string | null;
+  license?: string | null;
+  keywords?: string[] | null;
+  sizes?: DeckSizes[] | null;
+  repositoryURL?: string | null;
   name?: string | null;
   marketplace?: boolean | null;
   private?: boolean | null;
