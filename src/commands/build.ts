@@ -9,21 +9,10 @@ import dedent from "dedent";
 import del from "del";
 import Bundler, { ParcelOptions } from "parcel-bundler";
 
-import { prepareProject } from "../prepare";
+import { MetaOutput, MetaOutputTemplate, prepareProject, TemplateRegistry } from "../prepare";
 import { namespaced } from "../utils/debug";
 
 const debug = namespaced("build");
-
-export type TemplateRegistry = {
-  name: string;
-  path: string;
-  html: {
-    path: string;
-  };
-  js: {
-    path: string;
-  };
-};
 
 export default class Build extends Command {
   static description = dedent`
@@ -110,6 +99,47 @@ export default class Build extends Command {
       this.error(error); // exits
     }
 
+    this.log(`🔮  ${chalk.bold(`Found ${entries.length} templates, analyzing...`)}`);
+    const schemas = new Map<string /* variable.name */, null | any /* JSONSchemaDraft6 as Object */>();
+    for (const item of entries) {
+      const vname = item.variables.name;
+      const vsource = item.variables.path;
+      const ename = item.entry.name;
+      debug("will try to bundle variables file at: %s", vsource);
+      try {
+        const nodeBundler = new Bundler(vsource, {
+          outDir: out,
+          watch: false,
+          cacheDir: cache,
+          contentHash: false,
+          minify: false,
+          target: "node",
+          sourceMaps: false,
+          detailedReport: false,
+          logLevel: 1,
+        });
+        await nodeBundler.bundle();
+        const destination = path.join(out, vname);
+        debug("will try to 'require()' bundled variables at: %s", destination);
+        const required = require(destination);
+        debug("file required and now will try to get schema via 'getFlayyerSchemaExecute' -> 'getFlayyerSchema'");
+        const { schema } = await required.getFlayyerSchemaExecute();
+        debug("for file '%s' got schema: %O", vname, schema);
+        schemas.set(vname, schema);
+        const n = chalk.green(ename);
+        this.log(`     - ${n}: found 'getFlayyerSchema', will display variables UI on Flayyer.com  ✅`);
+      } catch (error) {
+        const n = chalk.yellow(ename);
+        this.log(`     - ${n}: to enable variables UI on Flayyer.com please export a 'getFlayyerSchema' function`);
+        debug(
+          "failed to retrieve schema of '%s' via 'getFlayyerSchemaExecute', maybe template is not exporting 'getFlayyerSchema'",
+          ename,
+        );
+        debug("error was: %o", error);
+        schemas.set(vname, null);
+      }
+    }
+
     this.log(`🏗   Will build with Parcel 📦 bundler`);
     const glob = path.join(to, "*.html");
     const bundlerOptions: ParcelOptions = {
@@ -133,8 +163,15 @@ export default class Build extends Command {
     await bundler.bundle();
     debug("success at building");
 
-    const templates = entries.map((entry) => ({ slug: entry.name }));
-    const meta = { templates };
+    const templates: MetaOutputTemplate[] = entries.map((item) => {
+      const vname = item.variables.name;
+      const ename = item.entry.name;
+      return {
+        slug: ename,
+        schema6: schemas.get(vname),
+      };
+    });
+    const meta: MetaOutput = { templates };
     debug("will create meta file at '%s' with: %O", outMeta, meta);
     fs.writeFileSync(outMeta, JSON.stringify(meta), "utf8");
 

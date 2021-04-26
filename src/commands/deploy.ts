@@ -20,6 +20,7 @@ import { GraphQLClient } from "graphql-request";
 
 import * as mutations from "../flayyer-graphql/mutations";
 import * as types from "../flayyer-graphql/types";
+import { MetaOutput } from "../prepare";
 import { namespaced } from "../utils/debug";
 
 const debug = namespaced("deploy");
@@ -89,6 +90,20 @@ export default class Deploy extends Command {
 
     debug("zipped bundle path is: %s", zipPath);
 
+    const [meta, metaError] = goerr<MetaOutput, Error & { code?: string }>(() =>
+      JSON.parse(fs.readFileSync(outMeta, "utf-8")),
+    );
+    if (metaError) {
+      if (metaError.code === "ENOENT") {
+        const npmBuild = chalk.bold("NODE_ENV=production npm run-script build");
+        const yarnBuild = chalk.bold("NODE_ENV=production yarn build");
+        this.error(dedent`
+          Production files not found at '.flayyer-dist' directory. Please run 'flayyer build' before deploying.
+          Execute ${npmBuild} or ${yarnBuild} and then try again.
+        `);
+      }
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const config: Partial<FlayyerConfig> = require(configPath); // TODO: schema is not guaranteed.
     if (config.key) {
@@ -155,8 +170,6 @@ export default class Deploy extends Command {
     });
     debug("file was successfully zipped");
 
-    const meta = JSON.parse(fs.readFileSync(outMeta, "utf-8"));
-
     const url = parsed.flags["remote"];
 
     debug("creating graphql client with: %s", url);
@@ -187,7 +200,11 @@ export default class Deploy extends Command {
       const [res, error] = await goerr(
         client.request<types.createDeck, types.createDeckVariables>(mutations.createDeck, { input }),
       );
-      if (error) {
+      if (error && error.message.includes("Tenant for token not found")) {
+        this.error(dedent`
+          Failed to authenticate using provided FLAYYER_KEY token. Please check if you are using a valid token or generate a new one at https://flayyer.com/dashboard/_/settings
+        `);
+      } else if (error) {
         this.error(error);
       }
 
