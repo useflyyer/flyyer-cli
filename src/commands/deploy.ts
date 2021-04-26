@@ -302,6 +302,7 @@ export default class Deploy extends Command {
         this.log(`       - ${f.clone({ variables: { title: "Thanks for using Flayyer" } }).href()}`);
         this.log(`     ${"Multiple variables:"}`);
         this.log(`       - ${withEmoji}`);
+        this.log("");
       }
     }
 

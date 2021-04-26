@@ -103,7 +103,7 @@ export default class Build extends Command {
     const schemas = new Map<string /* variable.name */, null | any /* JSONSchemaDraft6 as Object */>();
     for (const item of entries) {
       const vname = item.variables.name;
-      const vsource = item.variables.path;
+      const vsource = item.variables.path; // Hey Vsource, Michael here!
       const ename = item.entry.name;
       debug("will try to bundle variables file at: %s", vsource);
       try {
