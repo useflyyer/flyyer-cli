@@ -4,7 +4,6 @@ import path from "path";
 import dedent from "dedent";
 
 import { ENCODED } from "./assets/logo";
-import { TemplateRegistry } from "./commands/build";
 
 export type PrepareProjectArguments = {
   engine: string; // TODO: convert to enum
@@ -16,6 +15,28 @@ export type PrepareProjectArguments = {
   style: {
     [key: string]: any;
   };
+};
+
+export type TemplateRegistryItem = {
+  /** Filename without path */
+  name: string;
+  /** Absolute path */
+  path: string;
+};
+
+export type TemplateRegistry = {
+  /** Template file created by user at `/templates` */
+  entry: TemplateRegistryItem;
+  html: TemplateRegistryItem;
+  /** Generated JS file with componen wrapping the entry component. */
+  js: TemplateRegistryItem;
+  /** Generated file where getFlayyerSchema is imported and exported for Node.js */
+  variables: TemplateRegistryItem;
+};
+
+export type MetaOutputTemplate = { slug: string; schema6?: any | null };
+export type MetaOutput = {
+  templates: MetaOutputTemplate[];
 };
 
 /**
@@ -60,6 +81,16 @@ const PARSE_QS = dedent`
     return { id, tags, variables, agent, locale: loc || undefined, width: Number(_w), height: Number(_h) }
   }
 `;
+const IS_FUNCTION = dedent`
+  // @ts-ignore
+  function isFunction(func) {
+    // @ts-ignore
+    if (func && typeof func === "function") {
+      return true
+    }
+    return false
+  }
+`;
 
 export async function prepareProject({
   engine,
@@ -72,34 +103,46 @@ export async function prepareProject({
   fs.mkdirSync(to, { recursive: true });
 
   const entries: TemplateRegistry[] = [];
-  for (const name of names) {
-    const namePath = path.join(from, name);
+  for (const nameExt of names) {
+    const namePath = path.join(from, nameExt);
     const stats = fs.statSync(namePath);
     if (stats.isDirectory()) {
       throw new Error(dedent`
-        Directories inside '/templates' are not supported. Please move directory '${name}' outside of '/templates' to a new sibling directory like '/components' or '/utils'.
+        Directories inside '/templates' are not supported. Please move directory '${nameExt}' outside of '/templates' to a new sibling directory like '/components' or '/utils'.
       `);
     } else if (stats.isFile()) {
       // Write template body to new file
       const contents = fs.readFileSync(namePath, "utf8");
-      const writePath = path.join(to, name);
+      const writePath = path.join(to, nameExt);
       fs.writeFileSync(writePath, contents, "utf8");
 
-      const ext = path.extname(name);
-      const nameNoExt = path.basename(name, ext);
+      /** Has dot (eg: `.js`) */
+      const ext = path.extname(nameExt);
+      const nameNoExt = path.basename(nameExt, ext);
+
+      const flayyerEntry = nameNoExt;
+      const flayyerEntryExt = nameNoExt + ext;
       if (["react", "react-typescript"].includes(engine)) {
         if ([".js", ".jsx", ".ts", ".tsx"].includes(ext)) {
-          const flayyerHTMLName = path.basename(writePath, ext) + ".html";
-          const flayyerHTMLPath = path.join(path.dirname(writePath), flayyerHTMLName);
-          const flayyerJSName = "flayyer-" + path.basename(writePath, ext) + ext;
-          const flayyerJSPath = path.join(path.dirname(writePath), flayyerJSName);
+          const flayyerHTMLName = path.basename(writePath, ext);
+          const flayyerHTMLNameExt = flayyerHTMLName + ".html";
+          const flayyerHTMLPath = path.join(path.dirname(writePath), flayyerHTMLNameExt);
+
+          const flayyerJSName = "flayyer-" + path.basename(writePath, ext);
+          const flayyerJSNameExt = flayyerJSName + ext;
+          const flayyerJSPath = path.join(path.dirname(writePath), flayyerJSNameExt);
+
+          const flayyerVariablesName = "flayyer-" + path.basename(writePath, ext) + ".variables";
+          const flayyerVariablesNameExt = flayyerVariablesName + ext;
+          const flayyerVariablesPath = path.join(path.dirname(writePath), flayyerVariablesNameExt);
+
           const flayyerJS = dedent`
             import React, { useRef, useEffect, useState } from "react"
             import ReactDOM from "react-dom";
             import qs from "qs";
             import twemoji from "twemoji";
 
-            import Template from "./${nameNoExt}";
+            import Template from "./${flayyerEntry}";
 
             const ALLOWED_ORIGINS = ${JSON.stringify(ALLOWED_ORIGINS)};
 
@@ -145,6 +188,7 @@ export async function prepareProject({
 
               return (
                 <main ref={elementRef} style={${JSON.stringify(style)}}>
+                  {/* @ts-ignore */}
                   <Template {...props} />
                 </main>
               );
@@ -165,7 +209,7 @@ export async function prepareProject({
             <html>
               <head>
                 ${DEFAULT_TAGS}
-                <title>${name}</title>
+                <title>${flayyerJSNameExt}</title>
                 <style>
                   ${GLOBAL_STYLE}
                 </style>
@@ -173,30 +217,55 @@ export async function prepareProject({
               <body>
                 <div id="root"></div>
 
-                <script src="./${flayyerJSName}"></script>
+                <script src="./${flayyerJSNameExt}"></script>
               </body>
             </html>
           `;
           fs.writeFileSync(flayyerHTMLPath, flayyerHTML, "utf8");
+
+          const flayyerVariables = dedent`
+            ${IS_FUNCTION}
+            export async function getFlayyerSchemaExecute() {
+              try {
+                // @ts-ignore
+                const { getFlayyerSchema } = await import("./${flayyerEntry}");
+                // @ts-ignore
+                return isFunction(getFlayyerSchema) ? getFlayyerSchema() : getFlayyerSchema;
+              } catch (err) {
+                return null;
+              }
+            };
+          `;
+          fs.writeFileSync(flayyerVariablesPath, flayyerVariables, "utf8");
+
           entries.push({
-            name: nameNoExt,
-            path: namePath,
-            html: { path: flayyerHTMLPath },
-            js: { path: flayyerJSPath },
+            entry: { name: nameNoExt, path: namePath },
+            html: { name: flayyerHTMLName, path: flayyerHTMLPath },
+            js: { name: flayyerJSName, path: flayyerJSPath },
+            variables: { name: flayyerVariablesName, path: flayyerVariablesPath },
           });
         }
       } else if (["vue", "vue-typescript"].includes(engine)) {
         if ([".vue"].includes(ext)) {
-          const flayyerHTMLName = path.basename(writePath, ext) + ".html";
-          const flayyerHTMLPath = path.join(path.dirname(writePath), flayyerHTMLName);
-          const flayyerJSName = "flayyer-" + path.basename(writePath, ext) + ".js";
-          const flayyerJSPath = path.join(path.dirname(writePath), flayyerJSName);
+          const flayyerHTMLName = path.basename(writePath, ext);
+          const flayyerHTMLNameExt = flayyerHTMLName + ".html";
+          const flayyerHTMLPath = path.join(path.dirname(writePath), flayyerHTMLNameExt);
+
+          const flayyerJSName = "flayyer-" + path.basename(writePath, ext);
+          const flayyerJSNameExt = flayyerJSName + ".js";
+          const flayyerJSPath = path.join(path.dirname(writePath), flayyerJSNameExt);
+
+          const flayyerVariablesName = "flayyer-" + path.basename(writePath, ext) + ".variables";
+          const flayyerVariablesNameExt = flayyerVariablesName + ".js";
+          const flayyerVariablesPath = path.join(path.dirname(writePath), flayyerVariablesNameExt);
+
           const flayyerJS = dedent`
             import Vue from "vue";
             import qs from "qs";
             import twemoji from "twemoji";
 
-            import Template from "./${name}";
+            // Requires explicit .vue extension
+            import Template from "./${nameExt}";
 
             const ALLOWED_ORIGINS = ${JSON.stringify(ALLOWED_ORIGINS)};
 
@@ -259,7 +328,7 @@ export async function prepareProject({
             <html>
               <head>
                 ${DEFAULT_TAGS}
-                <title>${name}</title>
+                <title>${flayyerJSNameExt}</title>
                 <style>
                   ${GLOBAL_STYLE}
                 </style>
@@ -267,16 +336,33 @@ export async function prepareProject({
               <body>
                 <div id="root"></div>
 
-                <script src="./${flayyerJSName}"></script>
+                <script src="./${flayyerJSNameExt}"></script>
               </body>
             </html>
           `;
           fs.writeFileSync(flayyerHTMLPath, flayyerHTML, "utf8");
+
+          // Requires explicit .vue extension
+          const flayyerVariables = dedent`
+            ${IS_FUNCTION}
+            export async function getFlayyerSchemaExecute() {
+              try {
+                // @ts-ignore
+                const { getFlayyerSchema } = await import("./${flayyerEntryExt}");
+                // @ts-ignore
+                return isFunction(getFlayyerSchema) ? getFlayyerSchema() : getFlayyerSchema;
+              } catch (err) {
+                return null;
+              }
+            };
+          `;
+          fs.writeFileSync(flayyerVariablesPath, flayyerVariables, "utf8");
+
           entries.push({
-            name: nameNoExt,
-            path: namePath,
-            html: { path: flayyerHTMLPath },
-            js: { path: flayyerJSPath },
+            entry: { name: nameNoExt, path: namePath },
+            html: { name: flayyerHTMLName, path: flayyerHTMLPath },
+            js: { name: flayyerJSName, path: flayyerJSPath },
+            variables: { name: flayyerVariablesName, path: flayyerVariablesPath },
           });
         }
       }

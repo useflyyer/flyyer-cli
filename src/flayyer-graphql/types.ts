@@ -116,6 +116,7 @@ export interface APICreateDeckInput {
 
 export interface APICreateDeckInputTemplate {
   slug: string;
+  schema6?: any | null;
 }
 
 //==============================================================

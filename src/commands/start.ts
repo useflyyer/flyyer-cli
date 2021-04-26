@@ -9,10 +9,9 @@ import del from "del";
 import open from "open";
 import Bundler, { ParcelOptions } from "parcel-bundler";
 
-import { prepareProject } from "../prepare";
+import { prepareProject, TemplateRegistry } from "../prepare";
 import { namespaced } from "../utils/debug";
 import { studio } from "../utils/studio";
-import { TemplateRegistry } from "./build";
 
 const debug = namespaced("start");
 
@@ -145,7 +144,8 @@ export default class Start extends Command {
     this.log(`    ${chalk.bold(flags)}`);
     this.log("");
     for (let i = 0; i < entries.length; i++) {
-      const entry = entries[i]!;
+      const item = entries[i]!;
+      const entry = item.entry;
       const preview = studio(flags, { template: entry.name });
       const href = `${url}/${entry.name}.html`;
       this.log(`📄  Found template '${chalk.bold(entry.name)}' at: ${href}`);
