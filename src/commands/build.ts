@@ -130,7 +130,7 @@ export default class Build extends Command {
         debug("for file '%s' got schema: %O", vname, schema);
         schemas.set(vname, schema);
         const n = chalk.green(ename);
-        this.log(`     - ${n}: found 'schema', will display variables UI on Flayyer.com  ✅`);
+        this.log(`     - ${n}: found 'schema', can display variables UI on Flayyer.com  ✅`);
       } catch (error) {
         const n = chalk.yellow(ename);
         this.log(
