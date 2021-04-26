@@ -99,7 +99,7 @@ export default class Build extends Command {
       this.error(error); // exits
     }
 
-    this.log(`🔮  ${chalk.bold(`Found ${entries.length} templates, analyzing...`)}`);
+    this.log(`🔮  ${chalk.bold(`Found ${entries.length} templates, processing...`)}`);
     const schemas = new Map<string /* variable.name */, null | any /* JSONSchemaDraft6 as Object */>();
     for (const item of entries) {
       const vname = item.variables.name;
@@ -122,17 +122,22 @@ export default class Build extends Command {
         const destination = path.join(out, vname);
         debug("will try to 'require()' bundled variables at: %s", destination);
         const required = require(destination);
-        debug("file required and now will try to get schema via 'getFlayyerSchemaExecute' -> 'getFlayyerSchema'");
-        const { schema } = await required.getFlayyerSchemaExecute();
+        debug("file required and now will try to import `schema` via 'getFlayyerSchema'");
+        const { schema } = await required.getFlayyerSchema();
+        if (!schema) {
+          throw new Error("Tried to import 'schema' but it is 'null' or missing");
+        }
         debug("for file '%s' got schema: %O", vname, schema);
         schemas.set(vname, schema);
         const n = chalk.green(ename);
-        this.log(`     - ${n}: found 'getFlayyerSchema', will display variables UI on Flayyer.com  ✅`);
+        this.log(`     - ${n}: found 'schema', will display variables UI on Flayyer.com  ✅`);
       } catch (error) {
         const n = chalk.yellow(ename);
-        this.log(`     - ${n}: to enable variables UI on Flayyer.com please export a 'getFlayyerSchema' function`);
+        this.log(
+          `     - ${n}: enable variables UI on Flayyer.com by exporting a 'schema' object from @flayyer/variables`,
+        );
         debug(
-          "failed to retrieve schema of '%s' via 'getFlayyerSchemaExecute', maybe template is not exporting 'getFlayyerSchema'",
+          "failed to retrieve 'schema' of '%s' via 'getFlayyerSchema', maybe template is not exporting 'schema'",
           ename,
         );
         debug("error was: %o", error);

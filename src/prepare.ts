@@ -30,7 +30,7 @@ export type TemplateRegistry = {
   html: TemplateRegistryItem;
   /** Generated JS file with componen wrapping the entry component. */
   js: TemplateRegistryItem;
-  /** Generated file where getFlayyerSchema is imported and exported for Node.js */
+  /** Generated file where `schema` is imported and exported for Node.js */
   variables: TemplateRegistryItem;
 };
 
@@ -79,16 +79,6 @@ const PARSE_QS = dedent`
     } = qs.parse(str, { ignoreQueryPrefix: true });
     const agent = { name: ua };
     return { id, tags, variables, agent, locale: loc || undefined, width: Number(_w), height: Number(_h) }
-  }
-`;
-const IS_FUNCTION = dedent`
-  // @ts-ignore
-  function isFunction(func) {
-    // @ts-ignore
-    if (func && typeof func === "function") {
-      return true
-    }
-    return false
   }
 `;
 
@@ -224,13 +214,12 @@ export async function prepareProject({
           fs.writeFileSync(flayyerHTMLPath, flayyerHTML, "utf8");
 
           const flayyerVariables = dedent`
-            ${IS_FUNCTION}
-            export async function getFlayyerSchemaExecute() {
+            export async function getFlayyerSchema() {
               try {
                 // @ts-ignore
-                const { getFlayyerSchema } = await import("./${flayyerEntry}");
+                const { schema } = await import("./${flayyerEntry}");
                 // @ts-ignore
-                return isFunction(getFlayyerSchema) ? getFlayyerSchema() : getFlayyerSchema;
+                return { schema }
               } catch (err) {
                 return null;
               }
@@ -344,13 +333,12 @@ export async function prepareProject({
 
           // Requires explicit .vue extension
           const flayyerVariables = dedent`
-            ${IS_FUNCTION}
-            export async function getFlayyerSchemaExecute() {
+            export async function getFlayyerSchema() {
               try {
                 // @ts-ignore
-                const { getFlayyerSchema } = await import("./${flayyerEntryExt}");
+                const { schema } = await import("./${flayyerEntryExt}");
                 // @ts-ignore
-                return isFunction(getFlayyerSchema) ? getFlayyerSchema() : getFlayyerSchema;
+                return { schema }
               } catch (err) {
                 return null;
               }
