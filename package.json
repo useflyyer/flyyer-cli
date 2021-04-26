@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@flayyer/flayyer": "^2.3.1",
-    "@flayyer/flayyer-types": "^1.9.0",
+    "@flayyer/flayyer-types": "^1.10.0",
     "@flayyer/goerr": "^1.2.0",
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
@@ -87,7 +87,7 @@
     "@types/node-fetch": "^2.5.10",
     "@types/parcel-bundler": "^1.12.3",
     "apollo": "2.32.8",
-    "eslint": "^7.24.0",
+    "eslint": "^7.25.0",
     "eslint-config-oclif": "^3.1",
     "eslint-config-oclif-typescript": "^0.2.0",
     "globby": "^11.0.3",
