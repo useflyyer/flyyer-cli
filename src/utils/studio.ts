@@ -4,7 +4,7 @@ const STUDIO_URL = "https://flayyer.github.io/flayyer-studio/";
 
 export function studio(
   flags: { host: string; port: number; https: boolean },
-  { template }: { template: string },
+  { template }: { template?: string } = {},
 ): string {
   const query: Record<string, string | number> = {
     /** This versions and onwards supports live previews */
@@ -19,6 +19,8 @@ export function studio(
   if (flags.https) {
     query.protocol = "https:";
   }
-  query.template = template;
+  if (template) {
+    query.template = template;
+  }
   return STUDIO_URL + qs.stringify(query, { addQueryPrefix: true });
 }

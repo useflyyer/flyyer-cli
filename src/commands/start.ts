@@ -141,7 +141,7 @@ export default class Start extends Command {
     this.log("");
 
     this.log(`💻  Remember to preview and develop your Flayyer templates at:`);
-    this.log(`    ${chalk.bold(flags)}`);
+    this.log(`    ${chalk.bold(studio(flags))}`);
     this.log("");
     for (let i = 0; i < entries.length; i++) {
       const item = entries[i]!;
