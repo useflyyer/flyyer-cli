@@ -105,7 +105,7 @@ export default class Start extends Command {
       watch: true,
       cache: true,
       cacheDir: cache,
-      // contentHash: true,
+      contentHash: false, // false to use content hashes
       https: flags.https,
       minify: false,
       target: "browser",

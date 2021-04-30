@@ -111,7 +111,7 @@ export default class Build extends Command {
           outDir: out,
           watch: false,
           cacheDir: cache,
-          contentHash: false,
+          contentHash: false, // false to use content hashes
           minify: false,
           target: "node",
           sourceMaps: false,
@@ -153,7 +153,7 @@ export default class Build extends Command {
       watch: false,
       cache: true,
       cacheDir: cache,
-      contentHash: true,
+      contentHash: false, // false to use content hashes
       minify: true,
       target: "browser",
       // logLevel: 0 as any,
