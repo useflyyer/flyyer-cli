@@ -184,7 +184,6 @@ export default class Deploy extends Command {
       homepage: config.homepage,
       keywords: config.keywords,
       license: config.license,
-      marketplace: config.marketplace,
       repositoryURL: config.repository,
       sizes: config.sizes as types.DeckSizes[],
       name: config.name,

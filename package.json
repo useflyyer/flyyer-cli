@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@flayyer/flayyer": "^2.3.1",
-    "@flayyer/flayyer-types": "^1.11.0",
+    "@flayyer/flayyer-types": "^1.11.1",
     "@flayyer/goerr": "^1.2.0",
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",

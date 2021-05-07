@@ -1075,10 +1075,10 @@
     eslint-plugin-vue "^7.8.0"
     vue-eslint-parser "^7.6.0"
 
-"@flayyer/flayyer-types@^1.11.0":
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/@flayyer/flayyer-types/-/flayyer-types-1.11.0.tgz#751c5c7e7d2a27ad6aacf54611454de572898847"
-  integrity sha512-ByKAmQbGoD2Hs2jiMtdaFv2rsNpuo5q0tn3GQMR2l+ogJXAp4o4RPdmSA0hebwOGg8rXiqI3teMFAyNZgKsrCg==
+"@flayyer/flayyer-types@^1.11.1":
+  version "1.11.1"
+  resolved "https://registry.yarnpkg.com/@flayyer/flayyer-types/-/flayyer-types-1.11.1.tgz#60df0d62e7513d7aefb7a081ee11b3d775d6c3bf"
+  integrity sha512-Z7BLNE+ohiBfVE7o3tbhZK7HWYEmZ/MXuDw86zh636cGmWhJZqrLLWaYanrBPFboViPccSwAK8DrxHThpVv5OQ==
 
 "@flayyer/flayyer@^2.3.1":
   version "2.3.1"
