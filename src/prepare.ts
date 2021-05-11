@@ -6,6 +6,7 @@ import dedent from "dedent";
 import { ENCODED } from "./assets/logo";
 
 export type PrepareProjectArguments = {
+  NODE_ENV?: string;
   engine: string; // TODO: convert to enum
   from: string;
   to: string;
@@ -83,6 +84,7 @@ const PARSE_QS = dedent`
 `;
 
 export async function prepareProject({
+  NODE_ENV = "development",
   engine,
   from,
   to,
@@ -127,7 +129,7 @@ export async function prepareProject({
           const flayyerVariablesPath = path.join(path.dirname(writePath), flayyerVariablesNameExt);
 
           const flayyerJS = dedent`
-            import React, { useRef, useEffect, useState } from "react"
+            import React, { Component, Fragment, useRef, useEffect, useState } from "react"
             import ReactDOM from "react-dom";
             import qs from "qs";
             import twemoji from "twemoji";
@@ -144,6 +146,12 @@ export async function prepareProject({
                 return PARSE_QS(window.location.search.replace("?", "") || window.location.hash.replace("#", ""));
               });
               const elementRef = useRef();
+
+              const [error, setError] = useState(null);
+              function handleError(err) {
+                console.error(err);
+                setError(err);
+              }
 
               useEffect(() => {
                 if (elementRef.current) {
@@ -164,6 +172,7 @@ export async function prepareProject({
                   switch (message.type) {
                     case "flayyer-variables": {
                       setProps(PARSE_QS(message["payload"]["query"]));
+                      setError(null); // reset error
                       break;
                     }
                     default: {
@@ -178,10 +187,48 @@ export async function prepareProject({
 
               return (
                 <main ref={elementRef} style={${JSON.stringify(style)}}>
-                  {/* @ts-ignore */}
-                  <Template {...props} />
+                  {error ? (
+                    <ErrorUI error={error} />
+                  ) : (
+                    <ErrorHandler onError={handleError}>
+                      <Template {...props} />
+                    </ErrorHandler>
+                  )}
                 </main>
               );
+            }
+
+            function ErrorUI({ error, style, ...props }) {
+              const base = { width: "100%", height: "100%", padding: "1rem" };
+              if (${JSON.stringify(NODE_ENV)} === "production") {
+                return (
+                  <div style={{ ...base, fontSize: "1.8rem", lineHeight: "1", backgroundColor: "white", display: "flex", justifyContent: "center", alignItems: "center", ...style }} {...props}>
+                    <span>an error has ocurred</span>
+                  </div>
+                );
+              } else {
+                return (
+                  <div style={{ ...base, fontSize: "24px", backgroundColor: "black", color: "white", ...style }} {...props}>
+                    <pre>{error.message}</pre>
+                    <br />
+                    <pre>
+                      {error.stack}
+                    </pre>
+                  </div>
+                );
+              }
+            }
+
+            class ErrorHandler extends Component {
+              componentDidCatch(error, errorInfo) {
+                // TODO: use errorInfo.componentStack
+                this.props.onError && this.props.onError(error)
+              }
+
+              render() {
+                const { onError, ...props } = this.props;
+                return <Fragment {...props} />;
+              }
             }
 
             const element = document.getElementById("root");
