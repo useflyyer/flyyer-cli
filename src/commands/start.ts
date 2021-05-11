@@ -43,6 +43,7 @@ export default class Start extends Command {
     debug("cli version is: %s", this.config.version);
     const { flags } = this.parse(Start);
 
+    const NODE_ENV = process.env.NODE_ENV;
     const CURR_DIR = process.cwd();
     const from = path.join(CURR_DIR, "templates");
     const to = path.join(CURR_DIR, ".flayyer-processed");
@@ -50,6 +51,7 @@ export default class Start extends Command {
     const cache = path.join(CURR_DIR, ".flayyer-cache");
     const configPath = path.join(CURR_DIR, "flayyer.config.js");
 
+    debug("NODE_ENV is %s", String(NODE_ENV));
     debug("config path is: %s", configPath);
     debug("current directory is: %s", CURR_DIR);
     debug("template source directory is: %s", from);
@@ -78,7 +80,7 @@ export default class Start extends Command {
     const style = { width: "100vw", height: "100vh", position: "relative" };
     let entries: TemplateRegistry[] = [];
     try {
-      entries = await prepareProject({ engine: config.engine, from, to, style });
+      entries = await prepareProject({ NODE_ENV, engine: config.engine, from, to, style });
       debug("processed entries: %O", entries);
     } catch (error) {
       debug.extend("error")(error);
@@ -94,7 +96,7 @@ export default class Start extends Command {
     chokidar.watch(from, chokidarOptions).on("all", async (event, path) => {
       debug("got chokidar event '%o' and will re-process project", { event, path });
       this.log("reloading...");
-      await prepareProject({ engine: config.engine, from, to, style });
+      await prepareProject({ NODE_ENV, engine: config.engine, from, to, style });
     });
 
     this.log(`🏗   Will build with Parcel 📦 bundler`);

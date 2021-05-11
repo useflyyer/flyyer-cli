@@ -48,9 +48,7 @@ export default class Build extends Command {
     debug("cli version is: %s", this.config.version);
     const parsed = this.parse(Build);
 
-    debug("NODE_ENV is %s", String(process.env.NODE_ENV));
-    this.log(`🛠   NODE_ENV is set to: ${process.env.NODE_ENV}`);
-
+    const NODE_ENV = process.env.NODE_ENV;
     const CURR_DIR: string = parsed.args["directory"];
     const root = path.resolve(process.cwd(), CURR_DIR);
     const out = path.resolve(root, ".flayyer-dist");
@@ -61,6 +59,7 @@ export default class Build extends Command {
     const to = path.join(root, ".flayyer-processed");
     const cache = path.join(root, ".flayyer-cache");
 
+    debug("NODE_ENV is %s", String(NODE_ENV));
     debug("source directory is: %s", CURR_DIR);
     debug("root is: %s", root);
     debug("final build directory is: %s", out);
@@ -70,6 +69,8 @@ export default class Build extends Command {
     debug("template source directory is: %s", from);
     debug("processed files directory is: %s", to);
     debug("cache directory is: %s", cache);
+
+    this.log(`🛠   NODE_ENV is set to: ${NODE_ENV}`);
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const config = require(configPath);
@@ -92,7 +93,7 @@ export default class Build extends Command {
     const style = { width: "100vw", height: "100vh", position: "relative" };
     let entries: TemplateRegistry[] = [];
     try {
-      entries = await prepareProject({ engine: config.engine, from, to, style });
+      entries = await prepareProject({ NODE_ENV, engine: config.engine, from, to, style });
       debug("processed entries: %O", entries);
     } catch (error) {
       debug.extend("error")(error);
