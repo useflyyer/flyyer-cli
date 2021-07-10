@@ -1,15 +1,15 @@
-@flayyer/cli
+@flyyer/cli
 ===========
 
-**Flayyer CLI**
+**flyyer CLI**
 
-📚 Please read the documentation here: [https://docs.flayyer.com/docs/cli/flayyer-cli](https://docs.flayyer.com/docs/cli/flayyer-cli)
+📚 Please read the documentation here: [https://docs.flyyer.io/docs/cli/flyyer-cli](https://docs.flyyer.io/docs/cli/flyyer-cli)
 
-👉 To start a new project use [`create-flayyer-app`](https://github.com/flayyer/create-flayyer-app) checkout our [Getting Started guide](https://docs.flayyer.com/docs/).
+👉 To start a new project use [`create-flyyer-app`](https://github.com/useflyyer/create-flyyer-app) checkout our [Getting Started guide](https://docs.flyyer.io/docs/).
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/@flayyer/cli.svg)](https://npmjs.org/package/@flayyer/cli)
-[![Downloads/week](https://img.shields.io/npm/dw/@flayyer/cli.svg)](https://npmjs.org/package/@flayyer/cli)
+[![Version](https://img.shields.io/npm/v/@flyyer/cli.svg)](https://npmjs.org/package/@flyyer/cli)
+[![Downloads/week](https://img.shields.io/npm/dw/@flyyer/cli.svg)](https://npmjs.org/package/@flyyer/cli)
 
 <!-- toc -->
 * [Usage](#usage)
@@ -18,84 +18,84 @@
 # Usage
 <!-- usage -->
 ```sh-session
-$ npm install -g @flayyer/cli
-$ flayyer COMMAND
+$ npm install -g @flyyer/cli
+$ flyyer COMMAND
 running command...
-$ flayyer (-v|--version|version)
-@flayyer/cli/1.18.1 darwin-x64 node-v14.15.3
-$ flayyer --help [COMMAND]
+$ flyyer (-v|--version|version)
+@flyyer/cli/1.18.1 darwin-x64 node-v14.15.3
+$ flyyer --help [COMMAND]
 USAGE
-  $ flayyer COMMAND
+  $ flyyer COMMAND
 ...
 ```
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`flayyer build [DIRECTORY]`](#flayyer-build-directory)
-* [`flayyer deploy [DIRECTORY]`](#flayyer-deploy-directory)
-* [`flayyer help [COMMAND]`](#flayyer-help-command)
-* [`flayyer start`](#flayyer-start)
+* [`flyyer build [DIRECTORY]`](#flyyer-build-directory)
+* [`flyyer deploy [DIRECTORY]`](#flyyer-deploy-directory)
+* [`flyyer help [COMMAND]`](#flyyer-help-command)
+* [`flyyer start`](#flyyer-start)
 
-## `flayyer build [DIRECTORY]`
+## `flyyer build [DIRECTORY]`
 
-Build Flayyer project for production.
+Build flyyer project for production.
 
 ```
 USAGE
-  $ flayyer build [DIRECTORY]
+  $ flyyer build [DIRECTORY]
 
 ARGUMENTS
-  DIRECTORY  [default: .] Root directory where flayyer.config.js and the /templates directory is located.
+  DIRECTORY  [default: .] Root directory where flyyer.config.js and the /templates directory is located.
 
 OPTIONS
-  -c, --config=config  [default: flayyer.config.js] Relative path to flayyer.config.js
+  -c, --config=config  [default: flyyer.config.js] Relative path to flyyer.config.js
   -h, --help           show CLI help
 
 DESCRIPTION
-  See online documentation here: https://docs.flayyer.com/docs/cli/flayyer-cli#flayyer-build
+  See online documentation here: https://docs.flyyer.io/docs/cli/flyyer-cli#flyyer-build
 
 EXAMPLES
-  $ flayyer build
-  $ flayyer build --help
+  $ flyyer build
+  $ flyyer build --help
 ```
 
-_See code: [src/commands/build.ts](https://github.com/flayyer/flayyer-cli/blob/v1.18.1/src/commands/build.ts)_
+_See code: [src/commands/build.ts](https://github.com/useflyyer/flyyer-cli/blob/v1.18.1/src/commands/build.ts)_
 
-## `flayyer deploy [DIRECTORY]`
+## `flyyer deploy [DIRECTORY]`
 
-Deploy your Flayyer templates (remember to execute 'build' before running this command)
+Deploy your flyyer templates (remember to execute 'build' before running this command)
 
 ```
 USAGE
-  $ flayyer deploy [DIRECTORY]
+  $ flyyer deploy [DIRECTORY]
 
 ARGUMENTS
-  DIRECTORY  [default: .] Root directory where flayyer.config.js and the /templates directory is located.
+  DIRECTORY  [default: .] Root directory where flyyer.config.js and the /templates directory is located.
 
 OPTIONS
-  -c, --config=config  [default: flayyer.config.js] Relative path to flayyer.config.js
+  -c, --config=config  [default: flyyer.config.js] Relative path to flyyer.config.js
   -h, --help           show CLI help
   --dry                Do everything but don't upload nor update deck
 
 DESCRIPTION
-  See online documentation here: https://docs.flayyer.com/docs/cli/flayyer-cli#flayyer-deploy
+  See online documentation here: https://docs.flyyer.io/docs/cli/flyyer-cli#flyyer-deploy
 
 EXAMPLES
-  $ flayyer deploy
-  $ flayyer deploy src
-  $ flayyer deploy --config flayyer.config.staging.js
-  $ flayyer deploy --help
+  $ flyyer deploy
+  $ flyyer deploy src
+  $ flyyer deploy --config flyyer.config.staging.js
+  $ flyyer deploy --help
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/flayyer/flayyer-cli/blob/v1.18.1/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/useflyyer/flyyer-cli/blob/v1.18.1/src/commands/deploy.ts)_
 
-## `flayyer help [COMMAND]`
+## `flyyer help [COMMAND]`
 
-display help for flayyer
+display help for flyyer
 
 ```
 USAGE
-  $ flayyer help [COMMAND]
+  $ flyyer help [COMMAND]
 
 ARGUMENTS
   COMMAND  command to show help for
@@ -106,13 +106,13 @@ OPTIONS
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.2/src/commands/help.ts)_
 
-## `flayyer start`
+## `flyyer start`
 
 This command starts a development server using Parcel.js by default at http://localhost:7777
 
 ```
 USAGE
-  $ flayyer start
+  $ flyyer start
 
 OPTIONS
   -H, --host=host        [default: localhost]
@@ -122,14 +122,14 @@ OPTIONS
   --https
 
 DESCRIPTION
-  See online documentation here: https://docs.flayyer.com/docs/cli/flayyer-cli#flayyer-start
+  See online documentation here: https://docs.flyyer.io/docs/cli/flyyer-cli#flyyer-start
 
 EXAMPLES
-  $ flayyer start
-  $ flayyer start -p 8000
-  $ flayyer start -p 8000 -H 0.0.0.0 --browser=none
-  $ flayyer start --help
+  $ flyyer start
+  $ flyyer start -p 8000
+  $ flyyer start -p 8000 -H 0.0.0.0 --browser=none
+  $ flyyer start --help
 ```
 
-_See code: [src/commands/start.ts](https://github.com/flayyer/flayyer-cli/blob/v1.18.1/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/useflyyer/flyyer-cli/blob/v1.18.1/src/commands/start.ts)_
 <!-- commandsstop -->

@@ -1,6 +1,6 @@
 import qs from "qs";
 
-const STUDIO_URL = "https://flayyer.github.io/flayyer-studio/";
+const STUDIO_URL = "https://flyyer.github.io/flyyer-studio/";
 
 export function studio(
   flags: { host: string; port: number; https: boolean },
