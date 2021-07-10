@@ -1,7 +1,7 @@
 {
   "name": "@flyyer/cli",
   "description": "Flyyer CLI",
-  "version": "1.18.1",
+  "version": "2.0.0",
   "author": "Patricio López Juri @lopezjurip",
   "repository": "useflyyer/flyyer-cli",
   "license": "MIT",
@@ -55,8 +55,8 @@
   },
   "dependencies": {
     "@flyyer/flyyer": "^3.0.1",
-    "@flyyer/types": "^2.0.2",
     "@flyyer/goerr": "^2.0.1",
+    "@flyyer/types": "^2.0.2",
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
     "@oclif/plugin-help": "^3.2.2",
