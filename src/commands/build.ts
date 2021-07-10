@@ -123,8 +123,8 @@ export default class Build extends Command {
         const destination = path.join(out, vname);
         debug("will try to 'require()' bundled variables at: %s", destination);
         const required = require(destination);
-        debug("file required and now will try to import `schema` via 'getflyyerSchema'");
-        const { schema } = await required.getflyyerSchema();
+        debug("file required and now will try to import `schema` via 'getFlyyerSchema'");
+        const { schema } = await required.getFlyyerSchema();
         if (!schema) {
           throw new Error("Tried to import 'schema' but it is 'null' or missing");
         }
@@ -136,7 +136,7 @@ export default class Build extends Command {
         const n = chalk.yellow(ename);
         this.log(`     - ${n}: enable variables UI on flyyer.io by exporting a 'schema' object from @flyyer/variables`);
         debug(
-          "failed to retrieve 'schema' of '%s' via 'getflyyerSchema', maybe template is not exporting 'schema'",
+          "failed to retrieve 'schema' of '%s' via 'getFlyyerSchema', maybe template is not exporting 'schema'",
           ename,
         );
         debug("error was: %o", error);

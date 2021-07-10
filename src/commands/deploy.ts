@@ -62,7 +62,7 @@ export default class Deploy extends Command {
     remote: flags.string({
       description: "flyyer GraphQL endpoint",
       hidden: true,
-      default: "https://api.flyyer.io/graphql",
+      default: "https://backend.flyyer.io/graphql",
     }),
   };
 
@@ -113,7 +113,7 @@ export default class Deploy extends Command {
       this.error(dedent`
         Missing 'key' property in file 'flyyer.config.js'.
 
-        ${chalk.bold("Remember to setup your 'flyyer_KEY' environment variable.")}
+        ${chalk.bold("Remember to setup your 'FLYYER_KEY' environment variable.")}
 
         Forgot your key? Go to https://flyyer.io/dashboard/_/settings
         First time using flyyer? Create an account at https://flyyer.io/get-started
@@ -201,7 +201,7 @@ export default class Deploy extends Command {
       );
       if (error && error.message.includes("Tenant for token not found")) {
         this.error(dedent`
-          Failed to authenticate using provided flyyer_KEY token. Please check if you are using a valid token or generate a new one at https://flyyer.io/dashboard/_/settings
+          Failed to authenticate using provided FLYYER_KEY token. Please check if you are using a valid token or generate a new one at https://flyyer.io/dashboard/_/settings
         `);
       } else if (error) {
         this.error(error);
@@ -262,7 +262,7 @@ export default class Deploy extends Command {
       debug("confirmation response: %O", resConfirm["createDeckConfirm"]);
 
       const ext = "jpeg";
-      const host = `https://flyyer.io/v2`;
+      const host = `https://cdn.flyyer.io/render/v2`;
       this.log(dedent`
         🌠   ${chalk.bold("flyyer project successfully deployed!")}
       `);
@@ -309,7 +309,7 @@ export default class Deploy extends Command {
     this.log(`📖   Checkout the official integration guides at: ${chalk.bold("https://docs.flyyer.io/guides")}`);
     this.log(`📖   flyyer URL formatters: ${chalk.bold("https://docs.flyyer.io/docs/libraries")}`);
     this.log("");
-    this.log(`👉   Follow us on Twitter at: ${chalk.blueBright("https://twitter.com/flyyer_com")}`);
+    this.log(`👉   Follow us on Twitter at: ${chalk.blueBright("https://twitter.com/useflyyer")}`);
     this.log(`👉   Join our Discord community at: ${chalk.magentaBright("https://flyyer.io/discord")}`);
     this.log("");
 

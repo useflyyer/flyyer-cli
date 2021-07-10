@@ -154,7 +154,7 @@ export default class Start extends Command {
       this.log(`    Go to: ${chalk.bold(preview)}`);
       if (i === entries.length - 1 && flags.browser === "auto") {
         try {
-          this.log(`    Opening flyyer Studio in default browser...`);
+          this.log(`    Opening Flyyer Studio in default browser...`);
           await open(preview);
         } catch {
           this.warn("Couldn't launch default web browser to open flyyer Studio.");
