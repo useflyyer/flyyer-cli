@@ -6,9 +6,9 @@ import "cross-fetch/polyfill";
 import fs from "fs";
 import path from "path";
 
-import { FlayyerIO } from "@flayyer/flayyer";
-import type { FlayyerConfig } from "@flayyer/flayyer-types";
-import { goerr } from "@flayyer/goerr";
+import { FlyyerRender } from "@flyyer/flyyer";
+import { goerr } from "@flyyer/goerr";
+import type { FlyyerConfig } from "@flyyer/types";
 import { Command, flags } from "@oclif/command";
 import type { args } from "@oclif/parser";
 import archiver from "archiver";
@@ -18,8 +18,8 @@ import del from "del";
 import FormData from "form-data";
 import { GraphQLClient } from "graphql-request";
 
-import * as mutations from "../flayyer-graphql/mutations";
-import * as types from "../flayyer-graphql/types";
+import * as mutations from "../flyyer-graphql/mutations";
+import * as types from "../flyyer-graphql/types";
 import { MetaOutput } from "../prepare";
 import { namespaced } from "../utils/debug";
 
@@ -27,23 +27,23 @@ const debug = namespaced("deploy");
 
 export default class Deploy extends Command {
   static description = dedent`
-    Deploy your Flayyer templates (remember to execute 'build' before running this command)
-    See online documentation here: https://docs.flayyer.com/docs/cli/flayyer-cli#flayyer-deploy
+    Deploy your flyyer templates (remember to execute 'build' before running this command)
+    See online documentation here: https://docs.flyyer.io/docs/cli/flyyer-cli#flyyer-deploy
   `;
 
   static examples = [
     // Add examples here:
-    "$ flayyer deploy",
-    "$ flayyer deploy src",
-    "$ flayyer deploy --config flayyer.config.staging.js",
-    "$ flayyer deploy --help",
+    "$ flyyer deploy",
+    "$ flyyer deploy src",
+    "$ flyyer deploy --config flyyer.config.staging.js",
+    "$ flyyer deploy --help",
   ];
 
   static args: args.Input = [
     {
       name: "directory",
       required: false,
-      description: "Root directory where flayyer.config.js and the /templates directory is located.",
+      description: "Root directory where flyyer.config.js and the /templates directory is located.",
       default: ".",
     } as args.IArg<string>,
   ];
@@ -52,17 +52,17 @@ export default class Deploy extends Command {
     help: flags.help({ char: "h" }),
     config: flags.string({
       char: "c",
-      description: "Relative path to flayyer.config.js",
-      default: "flayyer.config.js",
+      description: "Relative path to flyyer.config.js",
+      default: "flyyer.config.js",
     }),
     dry: flags.boolean({
       description: "Do everything but don't upload nor update deck",
       default: false,
     }),
     remote: flags.string({
-      description: "Flayyer GraphQL endpoint",
+      description: "flyyer GraphQL endpoint",
       hidden: true,
-      default: "https://api.flayyer.com/graphql",
+      default: "https://backend.flyyer.io/graphql",
     }),
   };
 
@@ -76,11 +76,11 @@ export default class Deploy extends Command {
 
     const CURR_DIR: string = parsed.args["directory"];
     const root = path.resolve(process.cwd(), CURR_DIR);
-    const out = path.resolve(root, ".flayyer-dist");
-    const outMeta = path.resolve(root, ".flayyer-dist", "flayyer.json");
+    const out = path.resolve(root, ".flyyer-dist");
+    const outMeta = path.resolve(root, ".flyyer-dist", "flyyer.json");
     const configPath = path.resolve(root, parsed.flags["config"]);
 
-    const zipPath = path.resolve(root, ".flayyer-dist.zip");
+    const zipPath = path.resolve(root, ".flyyer-dist.zip");
 
     debug("source directory is: %s", CURR_DIR);
     debug("root is: %s", root);
@@ -98,36 +98,36 @@ export default class Deploy extends Command {
         const npmBuild = chalk.bold("NODE_ENV=production npm run-script build");
         const yarnBuild = chalk.bold("NODE_ENV=production yarn build");
         this.error(dedent`
-          Production files not found at '.flayyer-dist' directory. Please run 'flayyer build' before deploying.
+          Production files not found at '.flyyer-dist' directory. Please run 'flyyer build' before deploying.
           Execute ${npmBuild} or ${yarnBuild} and then try again.
         `);
       }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const config: Partial<FlayyerConfig> = require(configPath); // TODO: schema is not guaranteed.
+    const config: Partial<FlyyerConfig> = require(configPath); // TODO: schema is not guaranteed.
     if (config.key) {
       debug("'key' is present in config");
     } else {
       debug("'key' is not present in config");
       this.error(dedent`
-        Missing 'key' property in file 'flayyer.config.js'.
+        Missing 'key' property in file 'flyyer.config.js'.
 
-        ${chalk.bold("Remember to setup your 'FLAYYER_KEY' environment variable.")}
+        ${chalk.bold("Remember to setup your 'FLYYER_KEY' environment variable.")}
 
-        Forgot your key? Go to https://flayyer.com/dashboard/_/settings
-        First time using Flayyer? Create an account at https://flayyer.com/get-started
+        Forgot your key? Go to https://flyyer.io/dashboard/_/settings
+        First time using flyyer? Create an account at https://flyyer.io/get-started
       `);
     }
 
     if (!config.engine) {
-      this.warn("Missing setting 'engine' in 'flayyer.config.js', will default to 'react'");
+      this.warn("Missing setting 'engine' in 'flyyer.config.js', will default to 'react'");
       config.engine = "react";
     }
 
     if (!config.deck) {
       this.error(dedent`
-        Missing "deck" property in flayyer.config.js object.
+        Missing "deck" property in flyyer.config.js object.
       `);
     }
 
@@ -201,7 +201,7 @@ export default class Deploy extends Command {
       );
       if (error && error.message.includes("Tenant for token not found")) {
         this.error(dedent`
-          Failed to authenticate using provided FLAYYER_KEY token. Please check if you are using a valid token or generate a new one at https://flayyer.com/dashboard/_/settings
+          Failed to authenticate using provided FLYYER_KEY token. Please check if you are using a valid token or generate a new one at https://flyyer.io/dashboard/_/settings
         `);
       } else if (error) {
         this.error(error);
@@ -262,9 +262,9 @@ export default class Deploy extends Command {
       debug("confirmation response: %O", resConfirm["createDeckConfirm"]);
 
       const ext = "jpeg";
-      const host = `https://flayyer.io/v2`;
+      const host = `https://cdn.flyyer.io/render/v2`;
       this.log(dedent`
-        🌠   ${chalk.bold("flayyer project successfully deployed!")}
+        🌠   ${chalk.bold("flyyer project successfully deployed!")}
       `);
       this.log("");
       this.log(`💡   To always render the latest version remove the number at the end of the URL.`);
@@ -277,7 +277,7 @@ export default class Deploy extends Command {
       this.log(`     For vector base templates prefer '.png', if you heavily rely on pictures then prefer '.jpeg'`);
       this.log("");
       for (const { node: template } of deck.templates.edges) {
-        const f = new FlayyerIO({
+        const f = new FlyyerRender({
           tenant: tenant.slug,
           deck: deck.slug,
           template: template.slug,
@@ -298,7 +298,7 @@ export default class Deploy extends Command {
         this.log(`     ${"Set size (defaults to 1200x630):"}`);
         this.log(`       - ${f.clone({ meta: { v: null, width: 1080, height: 1080 } }).href()}`);
         this.log(`     ${"Set variable:"}`);
-        this.log(`       - ${f.clone({ variables: { title: "Thanks for using Flayyer" } }).href()}`);
+        this.log(`       - ${f.clone({ variables: { title: "Thanks for using flyyer" } }).href()}`);
         this.log(`     ${"Multiple variables:"}`);
         this.log(`       - ${withEmoji}`);
         this.log("");
@@ -306,11 +306,11 @@ export default class Deploy extends Command {
     }
 
     this.log("");
-    this.log(`📖   Checkout the official integration guides at: ${chalk.bold("https://docs.flayyer.com/guides")}`);
-    this.log(`📖   Flayyer URL formatters: ${chalk.bold("https://docs.flayyer.com/docs/libraries")}`);
+    this.log(`📖   Checkout the official integration guides at: ${chalk.bold("https://docs.flyyer.io/guides")}`);
+    this.log(`📖   flyyer URL formatters: ${chalk.bold("https://docs.flyyer.io/docs/libraries")}`);
     this.log("");
-    this.log(`👉   Follow us on Twitter at: ${chalk.blueBright("https://twitter.com/flayyer_com")}`);
-    this.log(`👉   Join our Discord community at: ${chalk.magentaBright("https://flayyer.com/discord")}`);
+    this.log(`👉   Follow us on Twitter at: ${chalk.blueBright("https://twitter.com/useflyyer")}`);
+    this.log(`👉   Join our Discord community at: ${chalk.magentaBright("https://flyyer.io/discord")}`);
     this.log("");
 
     debug("exiting oclif");

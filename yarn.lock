@@ -1000,10 +1000,10 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@flayyer/eslint-config@^1.1.3":
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/@flayyer/eslint-config/-/eslint-config-1.1.3.tgz#0456c0a000e103f6a0a0d9516ea40766f7aceb92"
-  integrity sha512-p9B3CrcjFi/Aqvp5PMS1dklV9Zv731feC4Ut4bZ52jvVJ+UTCXeHGdm7LkChxIoBAIuCYsPcE9cmlJ/T/J9ocg==
+"@flyyer/eslint-config@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@flyyer/eslint-config/-/eslint-config-2.0.1.tgz#34c01d2448933cf0cf83588e3707d82c22e62f69"
+  integrity sha512-ksY+p3J/OzMrbe7R456zDce2bAfhk/BQ/rnl7kmReMZMi212dLhgpEJiUj6pSfaIb1Tu3IChft9+SzuM+rcCTg==
   dependencies:
     "@babel/core" "^7.14.3"
     "@babel/eslint-parser" "^7.14.4"
@@ -1018,23 +1018,23 @@
     eslint-plugin-vue "^7.10.0"
     vue-eslint-parser "^7.6.0"
 
-"@flayyer/flayyer-types@^1.11.2":
-  version "1.11.2"
-  resolved "https://registry.yarnpkg.com/@flayyer/flayyer-types/-/flayyer-types-1.11.2.tgz#86a11787ba2d1a73ca59cb48f0bef1505e409932"
-  integrity sha512-e9wyZ8wFXmt2cjWTZM9y66d8zed2T4ukIuJ0pwC3AZwq8qHgkEjId9+PfqFjXVreRKUPhfdwL1179yrOQG/EdQ==
-
-"@flayyer/flayyer@^2.3.2":
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/@flayyer/flayyer/-/flayyer-2.3.2.tgz#b076f18cb21f42b03fed6b6f1166843b98aa008d"
-  integrity sha512-9ELoJ9JVFuphF5R/D2nc1nW1JUFNK7G7XVCqn1FU5saxVAZiZnMvwG/p1en+VtydGJp3oL1vS/6K7NN8vkdV0Q==
+"@flyyer/flyyer@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@flyyer/flyyer/-/flyyer-3.0.1.tgz#9777da368b473c302479112b85fd287b64b6dbe6"
+  integrity sha512-qfJU4W7zBSEYDEdHX6b5u3BuA/tUHj3iIZ4mSWQN+r1uOG6lKIgVXk/oLNtZgcUM9wP+rzCISLAz8Awbpq8uVw==
   dependencies:
     "@types/qs" "^6.9.6"
     qs "^6.10.1"
 
-"@flayyer/goerr@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@flayyer/goerr/-/goerr-1.2.0.tgz#ac49ccde7ef9cf15b083a3b8a9dfcc2b98036c35"
-  integrity sha512-CvCxjtJiPyPLudiN8l1ax4lNJNhZmJ04XI0RidNCOMaT2e8zHp54KXYlOyAb0gbl80TTKhfhrTicgJeXm1tjsg==
+"@flyyer/goerr@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@flyyer/goerr/-/goerr-2.0.1.tgz#5dcd04d54bcf2b133419946e41eeee7e53968a5d"
+  integrity sha512-BrQ8QCFxwk6Hohdx8sbDuyOBuFWqafFcYf/T91WvQKRzG4/789pAm+Q108PBmA9HG3GHdWWHskgAsd+D2dhkHA==
+
+"@flyyer/types@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@flyyer/types/-/types-2.0.2.tgz#0298fa46cec31391d33e914e0471ff0b614022ef"
+  integrity sha512-Omlz4NjVw4joo8iu0LQBU0bRigz8zK/vP2gnxfgoFgjhsOCu0cccvGC8QL5fE68n0hUww4IYQvu/Pnl74FomRA==
 
 "@iarna/toml@^2.2.0":
   version "2.2.5"

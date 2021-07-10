@@ -18,15 +18,15 @@ const debug = namespaced("start");
 export default class Start extends Command {
   static description = dedent`
     This command starts a development server using Parcel.js by default at http://localhost:7777
-    See online documentation here: https://docs.flayyer.com/docs/cli/flayyer-cli#flayyer-start
+    See online documentation here: https://docs.flyyer.io/docs/cli/flyyer-cli#flyyer-start
   `;
 
   static examples = [
     // Add examples here:
-    "$ flayyer start",
-    "$ flayyer start -p 8000",
-    "$ flayyer start -p 8000 -H 0.0.0.0 --browser=none",
-    "$ flayyer start --help",
+    "$ flyyer start",
+    "$ flyyer start -p 8000",
+    "$ flyyer start -p 8000 -H 0.0.0.0 --browser=none",
+    "$ flyyer start --help",
   ];
 
   static flags = {
@@ -46,10 +46,10 @@ export default class Start extends Command {
     const NODE_ENV = process.env.NODE_ENV;
     const CURR_DIR = process.cwd();
     const from = path.join(CURR_DIR, "templates");
-    const to = path.join(CURR_DIR, ".flayyer-processed");
-    const out = path.join(CURR_DIR, ".flayyer-dev");
-    const cache = path.join(CURR_DIR, ".flayyer-cache");
-    const configPath = path.join(CURR_DIR, "flayyer.config.js");
+    const to = path.join(CURR_DIR, ".flyyer-processed");
+    const out = path.join(CURR_DIR, ".flyyer-dev");
+    const cache = path.join(CURR_DIR, ".flyyer-cache");
+    const configPath = path.join(CURR_DIR, "flyyer.config.js");
 
     debug("NODE_ENV is %s", String(NODE_ENV));
     debug("config path is: %s", configPath);
@@ -62,7 +62,7 @@ export default class Start extends Command {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const config = require(configPath);
     if (!config.engine) {
-      this.warn("Missing setting 'engine' in 'flayyer.config.js', will default to 'react'");
+      this.warn("Missing setting 'engine' in 'flyyer.config.js', will default to 'react'");
       config.engine = "react";
     }
 
@@ -128,7 +128,7 @@ export default class Start extends Command {
       this.error(`Could not start server at ${url}`);
     }
     this.log("");
-    this.log(`🌠  Flayyer dev server running at ${url}`);
+    this.log(`🌠  flyyer dev server running at ${url}`);
 
     this.log("");
     this.log(dedent`
@@ -142,7 +142,7 @@ export default class Start extends Command {
     `);
     this.log("");
 
-    this.log(`💻  Remember to preview and develop your Flayyer templates at:`);
+    this.log(`💻  Remember to preview and develop your flyyer templates at:`);
     this.log(`    ${chalk.bold(studio(flags))}`);
     this.log("");
     for (let i = 0; i < entries.length; i++) {
@@ -154,10 +154,10 @@ export default class Start extends Command {
       this.log(`    Go to: ${chalk.bold(preview)}`);
       if (i === entries.length - 1 && flags.browser === "auto") {
         try {
-          this.log(`    Opening Flayyer Studio in default browser...`);
+          this.log(`    Opening Flyyer Studio in default browser...`);
           await open(preview);
         } catch {
-          this.warn("Couldn't launch default web browser to open Flayyer Studio.");
+          this.warn("Couldn't launch default web browser to open flyyer Studio.");
         }
       }
     }

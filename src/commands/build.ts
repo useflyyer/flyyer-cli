@@ -16,21 +16,21 @@ const debug = namespaced("build");
 
 export default class Build extends Command {
   static description = dedent`
-    Build Flayyer project for production.
-    See online documentation here: https://docs.flayyer.com/docs/cli/flayyer-cli#flayyer-build
+    Build flyyer project for production.
+    See online documentation here: https://docs.flyyer.io/docs/cli/flyyer-cli#flyyer-build
   `;
 
   static examples = [
     // Add examples here:
-    "$ flayyer build",
-    "$ flayyer build --help",
+    "$ flyyer build",
+    "$ flyyer build --help",
   ];
 
   static args: args.Input = [
     {
       name: "directory",
       required: false,
-      description: "Root directory where flayyer.config.js and the /templates directory is located.",
+      description: "Root directory where flyyer.config.js and the /templates directory is located.",
       default: ".",
     } as args.IArg<string>,
   ];
@@ -39,8 +39,8 @@ export default class Build extends Command {
     help: flags.help({ char: "h" }),
     config: flags.string({
       char: "c",
-      description: "Relative path to flayyer.config.js",
-      default: "flayyer.config.js",
+      description: "Relative path to flyyer.config.js",
+      default: "flyyer.config.js",
     }),
   };
 
@@ -51,13 +51,13 @@ export default class Build extends Command {
     const NODE_ENV = process.env.NODE_ENV;
     const CURR_DIR: string = parsed.args["directory"];
     const root = path.resolve(process.cwd(), CURR_DIR);
-    const out = path.resolve(root, ".flayyer-dist");
-    const outMeta = path.resolve(root, ".flayyer-dist", "flayyer.json");
+    const out = path.resolve(root, ".flyyer-dist");
+    const outMeta = path.resolve(root, ".flyyer-dist", "flyyer.json");
     const configPath = path.resolve(root, parsed.flags["config"]);
 
     const from = path.join(root, "templates");
-    const to = path.join(root, ".flayyer-processed");
-    const cache = path.join(root, ".flayyer-cache");
+    const to = path.join(root, ".flyyer-processed");
+    const cache = path.join(root, ".flyyer-cache");
 
     debug("NODE_ENV is %s", String(NODE_ENV));
     debug("source directory is: %s", CURR_DIR);
@@ -75,7 +75,7 @@ export default class Build extends Command {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const config = require(configPath);
     if (!config.engine) {
-      this.warn("Missing setting 'engine' in 'flayyer.config.js', will default to 'react'");
+      this.warn("Missing setting 'engine' in 'flyyer.config.js', will default to 'react'");
       config.engine = "react";
     }
 
@@ -123,22 +123,20 @@ export default class Build extends Command {
         const destination = path.join(out, vname);
         debug("will try to 'require()' bundled variables at: %s", destination);
         const required = require(destination);
-        debug("file required and now will try to import `schema` via 'getFlayyerSchema'");
-        const { schema } = await required.getFlayyerSchema();
+        debug("file required and now will try to import `schema` via 'getFlyyerSchema'");
+        const { schema } = await required.getFlyyerSchema();
         if (!schema) {
           throw new Error("Tried to import 'schema' but it is 'null' or missing");
         }
         debug("for file '%s' got schema: %O", vname, schema);
         schemas.set(vname, schema);
         const n = chalk.green(ename);
-        this.log(`     - ${n}: found 'schema', can display variables UI on Flayyer.com  ✅`);
+        this.log(`     - ${n}: found 'schema', can display variables UI on flyyer.io  ✅`);
       } catch (error) {
         const n = chalk.yellow(ename);
-        this.log(
-          `     - ${n}: enable variables UI on Flayyer.com by exporting a 'schema' object from @flayyer/variables`,
-        );
+        this.log(`     - ${n}: enable variables UI on flyyer.io by exporting a 'schema' object from @flyyer/variables`);
         debug(
-          "failed to retrieve 'schema' of '%s' via 'getFlayyerSchema', maybe template is not exporting 'schema'",
+          "failed to retrieve 'schema' of '%s' via 'getFlyyerSchema', maybe template is not exporting 'schema'",
           ename,
         );
         debug("error was: %o", error);
@@ -182,7 +180,7 @@ export default class Build extends Command {
     fs.writeFileSync(outMeta, JSON.stringify(meta), "utf8");
 
     this.log(dedent`
-      🌠   ${chalk.bold("flayyer project successfully built!")}
+      🌠   ${chalk.bold("flyyer project successfully built!")}
       📂   Output directory: ${out}
       ${templates.map((t) => `🖼    Created template: ${chalk.bold(t.slug)}`).join("\n")}
     `);

@@ -65,7 +65,7 @@ const DEFAULT_TAGS = dedent`
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://twemoji.maxcdn.com" crossorigin>
 `;
-const ALLOWED_ORIGINS = ["https://flayyer.com", "https://flayyer.github.io", "http://localhost:9000"];
+const ALLOWED_ORIGINS = ["https://flyyer.io", "https://useflyyer.github.io", "http://localhost:9000"];
 const PARSE_QS = dedent`
   // @ts-ignore
   function PARSE_QS(str) {
@@ -112,29 +112,29 @@ export async function prepareProject({
       const ext = path.extname(nameExt);
       const nameNoExt = path.basename(nameExt, ext);
 
-      const flayyerEntry = nameNoExt;
-      const flayyerEntryExt = nameNoExt + ext;
+      const flyyerEntry = nameNoExt;
+      const flyyerEntryExt = nameNoExt + ext;
       if (["react", "react-typescript"].includes(engine)) {
         if ([".js", ".jsx", ".ts", ".tsx"].includes(ext)) {
-          const flayyerHTMLName = path.basename(writePath, ext);
-          const flayyerHTMLNameExt = flayyerHTMLName + ".html";
-          const flayyerHTMLPath = path.join(path.dirname(writePath), flayyerHTMLNameExt);
+          const flyyerHTMLName = path.basename(writePath, ext);
+          const flyyerHTMLNameExt = flyyerHTMLName + ".html";
+          const flyyerHTMLPath = path.join(path.dirname(writePath), flyyerHTMLNameExt);
 
-          const flayyerJSName = "flayyer-" + path.basename(writePath, ext);
-          const flayyerJSNameExt = flayyerJSName + ext;
-          const flayyerJSPath = path.join(path.dirname(writePath), flayyerJSNameExt);
+          const flyyerJSName = "flyyer-" + path.basename(writePath, ext);
+          const flyyerJSNameExt = flyyerJSName + ext;
+          const flyyerJSPath = path.join(path.dirname(writePath), flyyerJSNameExt);
 
-          const flayyerVariablesName = "flayyer-" + path.basename(writePath, ext) + ".variables";
-          const flayyerVariablesNameExt = flayyerVariablesName + ext;
-          const flayyerVariablesPath = path.join(path.dirname(writePath), flayyerVariablesNameExt);
+          const flyyerVariablesName = "flyyer-" + path.basename(writePath, ext) + ".variables";
+          const flyyerVariablesNameExt = flyyerVariablesName + ext;
+          const flyyerVariablesPath = path.join(path.dirname(writePath), flyyerVariablesNameExt);
 
-          const flayyerJS = dedent`
+          const flyyerJS = dedent`
             import React, { Component, Fragment, useRef, useEffect, useState } from "react"
             import ReactDOM from "react-dom";
             import qs from "qs";
             import twemoji from "twemoji";
 
-            import Template from "./${flayyerEntry}";
+            import Template from "./${flyyerEntry}";
 
             const ALLOWED_ORIGINS = ${JSON.stringify(ALLOWED_ORIGINS)};
 
@@ -170,7 +170,7 @@ export async function prepareProject({
                   }
                   const message = event.data;
                   switch (message.type) {
-                    case "flayyer-variables": {
+                    case "flyyer-variables": {
                       setProps(PARSE_QS(message["payload"]["query"]));
                       setError(null); // reset error
                       break;
@@ -238,15 +238,15 @@ export async function prepareProject({
             // @ts-ignore
             if (module.hot) module.hot.accept();
           `;
-          fs.writeFileSync(flayyerJSPath, flayyerJS, "utf8");
+          fs.writeFileSync(flyyerJSPath, flyyerJS, "utf8");
 
-          const flayyerHTML = dedent`
+          const flyyerHTML = dedent`
             <!DOCTYPE html>
 
             <html>
               <head>
                 ${DEFAULT_TAGS}
-                <title>${flayyerJSNameExt}</title>
+                <title>${flyyerJSNameExt}</title>
                 <style>
                   ${GLOBAL_STYLE}
                 </style>
@@ -254,17 +254,17 @@ export async function prepareProject({
               <body>
                 <div id="root"></div>
 
-                <script src="./${flayyerJSNameExt}"></script>
+                <script src="./${flyyerJSNameExt}"></script>
               </body>
             </html>
           `;
-          fs.writeFileSync(flayyerHTMLPath, flayyerHTML, "utf8");
+          fs.writeFileSync(flyyerHTMLPath, flyyerHTML, "utf8");
 
-          const flayyerVariables = dedent`
-            export async function getFlayyerSchema() {
+          const flyyerVariables = dedent`
+            export async function getFlyyerSchema() {
               try {
                 // @ts-ignore
-                const { schema } = await import("./${flayyerEntry}");
+                const { schema } = await import("./${flyyerEntry}");
                 // @ts-ignore
                 return { schema }
               } catch (err) {
@@ -272,30 +272,30 @@ export async function prepareProject({
               }
             };
           `;
-          fs.writeFileSync(flayyerVariablesPath, flayyerVariables, "utf8");
+          fs.writeFileSync(flyyerVariablesPath, flyyerVariables, "utf8");
 
           entries.push({
             entry: { name: nameNoExt, path: namePath },
-            html: { name: flayyerHTMLName, path: flayyerHTMLPath },
-            js: { name: flayyerJSName, path: flayyerJSPath },
-            variables: { name: flayyerVariablesName, path: flayyerVariablesPath },
+            html: { name: flyyerHTMLName, path: flyyerHTMLPath },
+            js: { name: flyyerJSName, path: flyyerJSPath },
+            variables: { name: flyyerVariablesName, path: flyyerVariablesPath },
           });
         }
       } else if (["vue", "vue-typescript"].includes(engine)) {
         if ([".vue"].includes(ext)) {
-          const flayyerHTMLName = path.basename(writePath, ext);
-          const flayyerHTMLNameExt = flayyerHTMLName + ".html";
-          const flayyerHTMLPath = path.join(path.dirname(writePath), flayyerHTMLNameExt);
+          const flyyerHTMLName = path.basename(writePath, ext);
+          const flyyerHTMLNameExt = flyyerHTMLName + ".html";
+          const flyyerHTMLPath = path.join(path.dirname(writePath), flyyerHTMLNameExt);
 
-          const flayyerJSName = "flayyer-" + path.basename(writePath, ext);
-          const flayyerJSNameExt = flayyerJSName + ".js";
-          const flayyerJSPath = path.join(path.dirname(writePath), flayyerJSNameExt);
+          const flyyerJSName = "flyyer-" + path.basename(writePath, ext);
+          const flyyerJSNameExt = flyyerJSName + ".js";
+          const flyyerJSPath = path.join(path.dirname(writePath), flyyerJSNameExt);
 
-          const flayyerVariablesName = "flayyer-" + path.basename(writePath, ext) + ".variables";
-          const flayyerVariablesNameExt = flayyerVariablesName + ".js";
-          const flayyerVariablesPath = path.join(path.dirname(writePath), flayyerVariablesNameExt);
+          const flyyerVariablesName = "flyyer-" + path.basename(writePath, ext) + ".variables";
+          const flyyerVariablesNameExt = flyyerVariablesName + ".js";
+          const flyyerVariablesPath = path.join(path.dirname(writePath), flyyerVariablesNameExt);
 
-          const flayyerJS = dedent`
+          const flyyerJS = dedent`
             import Vue from "vue";
             import qs from "qs";
             import twemoji from "twemoji";
@@ -339,7 +339,7 @@ export async function prepareProject({
                   }
                   const message = event.data;
                   switch (message.type) {
-                    case "flayyer-variables": {
+                    case "flyyer-variables": {
                       this.parameters = PARSE_QS(message["payload"]["query"]);
                       break;
                     }
@@ -356,15 +356,15 @@ export async function prepareProject({
             // @ts-ignore
             if (module.hot) module.hot.accept();
           `;
-          fs.writeFileSync(flayyerJSPath, flayyerJS, "utf8");
+          fs.writeFileSync(flyyerJSPath, flyyerJS, "utf8");
 
-          const flayyerHTML = dedent`
+          const flyyerHTML = dedent`
             <!DOCTYPE html>
 
             <html>
               <head>
                 ${DEFAULT_TAGS}
-                <title>${flayyerJSNameExt}</title>
+                <title>${flyyerJSNameExt}</title>
                 <style>
                   ${GLOBAL_STYLE}
                 </style>
@@ -372,18 +372,18 @@ export async function prepareProject({
               <body>
                 <div id="root"></div>
 
-                <script src="./${flayyerJSNameExt}"></script>
+                <script src="./${flyyerJSNameExt}"></script>
               </body>
             </html>
           `;
-          fs.writeFileSync(flayyerHTMLPath, flayyerHTML, "utf8");
+          fs.writeFileSync(flyyerHTMLPath, flyyerHTML, "utf8");
 
           // Requires explicit .vue extension
-          const flayyerVariables = dedent`
-            export async function getFlayyerSchema() {
+          const flyyerVariables = dedent`
+            export async function getFlyyerSchema() {
               try {
                 // @ts-ignore
-                const { schema } = await import("./${flayyerEntryExt}");
+                const { schema } = await import("./${flyyerEntryExt}");
                 // @ts-ignore
                 return { schema }
               } catch (err) {
@@ -391,13 +391,13 @@ export async function prepareProject({
               }
             };
           `;
-          fs.writeFileSync(flayyerVariablesPath, flayyerVariables, "utf8");
+          fs.writeFileSync(flyyerVariablesPath, flyyerVariables, "utf8");
 
           entries.push({
             entry: { name: nameNoExt, path: namePath },
-            html: { name: flayyerHTMLName, path: flayyerHTMLPath },
-            js: { name: flayyerJSName, path: flayyerJSPath },
-            variables: { name: flayyerVariablesName, path: flayyerVariablesPath },
+            html: { name: flyyerHTMLName, path: flyyerHTMLPath },
+            js: { name: flyyerJSName, path: flyyerJSPath },
+            variables: { name: flyyerVariablesName, path: flyyerVariablesPath },
           });
         }
       }
