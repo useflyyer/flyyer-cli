@@ -65,7 +65,12 @@ const DEFAULT_TAGS = dedent`
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://twemoji.maxcdn.com" crossorigin>
 `;
-const ALLOWED_ORIGINS = ["https://flyyer.io", "https://useflyyer.github.io", "http://localhost:9000"];
+const ALLOWED_ORIGINS = [
+  "https://www.flyyer.io",
+  "https://flyyer.io",
+  "https://useflyyer.github.io",
+  "http://localhost:9000",
+];
 const PARSE_QS = dedent`
   // @ts-ignore
   function PARSE_QS(str) {
@@ -262,14 +267,10 @@ export async function prepareProject({
 
           const flyyerVariables = dedent`
             export async function getFlyyerSchema() {
-              try {
-                // @ts-ignore
-                const { schema } = await import("./${flyyerEntry}");
-                // @ts-ignore
-                return { schema }
-              } catch (err) {
-                return null;
-              }
+              // @ts-ignore
+              const { schema } = await import("./${flyyerEntry}");
+              // @ts-ignore
+              return { schema }
             };
           `;
           fs.writeFileSync(flyyerVariablesPath, flyyerVariables, "utf8");
@@ -381,14 +382,10 @@ export async function prepareProject({
           // Requires explicit .vue extension
           const flyyerVariables = dedent`
             export async function getFlyyerSchema() {
-              try {
-                // @ts-ignore
-                const { schema } = await import("./${flyyerEntryExt}");
-                // @ts-ignore
-                return { schema }
-              } catch (err) {
-                return null;
-              }
+              // @ts-ignore
+              const { schema } = await import("./${flyyerEntryExt}");
+              // @ts-ignore
+              return { schema }
             };
           `;
           fs.writeFileSync(flyyerVariablesPath, flyyerVariables, "utf8");

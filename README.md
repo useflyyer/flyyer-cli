@@ -1,7 +1,7 @@
 @flyyer/cli
 ===========
 
-**flyyer CLI**
+**Flyyer CLI**
 
 📚 Please read the documentation here: [https://docs.flyyer.io/docs/cli/flyyer-cli](https://docs.flyyer.io/docs/cli/flyyer-cli)
 

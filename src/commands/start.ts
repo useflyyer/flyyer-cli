@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 
+import { goerr } from "@flyyer/goerr";
+import type { FlyyerConfig } from "@flyyer/types";
 import { Command, flags } from "@oclif/command";
 import chalk from "chalk";
 import chokidar, { WatchOptions } from "chokidar";
@@ -60,8 +62,10 @@ export default class Start extends Command {
     debug("final build directory is: %s", out);
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const config = require(configPath);
-    if (!config.engine) {
+    const [config, configError] = goerr<Partial<FlyyerConfig>, Error>(() => require(configPath));
+    if (configError) {
+      this.error(`Failed to load flyyer.config.js file at path: ${configPath}`);
+    } else if (!config.engine) {
       this.warn("Missing setting 'engine' in 'flyyer.config.js', will default to 'react'");
       config.engine = "react";
     }
@@ -96,7 +100,7 @@ export default class Start extends Command {
     chokidar.watch(from, chokidarOptions).on("all", async (event, path) => {
       debug("got chokidar event '%o' and will re-process project", { event, path });
       this.log("reloading...");
-      await prepareProject({ NODE_ENV, engine: config.engine, from, to, style });
+      await prepareProject({ NODE_ENV, engine: config.engine!, from, to, style });
     });
 
     this.log(`🏗   Will build with Parcel 📦 bundler`);
@@ -128,7 +132,7 @@ export default class Start extends Command {
       this.error(`Could not start server at ${url}`);
     }
     this.log("");
-    this.log(`🌠  flyyer dev server running at ${url}`);
+    this.log(`🌠  Flyyer dev server running at ${url}`);
 
     this.log("");
     this.log(dedent`
@@ -142,7 +146,7 @@ export default class Start extends Command {
     `);
     this.log("");
 
-    this.log(`💻  Remember to preview and develop your flyyer templates at:`);
+    this.log(`💻  Remember to preview and develop your Flyyer templates at:`);
     this.log(`    ${chalk.bold(studio(flags))}`);
     this.log("");
     for (let i = 0; i < entries.length; i++) {
@@ -157,7 +161,7 @@ export default class Start extends Command {
           this.log(`    Opening Flyyer Studio in default browser...`);
           await open(preview);
         } catch {
-          this.warn("Couldn't launch default web browser to open flyyer Studio.");
+          this.warn("Couldn't launch default web browser to open Flyyer Studio.");
         }
       }
     }

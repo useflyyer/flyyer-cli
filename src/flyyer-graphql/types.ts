@@ -18,6 +18,10 @@ export interface createDeck_createDeck_deck_tenant {
 
 export interface createDeck_createDeck_deck_templates_edges_node {
   slug: string;
+  /**
+   * JSON Schema Draft 6 definition for variables
+   */
+  schema6: any | null;
 }
 
 export interface createDeck_createDeck_deck_templates_edges {

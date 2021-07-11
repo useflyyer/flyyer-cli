@@ -19,6 +19,7 @@ export const createDeck = gql`
           edges {
             node {
               slug
+              schema6
             }
           }
         }

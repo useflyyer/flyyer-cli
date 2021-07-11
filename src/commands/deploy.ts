@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 /* eslint-disable dot-notation */
 /* eslint-disable no-warning-comments */
 
@@ -9,6 +10,7 @@ import path from "path";
 import { FlyyerRender } from "@flyyer/flyyer";
 import { goerr } from "@flyyer/goerr";
 import type { FlyyerConfig } from "@flyyer/types";
+import { EXAMPLE_VARIABLES_FROM_SCHEMA } from "@flyyer/utils";
 import { Command, flags } from "@oclif/command";
 import type { args } from "@oclif/parser";
 import archiver from "archiver";
@@ -27,7 +29,7 @@ const debug = namespaced("deploy");
 
 export default class Deploy extends Command {
   static description = dedent`
-    Deploy your flyyer templates (remember to execute 'build' before running this command)
+    Deploy your Flyyer templates (remember to execute 'build' before running this command)
     See online documentation here: https://docs.flyyer.io/docs/cli/flyyer-cli#flyyer-deploy
   `;
 
@@ -60,7 +62,7 @@ export default class Deploy extends Command {
       default: false,
     }),
     remote: flags.string({
-      description: "flyyer GraphQL endpoint",
+      description: "Flyyer GraphQL endpoint",
       hidden: true,
       default: "https://backend.flyyer.io/graphql",
     }),
@@ -104,8 +106,15 @@ export default class Deploy extends Command {
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const config: Partial<FlyyerConfig> = require(configPath); // TODO: schema is not guaranteed.
+    // TODO: schema is not guaranteed.
+    const [config, configError] = goerr<Partial<FlyyerConfig>, Error>(() => require(configPath));
+    if (configError) {
+      this.error(`Failed to load flyyer.config.js file at path: ${configPath}`);
+    } else if (!config.engine) {
+      this.warn("Missing setting 'engine' in 'flyyer.config.js', will default to 'react'");
+      config.engine = "react";
+    }
+
     if (config.key) {
       debug("'key' is present in config");
     } else {
@@ -116,7 +125,7 @@ export default class Deploy extends Command {
         ${chalk.bold("Remember to setup your 'FLYYER_KEY' environment variable.")}
 
         Forgot your key? Go to https://flyyer.io/dashboard/_/settings
-        First time using flyyer? Create an account at https://flyyer.io/get-started
+        First time using Flyyer? Create an account at https://flyyer.io/get-started
       `);
     }
 
@@ -264,7 +273,7 @@ export default class Deploy extends Command {
       const ext = "jpeg";
       const host = `https://cdn.flyyer.io/render/v2`;
       this.log(dedent`
-        🌠   ${chalk.bold("flyyer project successfully deployed!")}
+        🌠   ${chalk.bold("Flyyer project successfully deployed!")}
       `);
       this.log("");
       this.log(`💡   To always render the latest version remove the number at the end of the URL.`);
@@ -283,24 +292,28 @@ export default class Deploy extends Command {
           template: template.slug,
           meta: { v: null },
         });
-        const withEmoji = f
-          .clone({ variables: { title: "Title", description: "Emoji supported EMOJI" } })
-          .href()
-          .replace("EMOJI", "😃");
+        const variables = template.schema6
+          ? EXAMPLE_VARIABLES_FROM_SCHEMA(template.schema6, { defaults: true })
+          : { title: "Hello World" };
+        // const withEmoji = f
+        //   .clone({ variables: { title: "Title", description: "Emoji supported EMOJI" } })
+        //   .href()
+        //   .replace("EMOJI", "😃");
+
         this.log(`🖼    ${chalk.green(`Created template ${chalk.bold(template.slug)} with URL:`)}`);
         this.log(`       - ${chalk.bold(f.href())}`);
         this.log(`     ${"Versioned (omit to use latest):"}`);
         this.log(`       - ${f.clone({ version: deck.version }).href()}`);
         this.log(`     ${"Supported extensions (jpeg, png, webp):"}`);
         this.log(`       - ${f.clone({ extension: "png" }).href()}`);
-        this.log(`     ${"Cache burst:"}`);
+        this.log(`     ${"Cache bust:"}`);
         this.log(`       - ${f.clone({ meta: { v: undefined } }).href()}`);
         this.log(`     ${"Set size (defaults to 1200x630):"}`);
         this.log(`       - ${f.clone({ meta: { v: null, width: 1080, height: 1080 } }).href()}`);
-        this.log(`     ${"Set variable:"}`);
-        this.log(`       - ${f.clone({ variables: { title: "Thanks for using flyyer" } }).href()}`);
-        this.log(`     ${"Multiple variables:"}`);
-        this.log(`       - ${withEmoji}`);
+        this.log(`     ${"Variables:"}`);
+        this.log(`       - ${f.clone({ variables }).href()}`);
+        // this.log(`     ${"Multiple variables:"}`);
+        // this.log(`       - ${withEmoji}`);
         this.log("");
       }
     }

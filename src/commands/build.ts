@@ -2,6 +2,8 @@
 import fs from "fs";
 import path from "path";
 
+import { goerr } from "@flyyer/goerr";
+import type { FlyyerConfig } from "@flyyer/types";
 import { Command, flags } from "@oclif/command";
 import type { args } from "@oclif/parser";
 import chalk from "chalk";
@@ -16,7 +18,7 @@ const debug = namespaced("build");
 
 export default class Build extends Command {
   static description = dedent`
-    Build flyyer project for production.
+    Build Flyyer project for production.
     See online documentation here: https://docs.flyyer.io/docs/cli/flyyer-cli#flyyer-build
   `;
 
@@ -72,9 +74,10 @@ export default class Build extends Command {
 
     this.log(`🛠   NODE_ENV is set to: ${NODE_ENV}`);
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const config = require(configPath);
-    if (!config.engine) {
+    const [config, configError] = goerr<Partial<FlyyerConfig>, Error>(() => require(configPath));
+    if (configError) {
+      this.error(`Failed to load flyyer.config.js file at path: ${configPath}`);
+    } else if (!config.engine) {
       this.warn("Missing setting 'engine' in 'flyyer.config.js', will default to 'react'");
       config.engine = "react";
     }
@@ -131,10 +134,10 @@ export default class Build extends Command {
         debug("for file '%s' got schema: %O", vname, schema);
         schemas.set(vname, schema);
         const n = chalk.green(ename);
-        this.log(`     - ${n}: found 'schema', can display variables UI on flyyer.io  ✅`);
+        this.log(`     - ${n}: found 'schema', can display variables UI on Flyyer.io  ✅`);
       } catch (error) {
         const n = chalk.yellow(ename);
-        this.log(`     - ${n}: enable variables UI on flyyer.io by exporting a 'schema' object from @flyyer/variables`);
+        this.log(`     - ${n}: enable variables UI on Flyyer.io by exporting a 'schema' object from @flyyer/variables`);
         debug(
           "failed to retrieve 'schema' of '%s' via 'getFlyyerSchema', maybe template is not exporting 'schema'",
           ename,
@@ -180,7 +183,7 @@ export default class Build extends Command {
     fs.writeFileSync(outMeta, JSON.stringify(meta), "utf8");
 
     this.log(dedent`
-      🌠   ${chalk.bold("flyyer project successfully built!")}
+      🌠   ${chalk.bold("Flyyer project successfully built!")}
       📂   Output directory: ${out}
       ${templates.map((t) => `🖼    Created template: ${chalk.bold(t.slug)}`).join("\n")}
     `);
