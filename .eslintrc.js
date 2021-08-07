@@ -7,6 +7,7 @@ module.exports = {
     "@flyyer/eslint-config/prettier",
   ],
   rules: {
+    complexity: "off",
     "no-warning-comments": "off",
     "no-await-in-loop": "off",
     "unicorn/no-abusive-eslint-disable": "off",

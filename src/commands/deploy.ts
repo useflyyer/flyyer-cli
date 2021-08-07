@@ -103,12 +103,16 @@ export default class Deploy extends Command {
           Production files not found at '.flyyer-dist' directory. Please run 'flyyer build' before deploying.
           Execute ${npmBuild} or ${yarnBuild} and then try again.
         `);
+      } else {
+        this.error(`Error when loading meta information: ${String(metaError)}`);
       }
+    } else if (!meta) {
+      this.error(`Failed to load meta information at: ${outMeta}`);
     }
 
-    // TODO: schema is not guaranteed.
+    // TODO: config schema is not guaranteed.
     const [config, configError] = goerr<Partial<FlyyerConfig>, Error>(() => require(configPath));
-    if (configError) {
+    if (configError || !config) {
       this.error(`Failed to load flyyer.config.js file at path: ${configPath}`);
     } else if (!config.engine) {
       this.warn("Missing setting 'engine' in 'flyyer.config.js', will default to 'react'");
@@ -214,6 +218,8 @@ export default class Deploy extends Command {
         `);
       } else if (error) {
         this.error(error);
+      } else if (!res) {
+        this.error("Failed to authenticate against Flyyer API: empty response");
       }
 
       const { uploadUrl, uploadFields, deck } = res["createDeck"];
@@ -267,6 +273,8 @@ export default class Deploy extends Command {
       );
       if (errorConfirm) {
         this.error(errorConfirm);
+      } else if (!resConfirm) {
+        this.error("Missing or invalid response from Flyyer API");
       }
       debug("confirmation response: %O", resConfirm["createDeckConfirm"]);
 

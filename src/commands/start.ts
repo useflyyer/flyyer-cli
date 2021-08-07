@@ -61,9 +61,9 @@ export default class Start extends Command {
     debug("processed files directory is: %s", to);
     debug("final build directory is: %s", out);
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // TODO: config schema is not guaranteed.
     const [config, configError] = goerr<Partial<FlyyerConfig>, Error>(() => require(configPath));
-    if (configError) {
+    if (configError || !config) {
       this.error(`Failed to load flyyer.config.js file at path: ${configPath}`);
     } else if (!config.engine) {
       this.warn("Missing setting 'engine' in 'flyyer.config.js', will default to 'react'");

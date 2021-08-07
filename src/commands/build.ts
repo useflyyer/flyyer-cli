@@ -74,8 +74,9 @@ export default class Build extends Command {
 
     this.log(`🛠   NODE_ENV is set to: ${NODE_ENV}`);
 
+    // TODO: config schema is not guaranteed.
     const [config, configError] = goerr<Partial<FlyyerConfig>, Error>(() => require(configPath));
-    if (configError) {
+    if (configError || !config) {
       this.error(`Failed to load flyyer.config.js file at path: ${configPath}`);
     } else if (!config.engine) {
       this.warn("Missing setting 'engine' in 'flyyer.config.js', will default to 'react'");
