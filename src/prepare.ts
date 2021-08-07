@@ -64,6 +64,7 @@ const DEFAULT_TAGS = dedent`
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://twemoji.maxcdn.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.flyyer.io" crossorigin>
 `;
 const ALLOWED_ORIGINS = [
   "https://www.flyyer.io",
