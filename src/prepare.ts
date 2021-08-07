@@ -88,6 +88,8 @@ const PARSE_QS = dedent`
     return { id, tags, variables, agent, locale: loc || undefined, width: Number(_w), height: Number(_h) }
   }
 `;
+const CLASSNAME_ERROR = "flyyer-error" as const;
+const EVENTS_VARIABLES = "flyyer-variables" as const;
 
 export async function prepareProject({
   NODE_ENV = "development",
@@ -176,7 +178,7 @@ export async function prepareProject({
                   }
                   const message = event.data;
                   switch (message.type) {
-                    case "flyyer-variables": {
+                    case "${EVENTS_VARIABLES}": {
                       setProps(PARSE_QS(message["payload"]["query"]));
                       setError(null); // reset error
                       break;
@@ -194,7 +196,7 @@ export async function prepareProject({
               return (
                 <main ref={elementRef} style={${JSON.stringify(style)}}>
                   {error ? (
-                    <ErrorUI error={error} />
+                    <ErrorUI className="${CLASSNAME_ERROR}" error={error} />
                   ) : (
                     <ErrorHandler onError={handleError}>
                       <Template {...props} />
@@ -208,7 +210,11 @@ export async function prepareProject({
               const base = { width: "100%", height: "100%", padding: "1rem" };
               if (${JSON.stringify(NODE_ENV)} === "production") {
                 return (
-                  <div style={{ ...base, fontSize: "1.8rem", lineHeight: "1", backgroundColor: "white", display: "flex", justifyContent: "center", alignItems: "center", ...style }} {...props}>
+                  <div
+                    style={{ ...base, fontSize: "1.8rem", lineHeight: "1", backgroundColor: "white", display: "flex", justifyContent: "center", alignItems: "center", ...style }}
+                    data-flyyer-error={error.message}
+                    {...props}
+                  >
                     <span>an error has ocurred</span>
                   </div>
                 );
@@ -297,6 +303,7 @@ export async function prepareProject({
           const flyyerVariablesNameExt = flyyerVariablesName + ".js";
           const flyyerVariablesPath = path.join(path.dirname(writePath), flyyerVariablesNameExt);
 
+          // TODO: Add error UI, class and data attribute.
           const flyyerJS = dedent`
             import Vue from "vue";
             import qs from "qs";
@@ -341,7 +348,7 @@ export async function prepareProject({
                   }
                   const message = event.data;
                   switch (message.type) {
-                    case "flyyer-variables": {
+                    case "${EVENTS_VARIABLES}": {
                       this.parameters = PARSE_QS(message["payload"]["query"]);
                       break;
                     }
