@@ -6,10 +6,14 @@ import { goerr } from "@flyyer/goerr";
 import type { FlyyerConfig } from "@flyyer/types";
 import { Command, flags } from "@oclif/command";
 import type { args } from "@oclif/parser";
+import { Parcel } from "@parcel/core";
+import { NodeFS } from "@parcel/fs";
+import type { InitialParcelOptions } from "@parcel/types";
 import chalk from "chalk";
 import dedent from "dedent";
 import del from "del";
-import Bundler, { ParcelOptions } from "parcel-bundler";
+
+console.log("RUNING EXPERIMENTAL");
 
 import { MetaOutput, MetaOutputTemplate, prepareProject, TemplateRegistry } from "../prepare";
 import { namespaced } from "../utils/debug";
@@ -106,69 +110,84 @@ export default class Build extends Command {
 
     this.log(`🔮  ${chalk.bold(`Found ${entries.length} templates, processing...`)}`);
     const schemas = new Map<string /* variable.name */, null | any /* JSONSchemaDraft6 as Object */>();
-    for (const item of entries) {
-      const vname = item.variables.name;
-      const vsource = item.variables.path; // Hey Vsource, Michael here!
-      const ename = item.entry.name;
-      debug("will try to bundle variables file at: %s", vsource);
-      try {
-        const nodeBundler = new Bundler(vsource, {
-          outDir: out,
-          watch: false,
-          cacheDir: cache,
-          contentHash: false, // false to use content hashes
-          minify: false,
-          target: "node",
-          sourceMaps: false,
-          detailedReport: false,
-          logLevel: 1,
-        });
-        await nodeBundler.bundle();
-        const destination = path.join(out, vname);
-        debug("will try to 'require()' bundled variables at: %s", destination);
-        const required = require(destination);
-        debug("file required and now will try to import `schema` via 'getFlyyerSchema'");
-        const { schema } = await required.getFlyyerSchema();
-        if (!schema) {
-          throw new Error("Tried to import 'schema' but it is 'null' or missing");
-        }
-        debug("for file '%s' got schema: %O", vname, schema);
-        schemas.set(vname, schema);
-        const n = chalk.green(ename);
-        this.log(`     - ${n}: found 'schema', can display variables UI on Flyyer.io  ✅`);
-      } catch (error) {
-        const n = chalk.yellow(ename);
-        this.log(`     - ${n}: enable variables UI on Flyyer.io by exporting a 'schema' object from @flyyer/variables`);
-        debug(
-          "failed to retrieve 'schema' of '%s' via 'getFlyyerSchema', maybe template is not exporting 'schema'",
-          ename,
-        );
-        debug("error was: %o", error);
-        schemas.set(vname, null);
-      }
-    }
+    // for (const item of entries) {
+    //   const vname = item.variables.name;
+    //   const vsource = item.variables.path; // Hey Vsource, Michael here!
+    //   const ename = item.entry.name;
+    //   debug("will try to bundle variables file at: %s", vsource);
+    //   try {
+    //     const nodeBundler = new Bundler(vsource, {
+    //       outDir: out,
+    //       watch: false,
+    //       cacheDir: cache,
+    //       contentHash: false, // false to use content hashes
+    //       minify: false,
+    //       target: "node",
+    //       sourceMaps: false,
+    //       detailedReport: false,
+    //       logLevel: 1,
+    //     });
+    //     await nodeBundler.bundle();
+    //     const destination = path.join(out, vname);
+    //     debug("will try to 'require()' bundled variables at: %s", destination);
+    //     const required = require(destination);
+    //     debug("file required and now will try to import `schema` via 'getFlyyerSchema'");
+    //     const { schema } = await required.getFlyyerSchema();
+    //     if (!schema) {
+    //       throw new Error("Tried to import 'schema' but it is 'null' or missing");
+    //     }
+    //     debug("for file '%s' got schema: %O", vname, schema);
+    //     schemas.set(vname, schema);
+    //     const n = chalk.green(ename);
+    //     this.log(`     - ${n}: found 'schema', can display variables UI on Flyyer.io  ✅`);
+    //   } catch (error) {
+    //     const n = chalk.yellow(ename);
+    //     this.log(`     - ${n}: enable variables UI on Flyyer.io by exporting a 'schema' object from @flyyer/variables`);
+    //     debug(
+    //       "failed to retrieve 'schema' of '%s' via 'getFlyyerSchema', maybe template is not exporting 'schema'",
+    //       ename,
+    //     );
+    //     debug("error was: %o", error);
+    //     schemas.set(vname, null);
+    //   }
+    // }
 
     this.log(`🏗   Will build with Parcel 📦 bundler`);
     const glob = path.join(to, "*.html");
-    const bundlerOptions: ParcelOptions = {
-      outDir: out,
-      publicUrl: "./",
-      watch: false,
-      cache: true,
+    // const workerFarm = createWorkerFarm();
+    const outputFS = new NodeFS();
+    const bundlerOptions: InitialParcelOptions = {
+      entries: glob,
+      defaultConfig: "@parcel/config-default",
+      mode: NODE_ENV || "development",
+      targets: ["modern"],
+      env: {
+        NODE_ENV: NODE_ENV,
+      },
       cacheDir: cache,
-      contentHash: false, // false to use content hashes
-      minify: true,
-      target: "browser",
-      // logLevel: 0 as any,
-      hmr: false,
-      sourceMaps: false,
-      detailedReport: false,
-      // autoInstall: true,
+      hmrOptions: null,
+      outputFS,
+
+      // outDir: out,
+      // publicUrl: "./",
+      // watch: false,
+      // cache: true,
+      // cacheDir: cache,
+      // contentHash: false, // false to use content hashes
+      // minify: true,
+      // target: "browser",
+      // // logLevel: 0 as any,
+      // hmr: false,
+      // sourceMaps: false,
+      // detailedReport: false,
+      // // autoInstall: true,
     };
     debug("glob pattern for Parcel is: %s", glob);
     debug("options for Parcel are: %O", bundlerOptions);
-    const bundler = new Bundler(glob, bundlerOptions);
-    await bundler.bundle();
+    const bundler = new Parcel(bundlerOptions);
+    const { bundleGraph, buildTime } = await bundler.run();
+    const bundles = bundleGraph.getBundles();
+    console.log(`✨ Built ${bundles.length} bundles in ${buildTime}ms!`);
     debug("success at building");
 
     const templates: MetaOutputTemplate[] = entries.map((item) => {

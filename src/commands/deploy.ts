@@ -2,7 +2,7 @@
 /* eslint-disable dot-notation */
 /* eslint-disable no-warning-comments */
 
-import "cross-fetch/polyfill";
+// import "cross-fetch/polyfill";
 
 import fs from "fs";
 import path from "path";

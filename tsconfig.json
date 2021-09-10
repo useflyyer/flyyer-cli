@@ -3,12 +3,14 @@
     "declaration": true,
     "importHelpers": true,
     "esModuleInterop": true,
-    "module": "commonjs",
+    "module": "ESNext",
     "outDir": "lib",
     "rootDir": "src",
     "alwaysStrict": true,
+    "moduleResolution": "Node",
     "strict": true,
     "strictNullChecks": true,
+    "skipLibCheck": true,
     "strictPropertyInitialization": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
@@ -18,7 +20,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "preserveConstEnums": true,
-    "target": "es2017"
+    "target": "ESNext"
   },
   "include": [
     "src/**/*"
