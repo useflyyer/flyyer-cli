@@ -99,7 +99,7 @@ export default class Build extends Command {
     try {
       entries = await prepareProject({ NODE_ENV, engine: config.engine, from, to, style });
       debug("processed entries: %O", entries);
-    } catch (error) {
+    } catch (error: any) {
       debug.extend("error")(error);
       this.error(error); // exits
     }

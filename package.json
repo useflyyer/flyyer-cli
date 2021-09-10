@@ -55,13 +55,13 @@
     ]
   },
   "dependencies": {
-    "@flyyer/flyyer": "^3.2.1",
+    "@flyyer/flyyer": "^3.3.2",
     "@flyyer/goerr": "^3.0.0",
     "@flyyer/types": "^2.0.3",
     "@flyyer/utils": "^0.2.1",
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
-    "@oclif/plugin-help": "^3.2.2",
+    "@oclif/plugin-help": "^3.2.3",
     "archiver": "^5.3.0",
     "chalk": "^4.1.2",
     "chokidar": "^3.5.2",
@@ -76,7 +76,7 @@
     "open": "~7.4.2",
     "parcel-bundler": "^1.12.5",
     "qs": "^6.10.1",
-    "tslib": "^2.3.0",
+    "tslib": "^2.3.1",
     "twemoji": "^13.1.0"
   },
   "devDependencies": {
@@ -85,18 +85,18 @@
     "@types/archiver": "^5.1.1",
     "@types/debug": "^4.1.7",
     "@types/dedent": "^0.7.0",
-    "@types/node": "^16.4.13",
-    "@types/node-fetch": "^2.5.12",
+    "@types/node": "^16.9.1",
+    "@types/node-fetch": "^3.0.3",
     "@types/parcel-bundler": "^1.12.4",
-    "apollo": "2.33.4",
+    "apollo": "2.33.6",
     "eslint": "^7.32.0",
     "eslint-config-oclif": "^3.1",
     "eslint-config-oclif-typescript": "^0.2.0",
     "globby": "^11.0.4",
     "husky": "^4.3.8",
     "lint-staged": "^11.1.2",
-    "prettier": "^2.3.2",
-    "ts-node": "^10.1.0",
-    "typescript": "^4.3.5"
+    "prettier": "^2.4.0",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.2"
   }
 }
