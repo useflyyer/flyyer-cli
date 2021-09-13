@@ -142,10 +142,10 @@ export default class Start extends Command {
         engines: {
           browsers: ["last 1 Chrome version"],
         },
-        outputFormat: "esmodule", // TODO: not sure. // https://v2.parceljs.org/features/targets/#outputformat
+        outputFormat: "global", // TODO: not sure. // https://v2.parceljs.org/features/targets/#outputformat
         distDir: out,
         shouldOptimize: false,
-        shouldScopeHoist: true,
+        shouldScopeHoist: false, // when true dev mode breaks
         publicUrl: "/",
         sourceMaps: true,
       },
