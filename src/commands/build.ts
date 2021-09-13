@@ -57,7 +57,7 @@ export default class Build extends Command {
       this.error("Failed to import Parcel 2 module. Make sure your Node.js version is updated.");
     }
 
-    const NODE_ENV = process.env.NODE_ENV || "production";
+    const NODE_ENV = process.env.NODE_ENV;
     const CURR_DIR: string = args["directory"];
     const root = path.resolve(process.cwd(), CURR_DIR);
     const out = path.resolve(root, ".flyyer-dist");

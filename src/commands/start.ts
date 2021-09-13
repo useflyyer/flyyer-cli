@@ -122,7 +122,7 @@ export default class Start extends Command {
     const bundlerOptions: InitialParcelOptions = {
       entries: glob,
       defaultConfig: "@parcel/config-default",
-      mode: NODE_ENV || "development",
+      mode: NODE_ENV,
 
       workerFarm: (USE_MEMORY ? workerFarm : null) || undefined,
       env: {
