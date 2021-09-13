@@ -3,13 +3,14 @@ import fs from "fs";
 import path from "path";
 
 import { goerr } from "@flyyer/goerr";
+import { importParcel } from "@flyyer/parcel-commonjs";
 import type { FlyyerConfig } from "@flyyer/types";
 import { Command, flags } from "@oclif/command";
 import type { args } from "@oclif/parser";
+import type { InitialParcelOptions } from "@parcel/types";
 import chalk from "chalk";
 import dedent from "dedent";
 import del from "del";
-import Bundler, { ParcelOptions } from "parcel-bundler";
 
 import { MetaOutput, MetaOutputTemplate, prepareProject, TemplateRegistry } from "../prepare";
 import { namespaced } from "../utils/debug";
@@ -48,14 +49,20 @@ export default class Build extends Command {
 
   async run(): Promise<void> {
     debug("cli version is: %s", this.config.version);
-    const parsed = this.parse(Build);
+    const { flags, args } = this.parse(Build);
 
-    const NODE_ENV = process.env.NODE_ENV;
-    const CURR_DIR: string = parsed.args["directory"];
+    debug("[experimental] will import parcel 2 which is .mjs into a commonjs environment via 'await import()'.");
+    const { Parcel, MemoryFS, NodeFS, createWorkerFarm } = await importParcel();
+    if (!Parcel) {
+      this.error("Failed to import Parcel 2 module. Make sure your Node.js version is updated.");
+    }
+
+    const NODE_ENV = process.env.NODE_ENV || "production";
+    const CURR_DIR: string = args["directory"];
     const root = path.resolve(process.cwd(), CURR_DIR);
     const out = path.resolve(root, ".flyyer-dist");
     const outMeta = path.resolve(root, ".flyyer-dist", "flyyer.json");
-    const configPath = path.resolve(root, parsed.flags["config"]);
+    const configPath = path.resolve(root, flags["config"]);
 
     const from = path.join(root, "templates");
     const to = path.join(root, ".flyyer-processed");
@@ -104,6 +111,8 @@ export default class Build extends Command {
       this.error(error); // exits
     }
 
+    const USE_MEMORY: boolean = false as any;
+
     this.log(`🔮  ${chalk.bold(`Found ${entries.length} templates, processing...`)}`);
     const schemas = new Map<string /* variable.name */, null | any /* JSONSchemaDraft6 as Object */>();
     for (const item of entries) {
@@ -111,19 +120,41 @@ export default class Build extends Command {
       const vsource = item.variables.path; // Hey Vsource, Michael here!
       const ename = item.entry.name;
       debug("will try to bundle variables file at: %s", vsource);
+      const workerFarm = USE_MEMORY ? createWorkerFarm() : undefined;
+      const outputFS = workerFarm ? new MemoryFS(workerFarm) : new NodeFS();
       try {
-        const nodeBundler = new Bundler(vsource, {
-          outDir: out,
-          watch: false,
+        const bundler = new Parcel({
+          entries: vsource,
+          defaultConfig: "@parcel/config-default",
+          mode: NODE_ENV,
+
+          workerFarm: workerFarm,
+          env: {
+            NODE_ENV: NODE_ENV,
+          },
+          serveOptions: false,
+          hmrOptions: null,
+          outputFS,
+          defaultTargetOptions: {
+            isLibrary: true,
+            engines: {
+              node: "12", // TODO: Use current machine's node version?
+            },
+            outputFormat: "commonjs", // TODO: not sure. // https://v2.parceljs.org/features/targets/#outputformat
+            distDir: out,
+            shouldOptimize: true, // important to optimize
+            shouldScopeHoist: true, // prevent include of CSS file. Depends on package.json `"sideEffects": false`.
+            publicUrl: "/",
+            sourceMaps: true,
+          },
           cacheDir: cache,
-          contentHash: false, // false to use content hashes
-          minify: false,
-          target: "node",
-          sourceMaps: false,
-          detailedReport: false,
-          logLevel: 1,
+          shouldDisableCache: false,
+          shouldContentHash: false,
+          shouldAutoInstall: true,
         });
-        await nodeBundler.bundle();
+        const { bundleGraph, buildTime } = await bundler.run();
+        const bundles = bundleGraph.getBundles();
+        debug(`success at building ${bundles.length} bundles in ${buildTime}ms as node`);
         const destination = path.join(out, vname);
         debug("will try to 'require()' bundled variables at: %s", destination);
         const required = require(destination);
@@ -148,28 +179,46 @@ export default class Build extends Command {
       }
     }
 
-    this.log(`🏗   Will build with Parcel 📦 bundler`);
+    const workerFarm = USE_MEMORY ? createWorkerFarm() : undefined;
+    const outputFS = workerFarm ? new MemoryFS(workerFarm) : new NodeFS();
+
+    this.log(`🏗   Will build with Parcel 2 📦 bundler`);
     const glob = path.join(to, "*.html");
-    const bundlerOptions: ParcelOptions = {
-      outDir: out,
-      publicUrl: "./",
-      watch: false,
-      cache: true,
+    const bundlerOptions: InitialParcelOptions = {
+      entries: glob,
+      defaultConfig: "@parcel/config-default",
+      mode: NODE_ENV,
+
+      workerFarm: workerFarm,
+      env: {
+        NODE_ENV: NODE_ENV,
+      },
+      serveOptions: false,
+      hmrOptions: null,
+      outputFS,
+      defaultTargetOptions: {
+        engines: {
+          browsers: ["last 1 Chrome version"], // TODO: not sure.
+        },
+        outputFormat: "esmodule", // TODO: not sure. // https://v2.parceljs.org/features/targets/#outputformat
+        distDir: out,
+        shouldOptimize: true, // important to optimize
+        shouldScopeHoist: true,
+        publicUrl: "/",
+        sourceMaps: true,
+      },
       cacheDir: cache,
-      contentHash: false, // false to use content hashes
-      minify: true,
-      target: "browser",
-      // logLevel: 0 as any,
-      hmr: false,
-      sourceMaps: false,
-      detailedReport: false,
-      // autoInstall: true,
+      shouldDisableCache: false,
+      shouldContentHash: false,
+      shouldAutoInstall: true,
     };
     debug("glob pattern for Parcel is: %s", glob);
     debug("options for Parcel are: %O", bundlerOptions);
-    const bundler = new Bundler(glob, bundlerOptions);
-    await bundler.bundle();
-    debug("success at building");
+    const bundler = new Parcel(bundlerOptions);
+    debug("will bundle");
+    const { bundleGraph, buildTime } = await bundler.run();
+    const bundles = bundleGraph.getBundles();
+    debug(`success at building ${bundles.length} bundles in ${buildTime}ms as browser`);
 
     const templates: MetaOutputTemplate[] = entries.map((item) => {
       const vname = item.variables.name;

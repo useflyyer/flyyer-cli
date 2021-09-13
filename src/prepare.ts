@@ -16,6 +16,8 @@ export type PrepareProjectArguments = {
   style: {
     [key: string]: any;
   };
+  /** Just update the template file */
+  reload?: boolean;
 };
 
 export type TemplateRegistryItem = {
@@ -97,6 +99,7 @@ export async function prepareProject({
   from,
   to,
   style,
+  reload,
 }: PrepareProjectArguments): Promise<TemplateRegistry[]> {
   const names = fs.readdirSync(from);
 
@@ -116,6 +119,8 @@ export async function prepareProject({
       const writePath = path.join(to, nameExt);
       fs.writeFileSync(writePath, contents, "utf8");
 
+      if (reload) return [];
+
       /** Has dot (eg: `.js`) */
       const ext = path.extname(nameExt);
       const nameNoExt = path.basename(nameExt, ext);
@@ -132,13 +137,16 @@ export async function prepareProject({
           const flyyerJSNameExt = flyyerJSName + ext;
           const flyyerJSPath = path.join(path.dirname(writePath), flyyerJSNameExt);
 
+          const flyyerJSEntryName = "flyyer-" + path.basename(writePath, ext) + ".entry";
+          const flyyerJSEntryNameExt = flyyerJSEntryName + ext;
+          const flyyerJSEntryPath = path.join(path.dirname(writePath), flyyerJSEntryNameExt);
+
           const flyyerVariablesName = "flyyer-" + path.basename(writePath, ext) + ".variables";
           const flyyerVariablesNameExt = flyyerVariablesName + ext;
           const flyyerVariablesPath = path.join(path.dirname(writePath), flyyerVariablesNameExt);
 
           const flyyerJS = dedent`
             import React, { Component, Fragment, useRef, useEffect, useState } from "react"
-            import ReactDOM from "react-dom";
             import qs from "qs";
             import twemoji from "twemoji";
 
@@ -148,7 +156,7 @@ export async function prepareProject({
 
             ${PARSE_QS}
 
-            function WrappedTemplate() {
+            export function WrappedTemplate() {
               const [props, setProps] = useState(() => {
                 // Set initial props.
                 return PARSE_QS(window.location.search.replace("?", "") || window.location.hash.replace("#", ""));
@@ -242,7 +250,12 @@ export async function prepareProject({
                 return <Fragment {...props} />;
               }
             }
+          `;
+          fs.writeFileSync(flyyerJSPath, flyyerJS, "utf8");
 
+          const flyyerJSEntry = dedent`
+            import ReactDOM from "react-dom";
+            import { WrappedTemplate } from "./${flyyerJSName}"
             const element = document.getElementById("root");
             ReactDOM.render(<WrappedTemplate />, element);
 
@@ -250,7 +263,7 @@ export async function prepareProject({
             // @ts-ignore
             if (module.hot) module.hot.accept();
           `;
-          fs.writeFileSync(flyyerJSPath, flyyerJS, "utf8");
+          fs.writeFileSync(flyyerJSEntryPath, flyyerJSEntry, "utf8");
 
           const flyyerHTML = dedent`
             <!DOCTYPE html>
@@ -266,18 +279,23 @@ export async function prepareProject({
               <body>
                 <div id="root"></div>
 
-                <script src="./${flyyerJSNameExt}"></script>
+                <script type="module" src="./${flyyerJSEntryNameExt}"></script>
               </body>
             </html>
           `;
           fs.writeFileSync(flyyerHTMLPath, flyyerHTML, "utf8");
 
+          // TODO: Which one is more compatibly or reliable?
+          // const flyyerVariables = dedent`
+          //   export async function getFlyyerSchema() {
+          //     const { schema } = await import("./${flyyerEntry}");
+          //     return { schema }
+          //   };
+          // `;
           const flyyerVariables = dedent`
+            import { schema } from "./${flyyerEntry}";
             export async function getFlyyerSchema() {
-              // @ts-ignore
-              const { schema } = await import("./${flyyerEntry}");
-              // @ts-ignore
-              return { schema }
+              return { schema };
             };
           `;
           fs.writeFileSync(flyyerVariablesPath, flyyerVariables, "utf8");
@@ -381,7 +399,7 @@ export async function prepareProject({
               <body>
                 <div id="root"></div>
 
-                <script src="./${flyyerJSNameExt}"></script>
+                <script type="module" src="./${flyyerJSNameExt}"></script>
               </body>
             </html>
           `;

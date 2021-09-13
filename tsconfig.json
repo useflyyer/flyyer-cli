@@ -10,6 +10,7 @@
     "strict": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
+    "skipLibCheck": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
     "noImplicitAny": true,
