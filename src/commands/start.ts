@@ -8,8 +8,8 @@ import { Command, flags } from "@oclif/command";
 import type { InitialParcelOptions } from "@parcel/types";
 import chalk from "chalk";
 import chokidar, { WatchOptions } from "chokidar";
-import dedent from "dedent";
 import del from "del";
+import endent from "endent";
 import open from "open";
 
 import { prepareProject, TemplateRegistry } from "../prepare";
@@ -19,7 +19,7 @@ import { studio } from "../utils/studio";
 const debug = namespaced("start");
 
 export default class Start extends Command {
-  static description = dedent`
+  static description = endent`
     This command starts a development server using Parcel.js by default at http://localhost:7777
     See online documentation here: https://docs.flyyer.io/docs/cli/flyyer-cli#flyyer-start
   `;
@@ -139,13 +139,14 @@ export default class Start extends Command {
       },
       outputFS,
       defaultTargetOptions: {
+        isLibrary: false,
         engines: {
           browsers: ["last 1 Chrome version"],
         },
         outputFormat: "global", // TODO: not sure. // https://v2.parceljs.org/features/targets/#outputformat
         distDir: out,
         shouldOptimize: false,
-        shouldScopeHoist: false, // when true dev mode breaks
+        // shouldScopeHoist: false, // when true dev mode breaks
         publicUrl: "/",
         sourceMaps: true,
       },
@@ -181,12 +182,12 @@ export default class Start extends Command {
     this.log(`🌠  Flyyer dev server running at ${url}`);
 
     this.log("");
-    this.log(dedent`
+    this.log(endent`
       💡  Pass variables as query-params in the URL.
           Example: ${url}/hello.html?title=Hello+world
     `);
     this.log("");
-    this.log(dedent`
+    this.log(endent`
       💡  This dev server sometimes fails or sometimes the UI does not update accordingly.
           Please restart the server if something goes wrong.
     `);

@@ -15,8 +15,8 @@ import { Command, flags } from "@oclif/command";
 import type { args } from "@oclif/parser";
 import archiver from "archiver";
 import chalk from "chalk";
-import dedent from "dedent";
 import del from "del";
+import endent from "endent";
 import FormData from "form-data";
 import { GraphQLClient } from "graphql-request";
 
@@ -28,7 +28,7 @@ import { namespaced } from "../utils/debug";
 const debug = namespaced("deploy");
 
 export default class Deploy extends Command {
-  static description = dedent`
+  static description = endent`
     Deploy your Flyyer templates (remember to execute 'build' before running this command)
     See online documentation here: https://docs.flyyer.io/docs/cli/flyyer-cli#flyyer-deploy
   `;
@@ -99,7 +99,7 @@ export default class Deploy extends Command {
       if (metaError.code === "ENOENT") {
         const npmBuild = chalk.bold("NODE_ENV=production npm run-script build");
         const yarnBuild = chalk.bold("NODE_ENV=production yarn build");
-        this.error(dedent`
+        this.error(endent`
           Production files not found at '.flyyer-dist' directory. Please run 'flyyer build' before deploying.
           Execute ${npmBuild} or ${yarnBuild} and then try again.
         `);
@@ -123,7 +123,7 @@ export default class Deploy extends Command {
       debug("'key' is present in config");
     } else {
       debug("'key' is not present in config");
-      this.error(dedent`
+      this.error(endent`
         Missing 'key' property in file 'flyyer.config.js'.
 
         ${chalk.bold("Remember to setup your 'FLYYER_KEY' environment variable.")}
@@ -139,7 +139,7 @@ export default class Deploy extends Command {
     }
 
     if (!config.deck) {
-      this.error(dedent`
+      this.error(endent`
         Missing "deck" property in flyyer.config.js object.
       `);
     }
@@ -213,7 +213,7 @@ export default class Deploy extends Command {
         client.request<types.createDeck, types.createDeckVariables>(mutations.createDeck, { input }),
       );
       if (error && error.message.includes("Tenant for token not found")) {
-        this.error(dedent`
+        this.error(endent`
           Failed to authenticate using provided FLYYER_KEY token. Please check if you are using a valid token or generate a new one at https://flyyer.io/dashboard/_/settings
         `);
       } else if (error) {
@@ -280,7 +280,7 @@ export default class Deploy extends Command {
 
       const ext = "jpeg";
       const host = `https://cdn.flyyer.io/render/v2`;
-      this.log(dedent`
+      this.log(endent`
         🌠   ${chalk.bold("Flyyer project successfully deployed!")}
       `);
       this.log("");

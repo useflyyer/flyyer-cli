@@ -5,12 +5,13 @@ import path from "path";
 import { goerr } from "@flyyer/goerr";
 import { importParcel } from "@flyyer/parcel-commonjs";
 import type { FlyyerConfig } from "@flyyer/types";
+import { JSONSchema6 } from "@flyyer/utils";
 import { Command, flags } from "@oclif/command";
 import type { args } from "@oclif/parser";
 import type { InitialParcelOptions } from "@parcel/types";
 import chalk from "chalk";
-import dedent from "dedent";
 import del from "del";
+import endent from "endent";
 
 import { MetaOutput, MetaOutputTemplate, prepareProject, TemplateRegistry } from "../prepare";
 import { namespaced } from "../utils/debug";
@@ -18,7 +19,7 @@ import { namespaced } from "../utils/debug";
 const debug = namespaced("build");
 
 export default class Build extends Command {
-  static description = dedent`
+  static description = endent`
     Build Flyyer project for production.
     See online documentation here: https://docs.flyyer.io/docs/cli/flyyer-cli#flyyer-build
   `;
@@ -63,6 +64,7 @@ export default class Build extends Command {
     const out = path.resolve(root, ".flyyer-dist");
     const outMeta = path.resolve(root, ".flyyer-dist", "flyyer.json");
     const configPath = path.resolve(root, flags["config"]);
+    const packagePath = path.resolve(root, "package.json");
 
     const from = path.join(root, "templates");
     const to = path.join(root, ".flyyer-processed");
@@ -113,6 +115,59 @@ export default class Build extends Command {
 
     const USE_MEMORY: boolean = false as any;
 
+    const packageText = fs.readFileSync(packagePath, "utf-8");
+
+    // Create backup
+    const backupPackageJSON = async () => {
+      delete require.cache[require.resolve(packagePath)]; // DELETE CACHE
+
+      const packagePathBackup = path.resolve(root, "package.json.flyyer-backup");
+      fs.writeFileSync(packagePathBackup, packageText, { encoding: "utf-8" });
+    };
+
+    // TODO: Hack to alter package.json to set `"sideEffects"` to `false`.
+    const createPackageJSON = async (overwrite: any) => {
+      delete require.cache[require.resolve(packagePath)]; // DELETE CACHE
+
+      const json = JSON.parse(packageText);
+      Object.assign(json, overwrite);
+      const next = JSON.stringify(json);
+      fs.writeFileSync(packagePath, next, { encoding: "utf-8" }); // overwrite file
+    };
+
+    const restorePackageJSON = async () => {
+      delete require.cache[require.resolve(packagePath)]; // DELETE CACHE
+
+      const packagePathBackup = path.resolve(root, "package.json.flyyer-backup");
+      const packageTextRestored = fs.readFileSync(packagePathBackup, "utf-8");
+      fs.writeFileSync(packagePath, packageTextRestored, { encoding: "utf-8" }); // overwrite file
+      del.sync(packagePathBackup);
+    };
+
+    // Create a backup of package.json
+    await backupPackageJSON();
+
+    // TODO: failed to override NodeFS (patching nor extending class), it looks like Parcel ignores it.
+    // const genInputFs = (packagejson: any) => {
+    //   const inputFS = new NodeFS();
+    //   const readFileOriginal = inputFS.readFile;
+    //   // @ts-expect-error Type stuff
+    //   inputFS.readFile = async (filePath: FilePath, enc?: any) => {
+    //     if (filePath === packagePath) {
+    //       const text = fs.readFileSync(filePath, enc);
+    //       const str = text.toString();
+    //       const json = JSON.parse(str);
+    //       // json["sideEffects"] = false;
+    //       debug("[readFile] did: %o", Object.assign(json, packagejson));
+    //       return JSON.stringify(Object.assign(json, packagejson));
+    //     }
+    //     return readFileOriginal(filePath, enc);
+    //   };
+    //   return inputFS;
+    // };
+
+    await createPackageJSON({ sideEffects: false }); // prevent importing files and css in Node.js
+
     this.log(`🔮  ${chalk.bold(`Found ${entries.length} templates, processing...`)}`);
     const schemas = new Map<string /* variable.name */, null | any /* JSONSchemaDraft6 as Object */>();
     for (const item of entries) {
@@ -122,6 +177,8 @@ export default class Build extends Command {
       debug("will try to bundle variables file at: %s", vsource);
       const workerFarm = USE_MEMORY ? createWorkerFarm() : undefined;
       const outputFS = workerFarm ? new MemoryFS(workerFarm) : new NodeFS();
+      // const inputFS = workerFarm ? new MemoryFS(workerFarm) : new NodeFS();
+
       try {
         const bundler = new Parcel({
           entries: vsource,
@@ -134,13 +191,14 @@ export default class Build extends Command {
           },
           serveOptions: false,
           hmrOptions: null,
+          // inputFS,
           outputFS,
           defaultTargetOptions: {
-            isLibrary: true,
+            isLibrary: true, // required by files to export `getFlyyerSchema`
             engines: {
               node: "12", // TODO: Use current machine's node version?
             },
-            outputFormat: "commonjs", // TODO: not sure. // https://v2.parceljs.org/features/targets/#outputformat
+            outputFormat: "commonjs", // https://v2.parceljs.org/features/targets/#outputformat
             distDir: out,
             shouldOptimize: true, // important to optimize
             shouldScopeHoist: true, // prevent include of CSS file. Depends on package.json `"sideEffects": false`.
@@ -148,7 +206,7 @@ export default class Build extends Command {
             sourceMaps: true,
           },
           cacheDir: cache,
-          shouldDisableCache: false,
+          shouldDisableCache: true, // TODO: not sure
           shouldContentHash: false,
           shouldAutoInstall: true,
         });
@@ -159,10 +217,47 @@ export default class Build extends Command {
         debug("will try to 'require()' bundled variables at: %s", destination);
         const required = require(destination);
         debug("file required and now will try to import `schema` via 'getFlyyerSchema'");
-        const { schema } = await required.getFlyyerSchema();
+        const { schema }: { schema?: JSONSchema6 } = await required.getFlyyerSchema();
         if (!schema) {
           throw new Error("Tried to import 'schema' but it is 'null' or missing");
         }
+        debug("for file '%s' got found schema: %O", vname, Boolean(schema));
+
+        // TODO: Add more validations to schema format
+        if (schema["type"] !== "object") {
+          this.warn(`Schema for template ${vname} expected type 'object' but got: ${schema["type"]}`);
+          continue;
+        }
+
+        /**
+         * On Node.js target files are prefixed with 'file://'. We need to make them relative for browsers.
+         * TODO: Create Parcel plugin.
+         */
+        const processVar = (uri: string): string => {
+          if (uri.startsWith("file://")) {
+            return uri.replace(`file://${out}`, "");
+          }
+          return uri;
+        };
+
+        /** Processed URIs to make them browser-like instead of Node-like. */
+        const entries = Object.entries(schema["properties"] || {}).map(([key, value]) => {
+          if (typeof value === "boolean") throw new Error("Boolean not allowed");
+          // TODO: Robustness
+          if (value["format"] === "uri-reference") {
+            return [
+              key,
+              {
+                ...value,
+                default: value["default"] ? processVar(value["default"] as any) : undefined,
+                examples: value["examples"] ? value["examples"].map((e) => processVar(e as any)) : undefined,
+              },
+            ];
+          }
+          return [key, value];
+        });
+        schema["properties"] = Object.fromEntries(entries);
+
         debug("for file '%s' got schema: %O", vname, schema);
         schemas.set(vname, schema);
         const n = chalk.green(ename);
@@ -179,10 +274,18 @@ export default class Build extends Command {
       }
     }
 
+    // Clean dir again
+    await del([out]);
+    debug("removed dir: %s", out);
+
     const workerFarm = USE_MEMORY ? createWorkerFarm() : undefined;
     const outputFS = workerFarm ? new MemoryFS(workerFarm) : new NodeFS();
+    // const inputFS = workerFarm ? new MemoryFS(workerFarm) : new NodeFS();
 
     this.log(`🏗   Will build with Parcel 2 📦 bundler`);
+
+    await createPackageJSON({ sideEffects: true }); // must be true so React and CSS modules take effect.
+
     const glob = path.join(to, "*.html");
     const bundlerOptions: InitialParcelOptions = {
       entries: glob,
@@ -195,20 +298,22 @@ export default class Build extends Command {
       },
       serveOptions: false,
       hmrOptions: null,
+      // inputFS,
       outputFS,
       defaultTargetOptions: {
+        isLibrary: false,
         engines: {
-          browsers: ["last 1 Chrome version"], // TODO: not sure.
+          browsers: ["last 1 Chrome version"],
         },
-        outputFormat: "esmodule", // TODO: not sure. // https://v2.parceljs.org/features/targets/#outputformat
+        outputFormat: "global", // TODO: not sure. // https://v2.parceljs.org/features/targets/#outputformat
         distDir: out,
-        shouldOptimize: true, // important to optimize
-        shouldScopeHoist: true,
+        shouldOptimize: true,
+        shouldScopeHoist: false, // defaults to true. It prevents React mounting and CSS imports.
         publicUrl: "/",
         sourceMaps: true,
       },
       cacheDir: cache,
-      shouldDisableCache: false,
+      shouldDisableCache: true,
       shouldContentHash: false,
       shouldAutoInstall: true,
     };
@@ -219,6 +324,8 @@ export default class Build extends Command {
     const { bundleGraph, buildTime } = await bundler.run();
     const bundles = bundleGraph.getBundles();
     debug(`success at building ${bundles.length} bundles in ${buildTime}ms as browser`);
+
+    await restorePackageJSON();
 
     const templates: MetaOutputTemplate[] = entries.map((item) => {
       const vname = item.variables.name;
@@ -232,7 +339,7 @@ export default class Build extends Command {
     debug("will create meta file at '%s' with: %O", outMeta, meta);
     fs.writeFileSync(outMeta, JSON.stringify(meta), "utf8");
 
-    this.log(dedent`
+    this.log(endent`
       🌠   ${chalk.bold("Flyyer project successfully built!")}
       📂   Output directory: ${out}
       ${templates.map((t) => `🖼    Created template: ${chalk.bold(t.slug)}`).join("\n")}

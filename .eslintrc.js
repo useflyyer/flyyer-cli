@@ -10,6 +10,7 @@ module.exports = {
     complexity: "off",
     "no-warning-comments": "off",
     "no-await-in-loop": "off",
+    "valid-jsdoc": "off", // TODO ?
     "unicorn/no-abusive-eslint-disable": "off",
     "@typescript-eslint/no-shadow": "off",
   },

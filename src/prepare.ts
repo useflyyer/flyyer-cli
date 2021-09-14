@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-import dedent from "dedent";
+import endent from "endent";
 
 import { ENCODED } from "./assets/logo";
 
@@ -45,7 +45,7 @@ export type MetaOutput = {
 /**
  * Include style for https://github.com/twitter/twemoji
  */
-const GLOBAL_STYLE = dedent`
+const GLOBAL_STYLE = endent`
   body, html {
     padding: 0;
     margin: 0;
@@ -59,7 +59,7 @@ const GLOBAL_STYLE = dedent`
   }
 `;
 const FAVICON = ENCODED;
-const DEFAULT_TAGS = dedent`
+const DEFAULT_TAGS = endent`
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="${FAVICON}" sizes="any" type="image/svg+xml">
@@ -68,13 +68,8 @@ const DEFAULT_TAGS = dedent`
   <link rel="preconnect" href="https://twemoji.maxcdn.com" crossorigin>
   <link rel="preconnect" href="https://cdn.flyyer.io" crossorigin>
 `;
-const ALLOWED_ORIGINS = [
-  "https://www.flyyer.io",
-  "https://flyyer.io",
-  "https://useflyyer.github.io",
-  "http://localhost:9000",
-];
-const PARSE_QS = dedent`
+const ALLOWED_ORIGINS = ["https://www.flyyer.io", "https://useflyyer.github.io", "http://localhost:9000"];
+const PARSE_QS = endent`
   // @ts-ignore
   function PARSE_QS(str) {
     const {
@@ -110,7 +105,7 @@ export async function prepareProject({
     const namePath = path.join(from, nameExt);
     const stats = fs.statSync(namePath);
     if (stats.isDirectory()) {
-      throw new Error(dedent`
+      throw new Error(endent`
         Directories inside '/templates' are not supported. Please move directory '${nameExt}' outside of '/templates' to a new sibling directory like '/components' or '/utils'.
       `);
     } else if (stats.isFile()) {
@@ -145,7 +140,7 @@ export async function prepareProject({
           const flyyerVariablesNameExt = flyyerVariablesName + ext;
           const flyyerVariablesPath = path.join(path.dirname(writePath), flyyerVariablesNameExt);
 
-          const flyyerJS = dedent`
+          const flyyerJS = endent`
             import React, { Component, Fragment, useRef, useEffect, useState } from "react"
             import qs from "qs";
             import twemoji from "twemoji";
@@ -253,7 +248,7 @@ export async function prepareProject({
           `;
           fs.writeFileSync(flyyerJSPath, flyyerJS, "utf8");
 
-          const flyyerJSEntry = dedent`
+          const flyyerJSEntry = endent`
             import ReactDOM from "react-dom";
             import { WrappedTemplate } from "./${flyyerJSName}"
             const element = document.getElementById("root");
@@ -261,11 +256,13 @@ export async function prepareProject({
 
             // See: https://parceljs.org/hmr.html
             // @ts-ignore
-            if (module.hot) module.hot.accept();
+            if (module.hot && ${JSON.stringify(NODE_ENV)} !== "production") {
+              module.hot.accept();
+            }
           `;
           fs.writeFileSync(flyyerJSEntryPath, flyyerJSEntry, "utf8");
 
-          const flyyerHTML = dedent`
+          const flyyerHTML = endent`
             <!DOCTYPE html>
 
             <html>
@@ -278,7 +275,6 @@ export async function prepareProject({
               </head>
               <body>
                 <div id="root"></div>
-
                 <script type="module" src="./${flyyerJSEntryNameExt}"></script>
               </body>
             </html>
@@ -286,13 +282,13 @@ export async function prepareProject({
           fs.writeFileSync(flyyerHTMLPath, flyyerHTML, "utf8");
 
           // TODO: Which one is more compatibly or reliable?
-          // const flyyerVariables = dedent`
+          // const flyyerVariables = endent`
           //   export async function getFlyyerSchema() {
           //     const { schema } = await import("./${flyyerEntry}");
           //     return { schema }
           //   };
           // `;
-          const flyyerVariables = dedent`
+          const flyyerVariables = endent`
             import { schema } from "./${flyyerEntry}";
             export async function getFlyyerSchema() {
               return { schema };
@@ -322,7 +318,7 @@ export async function prepareProject({
           const flyyerVariablesPath = path.join(path.dirname(writePath), flyyerVariablesNameExt);
 
           // TODO: Add error UI, class and data attribute.
-          const flyyerJS = dedent`
+          const flyyerJS = endent`
             import Vue from "vue";
             import qs from "qs";
             import twemoji from "twemoji";
@@ -385,7 +381,7 @@ export async function prepareProject({
           `;
           fs.writeFileSync(flyyerJSPath, flyyerJS, "utf8");
 
-          const flyyerHTML = dedent`
+          const flyyerHTML = endent`
             <!DOCTYPE html>
 
             <html>
@@ -406,7 +402,7 @@ export async function prepareProject({
           fs.writeFileSync(flyyerHTMLPath, flyyerHTML, "utf8");
 
           // Requires explicit .vue extension
-          const flyyerVariables = dedent`
+          const flyyerVariables = endent`
             export async function getFlyyerSchema() {
               // @ts-ignore
               const { schema } = await import("./${flyyerEntryExt}");
