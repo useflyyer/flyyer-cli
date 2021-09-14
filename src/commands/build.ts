@@ -207,7 +207,7 @@ export default class Build extends Command {
           },
           cacheDir: cache,
           shouldDisableCache: true, // TODO: not sure
-          shouldContentHash: false,
+          shouldContentHash: true,
           shouldAutoInstall: true,
         });
         const { bundleGraph, buildTime } = await bundler.run();
@@ -314,7 +314,7 @@ export default class Build extends Command {
       },
       cacheDir: cache,
       shouldDisableCache: true,
-      shouldContentHash: false,
+      shouldContentHash: true,
       shouldAutoInstall: true,
     };
     debug("glob pattern for Parcel is: %s", glob);

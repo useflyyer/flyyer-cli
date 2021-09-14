@@ -152,7 +152,7 @@ export default class Start extends Command {
       },
       cacheDir: cache,
       shouldDisableCache: false,
-      shouldContentHash: false,
+      shouldContentHash: true,
       shouldAutoInstall: true,
     };
     try {
