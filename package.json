@@ -87,7 +87,7 @@
     "twemoji": "^13.1.0"
   },
   "devDependencies": {
-    "@flyyer/eslint-config": "^2.0.1",
+    "@flyyer/eslint-config": "^2.1.1",
     "@oclif/dev-cli": "^1.26.0",
     "@types/archiver": "^5.1.1",
     "@types/debug": "^4.1.7",
