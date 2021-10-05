@@ -70,6 +70,8 @@ export default class Build extends Command {
     const to = path.join(root, ".flyyer-processed");
     const cache = path.join(root, ".flyyer-cache");
 
+    const isProduction = NODE_ENV === "production";
+
     debug("NODE_ENV is %s", String(NODE_ENV));
     debug("source directory is: %s", CURR_DIR);
     debug("root is: %s", root);
@@ -203,7 +205,7 @@ export default class Build extends Command {
             shouldOptimize: true, // important to optimize
             shouldScopeHoist: true, // prevent include of CSS file. Depends on package.json `"sideEffects": false`.
             publicUrl: "/",
-            sourceMaps: true,
+            sourceMaps: !isProduction, // avoid uploading heavy .map.js files
           },
           cacheDir: cache,
           shouldDisableCache: true, // TODO: not sure
@@ -310,7 +312,7 @@ export default class Build extends Command {
         shouldOptimize: true,
         shouldScopeHoist: false, // defaults to true. It prevents React mounting and CSS imports.
         publicUrl: "/",
-        sourceMaps: true,
+        sourceMaps: !isProduction, // avoid uploading heavy .map.js files
       },
       cacheDir: cache,
       shouldDisableCache: true,
