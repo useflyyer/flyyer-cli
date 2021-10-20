@@ -22,7 +22,7 @@ $ npm install -g @flyyer/cli
 $ flyyer COMMAND
 running command...
 $ flyyer (-v|--version|version)
-@flyyer/cli/2.0.1 darwin-x64 node-v16.4.2
+@flyyer/cli/2.0.2 darwin-x64 node-v16.4.2
 $ flyyer --help [COMMAND]
 USAGE
   $ flyyer COMMAND
@@ -59,7 +59,7 @@ EXAMPLES
   $ flyyer build --help
 ```
 
-_See code: [src/commands/build.ts](https://github.com/useflyyer/flyyer-cli/blob/v2.0.1/src/commands/build.ts)_
+_See code: [src/commands/build.ts](https://github.com/useflyyer/flyyer-cli/blob/v2.0.2/src/commands/build.ts)_
 
 ## `flyyer deploy [DIRECTORY]`
 
@@ -87,7 +87,7 @@ EXAMPLES
   $ flyyer deploy --help
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/useflyyer/flyyer-cli/blob/v2.0.1/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/useflyyer/flyyer-cli/blob/v2.0.2/src/commands/deploy.ts)_
 
 ## `flyyer help [COMMAND]`
 
@@ -104,7 +104,7 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.2/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.3/src/commands/help.ts)_
 
 ## `flyyer start`
 
@@ -131,5 +131,5 @@ EXAMPLES
   $ flyyer start --help
 ```
 
-_See code: [src/commands/start.ts](https://github.com/useflyyer/flyyer-cli/blob/v2.0.1/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/useflyyer/flyyer-cli/blob/v2.0.2/src/commands/start.ts)_
 <!-- commandsstop -->
