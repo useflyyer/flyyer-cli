@@ -7,7 +7,7 @@ import "cross-fetch/polyfill";
 import fs from "fs";
 import path from "path";
 
-import { FlyyerRender } from "@flyyer/flyyer";
+import { FlyyerRender, FlyyerRenderParams } from "@flyyer/flyyer";
 import { goerr } from "@flyyer/goerr";
 import type { FlyyerConfig } from "@flyyer/types";
 import { EXAMPLE_VARIABLES_FROM_SCHEMA } from "@flyyer/utils";
@@ -300,6 +300,11 @@ export default class Deploy extends Command {
           template: template.slug,
           meta: { v: null },
         });
+
+        const clone = (params: Partial<FlyyerRenderParams<any>>) => {
+          return new FlyyerRender({ ...f, ...params });
+        };
+
         const variables = template.schema6
           ? EXAMPLE_VARIABLES_FROM_SCHEMA(template.schema6, { defaults: true })
           : { title: "Hello World" };
@@ -311,15 +316,15 @@ export default class Deploy extends Command {
         this.log(`🖼    ${chalk.green(`Created template ${chalk.bold(template.slug)} with URL:`)}`);
         this.log(`       - ${chalk.bold(f.href())}`);
         this.log(`     ${"Versioned (omit to use latest):"}`);
-        this.log(`       - ${f.clone({ version: deck.version }).href()}`);
+        this.log(`       - ${clone({ version: deck.version }).href()}`);
         this.log(`     ${"Supported extensions (jpeg, png, webp):"}`);
-        this.log(`       - ${f.clone({ extension: "png" }).href()}`);
+        this.log(`       - ${clone({ extension: "png" }).href()}`);
         this.log(`     ${"Cache bust:"}`);
-        this.log(`       - ${f.clone({ meta: { v: undefined } }).href()}`);
+        this.log(`       - ${clone({ meta: { v: undefined } }).href()}`);
         this.log(`     ${"Set size (defaults to 1200x630):"}`);
-        this.log(`       - ${f.clone({ meta: { v: null, width: 1080, height: 1080 } }).href()}`);
+        this.log(`       - ${clone({ meta: { v: null, width: 1080, height: 1080 } }).href()}`);
         this.log(`     ${"Variables:"}`);
-        this.log(`       - ${f.clone({ variables }).href()}`);
+        this.log(`       - ${clone({ variables }).href()}`);
         // this.log(`     ${"Multiple variables:"}`);
         // this.log(`       - ${withEmoji}`);
         this.log("");
