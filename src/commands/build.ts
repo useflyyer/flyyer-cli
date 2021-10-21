@@ -1,7 +1,7 @@
 /* eslint-disable dot-notation */
 
-import fs from "node:fs";
-import path from "node:path";
+import fs from "fs";
+import path from "path";
 
 import { goerr } from "@flyyer/goerr";
 import { importParcel } from "@flyyer/parcel-commonjs";

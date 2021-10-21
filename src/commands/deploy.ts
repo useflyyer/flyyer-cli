@@ -4,8 +4,8 @@
 
 import "cross-fetch/polyfill";
 
-import fs from "node:fs";
-import path from "node:path";
+import fs from "fs";
+import path from "path";
 
 import { FlyyerRender, FlyyerRenderParams } from "@flyyer/flyyer";
 import { goerr } from "@flyyer/goerr";
