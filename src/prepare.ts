@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
 import endent from "endent";
 
@@ -303,22 +303,21 @@ export async function prepareProject({
             variables: { name: flyyerVariablesName, path: flyyerVariablesPath },
           });
         }
-      } else if (["vue", "vue-typescript"].includes(engine)) {
-        if ([".vue"].includes(ext)) {
-          const flyyerHTMLName = path.basename(writePath, ext);
-          const flyyerHTMLNameExt = flyyerHTMLName + ".html";
-          const flyyerHTMLPath = path.join(path.dirname(writePath), flyyerHTMLNameExt);
+      } else if (["vue", "vue-typescript"].includes(engine) && [".vue"].includes(ext)) {
+        const flyyerHTMLName = path.basename(writePath, ext);
+        const flyyerHTMLNameExt = flyyerHTMLName + ".html";
+        const flyyerHTMLPath = path.join(path.dirname(writePath), flyyerHTMLNameExt);
 
-          const flyyerJSName = "flyyer-" + path.basename(writePath, ext);
-          const flyyerJSNameExt = flyyerJSName + ".js";
-          const flyyerJSPath = path.join(path.dirname(writePath), flyyerJSNameExt);
+        const flyyerJSName = "flyyer-" + path.basename(writePath, ext);
+        const flyyerJSNameExt = flyyerJSName + ".js";
+        const flyyerJSPath = path.join(path.dirname(writePath), flyyerJSNameExt);
 
-          const flyyerVariablesName = "flyyer-" + path.basename(writePath, ext) + ".variables";
-          const flyyerVariablesNameExt = flyyerVariablesName + ".js";
-          const flyyerVariablesPath = path.join(path.dirname(writePath), flyyerVariablesNameExt);
+        const flyyerVariablesName = "flyyer-" + path.basename(writePath, ext) + ".variables";
+        const flyyerVariablesNameExt = flyyerVariablesName + ".js";
+        const flyyerVariablesPath = path.join(path.dirname(writePath), flyyerVariablesNameExt);
 
-          // TODO: Add error UI, class and data attribute.
-          const flyyerJS = endent`
+        // TODO: Add error UI, class and data attribute.
+        const flyyerJS = endent`
             import Vue from "vue";
             import qs from "qs";
             import twemoji from "twemoji";
@@ -379,9 +378,9 @@ export async function prepareProject({
             // @ts-ignore
             if (module.hot) module.hot.accept();
           `;
-          fs.writeFileSync(flyyerJSPath, flyyerJS, "utf8");
+        fs.writeFileSync(flyyerJSPath, flyyerJS, "utf8");
 
-          const flyyerHTML = endent`
+        const flyyerHTML = endent`
             <!DOCTYPE html>
 
             <html>
@@ -399,10 +398,10 @@ export async function prepareProject({
               </body>
             </html>
           `;
-          fs.writeFileSync(flyyerHTMLPath, flyyerHTML, "utf8");
+        fs.writeFileSync(flyyerHTMLPath, flyyerHTML, "utf8");
 
-          // Requires explicit .vue extension
-          const flyyerVariables = endent`
+        // Requires explicit .vue extension
+        const flyyerVariables = endent`
             export async function getFlyyerSchema() {
               // @ts-ignore
               const { schema } = await import("./${flyyerEntryExt}");
@@ -410,17 +409,17 @@ export async function prepareProject({
               return { schema }
             };
           `;
-          fs.writeFileSync(flyyerVariablesPath, flyyerVariables, "utf8");
+        fs.writeFileSync(flyyerVariablesPath, flyyerVariables, "utf8");
 
-          entries.push({
-            entry: { name: nameNoExt, path: namePath },
-            html: { name: flyyerHTMLName, path: flyyerHTMLPath },
-            js: { name: flyyerJSName, path: flyyerJSPath },
-            variables: { name: flyyerVariablesName, path: flyyerVariablesPath },
-          });
-        }
+        entries.push({
+          entry: { name: nameNoExt, path: namePath },
+          html: { name: flyyerHTMLName, path: flyyerHTMLPath },
+          js: { name: flyyerJSName, path: flyyerJSPath },
+          variables: { name: flyyerVariablesName, path: flyyerVariablesPath },
+        });
       }
     }
   }
+
   return entries;
 }

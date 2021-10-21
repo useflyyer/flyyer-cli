@@ -13,14 +13,18 @@ export function studio(
   if (flags.host !== "localhost") {
     query.host = flags.host;
   }
+
   if (String(flags.port) !== "7777") {
     query.port = flags.port;
   }
+
   if (flags.https) {
     query.protocol = "https:";
   }
+
   if (template) {
     query.template = template;
   }
+
   return STUDIO_URL + qs.stringify(query, { addQueryPrefix: true });
 }

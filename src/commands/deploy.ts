@@ -4,10 +4,10 @@
 
 import "cross-fetch/polyfill";
 
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
-import { FlyyerRender } from "@flyyer/flyyer";
+import { FlyyerRender, FlyyerRenderParams } from "@flyyer/flyyer";
 import { goerr } from "@flyyer/goerr";
 import type { FlyyerConfig } from "@flyyer/types";
 import { EXAMPLE_VARIABLES_FROM_SCHEMA } from "@flyyer/utils";
@@ -232,6 +232,7 @@ export default class Deploy extends Command {
       for (const field of uploadFields) {
         formData.append(field.key, field.value);
       }
+
       debug("will append 'file' to FormData which is the zipped file");
       formData.append("file", fs.createReadStream(zipPath)); // must be the last one
 
@@ -276,6 +277,7 @@ export default class Deploy extends Command {
       } else if (!resConfirm) {
         this.error("Missing or invalid response from Flyyer API");
       }
+
       debug("confirmation response: %O", resConfirm["createDeckConfirm"]);
 
       const ext = "jpeg";
@@ -300,6 +302,7 @@ export default class Deploy extends Command {
           template: template.slug,
           meta: { v: null },
         });
+
         const variables = template.schema6
           ? EXAMPLE_VARIABLES_FROM_SCHEMA(template.schema6, { defaults: true })
           : { title: "Hello World" };
@@ -311,15 +314,15 @@ export default class Deploy extends Command {
         this.log(`🖼    ${chalk.green(`Created template ${chalk.bold(template.slug)} with URL:`)}`);
         this.log(`       - ${chalk.bold(f.href())}`);
         this.log(`     ${"Versioned (omit to use latest):"}`);
-        this.log(`       - ${f.clone({ version: deck.version }).href()}`);
+        this.log(`       - ${clone(f, { version: deck.version }).href()}`);
         this.log(`     ${"Supported extensions (jpeg, png, webp):"}`);
-        this.log(`       - ${f.clone({ extension: "png" }).href()}`);
+        this.log(`       - ${clone(f, { extension: "png" }).href()}`);
         this.log(`     ${"Cache bust:"}`);
-        this.log(`       - ${f.clone({ meta: { v: undefined } }).href()}`);
+        this.log(`       - ${clone(f, { meta: { v: undefined } }).href()}`);
         this.log(`     ${"Set size (defaults to 1200x630):"}`);
-        this.log(`       - ${f.clone({ meta: { v: null, width: 1080, height: 1080 } }).href()}`);
+        this.log(`       - ${clone(f, { meta: { v: null, width: 1080, height: 1080 } }).href()}`);
         this.log(`     ${"Variables:"}`);
-        this.log(`       - ${f.clone({ variables }).href()}`);
+        this.log(`       - ${clone(f, { variables }).href()}`);
         // this.log(`     ${"Multiple variables:"}`);
         // this.log(`       - ${withEmoji}`);
         this.log("");
@@ -338,3 +341,7 @@ export default class Deploy extends Command {
     this.exit();
   }
 }
+
+const clone = (f: FlyyerRender, params: Partial<FlyyerRenderParams<any>>) => {
+  return new FlyyerRender({ ...f, ...params });
+};

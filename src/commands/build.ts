@@ -1,6 +1,7 @@
 /* eslint-disable dot-notation */
-import fs from "fs";
-import path from "path";
+
+import fs from "node:fs";
+import path from "node:path";
 
 import { goerr } from "@flyyer/goerr";
 import { importParcel } from "@flyyer/parcel-commonjs";
@@ -99,6 +100,7 @@ export default class Build extends Command {
       await del([to]);
       debug("removed dir: %s", to);
     }
+
     if (fs.existsSync(out)) {
       this.log(`🗑   Cleaning destiny directory...`);
       await del([out]);
@@ -223,6 +225,7 @@ export default class Build extends Command {
         if (!schema) {
           throw new Error("Tried to import 'schema' but it is 'null' or missing");
         }
+
         debug("for file '%s' got found schema: %O", vname, Boolean(schema));
 
         // TODO: Add more validations to schema format
@@ -239,6 +242,7 @@ export default class Build extends Command {
           if (uri.startsWith("file://")) {
             return uri.replace(`file://${out}`, "");
           }
+
           return uri;
         };
 
@@ -256,6 +260,7 @@ export default class Build extends Command {
               },
             ];
           }
+
           return [key, value];
         });
         schema["properties"] = Object.fromEntries(entries);

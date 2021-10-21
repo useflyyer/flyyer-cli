@@ -9,6 +9,7 @@ export function namespaced(...namespaces: string[]): Debugger {
   if (namespaces.length > 0) {
     return base.extend(namespaces.join(":"));
   }
+
   return base;
 }
 

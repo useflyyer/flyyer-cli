@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
 import { goerr } from "@flyyer/goerr";
 import { importParcel } from "@flyyer/parcel-commonjs";
@@ -82,6 +82,7 @@ export default class Start extends Command {
       await del([to]);
       debug("removed dir: %s", to);
     }
+
     if (fs.existsSync(out)) {
       this.log(`🗑   Cleaning destiny directory...`);
       await del([out]);
