@@ -22,7 +22,7 @@ $ npm install -g @flyyer/cli
 $ flyyer COMMAND
 running command...
 $ flyyer (-v|--version|version)
-@flyyer/cli/3.0.0-beta.4 darwin-x64 node-v16.4.2
+@flyyer/cli/3.0.0-beta.5 darwin-x64 node-v16.4.2
 $ flyyer --help [COMMAND]
 USAGE
   $ flyyer COMMAND
@@ -70,7 +70,7 @@ EXAMPLES
   $ flyyer build --help
 ```
 
-_See code: [src/commands/build.ts](https://github.com/useflyyer/flyyer-cli/blob/v3.0.0-beta.4/src/commands/build.ts)_
+_See code: [src/commands/build.ts](https://github.com/useflyyer/flyyer-cli/blob/v3.0.0-beta.5/src/commands/build.ts)_
 
 ## `flyyer deploy [DIRECTORY]`
 
@@ -98,7 +98,7 @@ EXAMPLES
   $ flyyer deploy --help
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/useflyyer/flyyer-cli/blob/v3.0.0-beta.4/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/useflyyer/flyyer-cli/blob/v3.0.0-beta.5/src/commands/deploy.ts)_
 
 ## `flyyer help [COMMAND]`
 
@@ -142,5 +142,5 @@ EXAMPLES
   $ flyyer start --help
 ```
 
-_See code: [src/commands/start.ts](https://github.com/useflyyer/flyyer-cli/blob/v3.0.0-beta.4/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/useflyyer/flyyer-cli/blob/v3.0.0-beta.5/src/commands/start.ts)_
 <!-- commandsstop -->
