@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-import dedent from "dedent";
+import endent from "endent";
 
 import { ENCODED } from "./assets/logo";
 
@@ -16,6 +16,8 @@ export type PrepareProjectArguments = {
   style: {
     [key: string]: any;
   };
+  /** Just update the template file */
+  reload?: boolean;
 };
 
 export type TemplateRegistryItem = {
@@ -43,7 +45,7 @@ export type MetaOutput = {
 /**
  * Include style for https://github.com/twitter/twemoji
  */
-const GLOBAL_STYLE = dedent`
+const GLOBAL_STYLE = endent`
   body, html {
     padding: 0;
     margin: 0;
@@ -57,7 +59,7 @@ const GLOBAL_STYLE = dedent`
   }
 `;
 const FAVICON = ENCODED;
-const DEFAULT_TAGS = dedent`
+const DEFAULT_TAGS = endent`
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="${FAVICON}" sizes="any" type="image/svg+xml">
@@ -66,13 +68,8 @@ const DEFAULT_TAGS = dedent`
   <link rel="preconnect" href="https://twemoji.maxcdn.com" crossorigin>
   <link rel="preconnect" href="https://cdn.flyyer.io" crossorigin>
 `;
-const ALLOWED_ORIGINS = [
-  "https://www.flyyer.io",
-  "https://flyyer.io",
-  "https://useflyyer.github.io",
-  "http://localhost:9000",
-];
-const PARSE_QS = dedent`
+const ALLOWED_ORIGINS = ["https://www.flyyer.io", "https://useflyyer.github.io", "http://localhost:9000"];
+const PARSE_QS = endent`
   // @ts-ignore
   function PARSE_QS(str) {
     const {
@@ -97,6 +94,7 @@ export async function prepareProject({
   from,
   to,
   style,
+  reload,
 }: PrepareProjectArguments): Promise<TemplateRegistry[]> {
   const names = fs.readdirSync(from);
 
@@ -107,7 +105,7 @@ export async function prepareProject({
     const namePath = path.join(from, nameExt);
     const stats = fs.statSync(namePath);
     if (stats.isDirectory()) {
-      throw new Error(dedent`
+      throw new Error(endent`
         Directories inside '/templates' are not supported. Please move directory '${nameExt}' outside of '/templates' to a new sibling directory like '/components' or '/utils'.
       `);
     } else if (stats.isFile()) {
@@ -115,6 +113,8 @@ export async function prepareProject({
       const contents = fs.readFileSync(namePath, "utf8");
       const writePath = path.join(to, nameExt);
       fs.writeFileSync(writePath, contents, "utf8");
+
+      if (reload) return [];
 
       /** Has dot (eg: `.js`) */
       const ext = path.extname(nameExt);
@@ -132,13 +132,16 @@ export async function prepareProject({
           const flyyerJSNameExt = flyyerJSName + ext;
           const flyyerJSPath = path.join(path.dirname(writePath), flyyerJSNameExt);
 
+          const flyyerJSEntryName = "flyyer-" + path.basename(writePath, ext) + ".entry";
+          const flyyerJSEntryNameExt = flyyerJSEntryName + ext;
+          const flyyerJSEntryPath = path.join(path.dirname(writePath), flyyerJSEntryNameExt);
+
           const flyyerVariablesName = "flyyer-" + path.basename(writePath, ext) + ".variables";
           const flyyerVariablesNameExt = flyyerVariablesName + ext;
           const flyyerVariablesPath = path.join(path.dirname(writePath), flyyerVariablesNameExt);
 
-          const flyyerJS = dedent`
+          const flyyerJS = endent`
             import React, { Component, Fragment, useRef, useEffect, useState } from "react"
-            import ReactDOM from "react-dom";
             import qs from "qs";
             import twemoji from "twemoji";
 
@@ -148,7 +151,7 @@ export async function prepareProject({
 
             ${PARSE_QS}
 
-            function WrappedTemplate() {
+            export function WrappedTemplate() {
               const [props, setProps] = useState(() => {
                 // Set initial props.
                 return PARSE_QS(window.location.search.replace("?", "") || window.location.hash.replace("#", ""));
@@ -242,17 +245,24 @@ export async function prepareProject({
                 return <Fragment {...props} />;
               }
             }
+          `;
+          fs.writeFileSync(flyyerJSPath, flyyerJS, "utf8");
 
+          const flyyerJSEntry = endent`
+            import ReactDOM from "react-dom";
+            import { WrappedTemplate } from "./${flyyerJSName}"
             const element = document.getElementById("root");
             ReactDOM.render(<WrappedTemplate />, element);
 
             // See: https://parceljs.org/hmr.html
             // @ts-ignore
-            if (module.hot) module.hot.accept();
+            if (module.hot && ${JSON.stringify(NODE_ENV)} !== "production") {
+              module.hot.accept();
+            }
           `;
-          fs.writeFileSync(flyyerJSPath, flyyerJS, "utf8");
+          fs.writeFileSync(flyyerJSEntryPath, flyyerJSEntry, "utf8");
 
-          const flyyerHTML = dedent`
+          const flyyerHTML = endent`
             <!DOCTYPE html>
 
             <html>
@@ -265,19 +275,23 @@ export async function prepareProject({
               </head>
               <body>
                 <div id="root"></div>
-
-                <script src="./${flyyerJSNameExt}"></script>
+                <script type="module" src="./${flyyerJSEntryNameExt}"></script>
               </body>
             </html>
           `;
           fs.writeFileSync(flyyerHTMLPath, flyyerHTML, "utf8");
 
-          const flyyerVariables = dedent`
+          // TODO: Which one is more compatibly or reliable?
+          // const flyyerVariables = endent`
+          //   export async function getFlyyerSchema() {
+          //     const { schema } = await import("./${flyyerEntry}");
+          //     return { schema }
+          //   };
+          // `;
+          const flyyerVariables = endent`
+            import { schema } from "./${flyyerEntry}";
             export async function getFlyyerSchema() {
-              // @ts-ignore
-              const { schema } = await import("./${flyyerEntry}");
-              // @ts-ignore
-              return { schema }
+              return { schema };
             };
           `;
           fs.writeFileSync(flyyerVariablesPath, flyyerVariables, "utf8");
@@ -289,22 +303,21 @@ export async function prepareProject({
             variables: { name: flyyerVariablesName, path: flyyerVariablesPath },
           });
         }
-      } else if (["vue", "vue-typescript"].includes(engine)) {
-        if ([".vue"].includes(ext)) {
-          const flyyerHTMLName = path.basename(writePath, ext);
-          const flyyerHTMLNameExt = flyyerHTMLName + ".html";
-          const flyyerHTMLPath = path.join(path.dirname(writePath), flyyerHTMLNameExt);
+      } else if (["vue", "vue-typescript"].includes(engine) && [".vue"].includes(ext)) {
+        const flyyerHTMLName = path.basename(writePath, ext);
+        const flyyerHTMLNameExt = flyyerHTMLName + ".html";
+        const flyyerHTMLPath = path.join(path.dirname(writePath), flyyerHTMLNameExt);
 
-          const flyyerJSName = "flyyer-" + path.basename(writePath, ext);
-          const flyyerJSNameExt = flyyerJSName + ".js";
-          const flyyerJSPath = path.join(path.dirname(writePath), flyyerJSNameExt);
+        const flyyerJSName = "flyyer-" + path.basename(writePath, ext);
+        const flyyerJSNameExt = flyyerJSName + ".js";
+        const flyyerJSPath = path.join(path.dirname(writePath), flyyerJSNameExt);
 
-          const flyyerVariablesName = "flyyer-" + path.basename(writePath, ext) + ".variables";
-          const flyyerVariablesNameExt = flyyerVariablesName + ".js";
-          const flyyerVariablesPath = path.join(path.dirname(writePath), flyyerVariablesNameExt);
+        const flyyerVariablesName = "flyyer-" + path.basename(writePath, ext) + ".variables";
+        const flyyerVariablesNameExt = flyyerVariablesName + ".js";
+        const flyyerVariablesPath = path.join(path.dirname(writePath), flyyerVariablesNameExt);
 
-          // TODO: Add error UI, class and data attribute.
-          const flyyerJS = dedent`
+        // TODO: Add error UI, class and data attribute.
+        const flyyerJS = endent`
             import Vue from "vue";
             import qs from "qs";
             import twemoji from "twemoji";
@@ -365,9 +378,9 @@ export async function prepareProject({
             // @ts-ignore
             if (module.hot) module.hot.accept();
           `;
-          fs.writeFileSync(flyyerJSPath, flyyerJS, "utf8");
+        fs.writeFileSync(flyyerJSPath, flyyerJS, "utf8");
 
-          const flyyerHTML = dedent`
+        const flyyerHTML = endent`
             <!DOCTYPE html>
 
             <html>
@@ -381,14 +394,14 @@ export async function prepareProject({
               <body>
                 <div id="root"></div>
 
-                <script src="./${flyyerJSNameExt}"></script>
+                <script type="module" src="./${flyyerJSNameExt}"></script>
               </body>
             </html>
           `;
-          fs.writeFileSync(flyyerHTMLPath, flyyerHTML, "utf8");
+        fs.writeFileSync(flyyerHTMLPath, flyyerHTML, "utf8");
 
-          // Requires explicit .vue extension
-          const flyyerVariables = dedent`
+        // Requires explicit .vue extension
+        const flyyerVariables = endent`
             export async function getFlyyerSchema() {
               // @ts-ignore
               const { schema } = await import("./${flyyerEntryExt}");
@@ -396,17 +409,17 @@ export async function prepareProject({
               return { schema }
             };
           `;
-          fs.writeFileSync(flyyerVariablesPath, flyyerVariables, "utf8");
+        fs.writeFileSync(flyyerVariablesPath, flyyerVariables, "utf8");
 
-          entries.push({
-            entry: { name: nameNoExt, path: namePath },
-            html: { name: flyyerHTMLName, path: flyyerHTMLPath },
-            js: { name: flyyerJSName, path: flyyerJSPath },
-            variables: { name: flyyerVariablesName, path: flyyerVariablesPath },
-          });
-        }
+        entries.push({
+          entry: { name: nameNoExt, path: namePath },
+          html: { name: flyyerHTMLName, path: flyyerHTMLPath },
+          js: { name: flyyerJSName, path: flyyerJSPath },
+          variables: { name: flyyerVariablesName, path: flyyerVariablesPath },
+        });
       }
     }
   }
+
   return entries;
 }

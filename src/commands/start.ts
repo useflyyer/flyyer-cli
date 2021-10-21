@@ -2,14 +2,15 @@ import fs from "fs";
 import path from "path";
 
 import { goerr } from "@flyyer/goerr";
+import { importParcel } from "@flyyer/parcel-commonjs";
 import type { FlyyerConfig } from "@flyyer/types";
 import { Command, flags } from "@oclif/command";
+import type { InitialParcelOptions } from "@parcel/types";
 import chalk from "chalk";
 import chokidar, { WatchOptions } from "chokidar";
-import dedent from "dedent";
 import del from "del";
+import endent from "endent";
 import open from "open";
-import Bundler, { ParcelOptions } from "parcel-bundler";
 
 import { prepareProject, TemplateRegistry } from "../prepare";
 import { namespaced } from "../utils/debug";
@@ -18,7 +19,7 @@ import { studio } from "../utils/studio";
 const debug = namespaced("start");
 
 export default class Start extends Command {
-  static description = dedent`
+  static description = endent`
     This command starts a development server using Parcel.js by default at http://localhost:7777
     See online documentation here: https://docs.flyyer.io/docs/cli/flyyer-cli#flyyer-start
   `;
@@ -44,6 +45,12 @@ export default class Start extends Command {
   async run(): Promise<void> {
     debug("cli version is: %s", this.config.version);
     const { flags } = this.parse(Start);
+
+    debug("[experimental] will import parcel 2 which is .mjs into a commonjs environment via 'await import()'.");
+    const { Parcel, MemoryFS, NodeFS, createWorkerFarm } = await importParcel();
+    if (!Parcel) {
+      this.error("Failed to import Parcel 2 module. Make sure your Node.js version is updated.");
+    }
 
     const NODE_ENV = process.env.NODE_ENV;
     const CURR_DIR = process.cwd();
@@ -75,6 +82,7 @@ export default class Start extends Command {
       await del([to]);
       debug("removed dir: %s", to);
     }
+
     if (fs.existsSync(out)) {
       this.log(`🗑   Cleaning destiny directory...`);
       await del([out]);
@@ -100,47 +108,87 @@ export default class Start extends Command {
     chokidar.watch(from, chokidarOptions).on("all", async (event, path) => {
       debug("got chokidar event '%o' and will re-process project", { event, path });
       this.log("reloading...");
-      await prepareProject({ NODE_ENV, engine: config.engine!, from, to, style });
+      await prepareProject({ NODE_ENV, engine: config.engine!, from, to, style, reload: true });
     });
 
-    this.log(`🏗   Will build with Parcel 📦 bundler`);
-    const glob = path.join(to, "*.html");
-    const bundlerOptions: ParcelOptions = {
-      outDir: out,
-      publicUrl: "/",
-      watch: true,
-      cache: true,
-      cacheDir: cache,
-      contentHash: false, // false to use content hashes
-      https: flags.https,
-      minify: false,
-      target: "browser",
-      // logLevel: 0 as any,
-      hmr: true,
-      sourceMaps: true,
-      detailedReport: false,
-      // autoInstall: true,
-    };
-    debug("glob pattern for Parcel is: %s", glob);
-    debug("options for Parcel are: %O", bundlerOptions);
-    const bundler = new Bundler(glob, bundlerOptions);
+    const USE_MEMORY: boolean = true as any;
+    const workerFarm = USE_MEMORY ? createWorkerFarm() : null;
+    const outputFS = workerFarm ? new MemoryFS(workerFarm) : new NodeFS();
 
     const url = `${flags.https ? "https" : "http"}://${flags.host}:${flags.port}`;
-    debug("will start Parcel server as: %s", url);
-    const server = await bundler.serve(flags.port, flags.https, flags.host);
-    if (!server.listening) {
-      this.error(`Could not start server at ${url}`);
+
+    this.log(`🏗   Will build with Parcel 2 📦 bundler`);
+    const glob = path.join(to, "*.html");
+    debug("will watch: %s", glob);
+    const bundlerOptions: InitialParcelOptions = {
+      entries: glob,
+      defaultConfig: "@parcel/config-default",
+      mode: NODE_ENV,
+
+      workerFarm: (USE_MEMORY ? workerFarm : null) || undefined,
+      env: {
+        NODE_ENV: NODE_ENV,
+      },
+      serveOptions: {
+        port: flags.port, // flags.https, flags.host
+        host: flags.host,
+        https: flags.https,
+      },
+      hmrOptions: {
+        port: flags.port, // flags.https, flags.host
+        host: flags.host,
+      },
+      outputFS,
+      defaultTargetOptions: {
+        isLibrary: false,
+        engines: {
+          browsers: ["last 1 Chrome version"],
+        },
+        outputFormat: "global", // TODO: not sure. // https://v2.parceljs.org/features/targets/#outputformat
+        distDir: out,
+        shouldOptimize: false,
+        // shouldScopeHoist: false, // when true dev mode breaks
+        publicUrl: "/",
+        sourceMaps: true,
+      },
+      cacheDir: cache,
+      shouldDisableCache: false,
+      shouldContentHash: true,
+      shouldAutoInstall: true,
+    };
+    try {
+      debug("glob pattern for Parcel is: %s", glob);
+      debug("options for Parcel are: %O", bundlerOptions);
+      const bundler = new Parcel(bundlerOptions);
+      debug("will start Parcel server as: %s", url);
+
+      const subscription = await bundler.watch((err, parcelEvent) => {
+        if (err) {
+          debug("bundle watch error: %O", err);
+        } else {
+          debug("bundler watch event: %s", parcelEvent?.type);
+        }
+      });
+      if (!subscription) {
+        this.error(`Could not start server at ${url}`);
+      }
+    } catch (error: any) {
+      debug("bundle watch start error: %O", error);
     }
+    // To stop:
+    // await subscription.unsubscribe();
+    // await goerr(() => workerFarm.end());
+
     this.log("");
     this.log(`🌠  Flyyer dev server running at ${url}`);
 
     this.log("");
-    this.log(dedent`
+    this.log(endent`
       💡  Pass variables as query-params in the URL.
           Example: ${url}/hello.html?title=Hello+world
     `);
     this.log("");
-    this.log(dedent`
+    this.log(endent`
       💡  This dev server sometimes fails or sometimes the UI does not update accordingly.
           Please restart the server if something goes wrong.
     `);
